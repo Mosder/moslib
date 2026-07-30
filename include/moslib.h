@@ -4,4 +4,4 @@
 
 #include "moslib/ds/array.h"
 #include "moslib/mem/alloc.h"
-#include "moslib/tests.h"
+#include "moslib/tester.h"

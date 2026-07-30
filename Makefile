@@ -17,7 +17,7 @@ headers:
 	sudo cp -r include/* /usr/local/include
 
 compile: memory structures
-	$(CC) $(CFLAGS) -c src/tests.c
+	$(CC) $(CFLAGS) -c src/tester.c
 
 memory:
 	$(CC) $(CFLAGS) -c src/mem/alloc.c
