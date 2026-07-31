@@ -25,7 +25,6 @@
 // Create tests.
 // Tests are of type TestFn (Test (*)()).
 // They should use test_assert functions to check correctness.
-//
 // Example:
 //      Test test_fn() {
 //          int result1 = 1 + 2;
@@ -33,6 +32,18 @@
 //
 //          test_assert(result1 == 3, "1 + 2 should equal 3");
 //          test_assert(result2 == 8, "3 + 5 should equal 8");
+//      }
+//
+// You can also test if a function is supposed to call exit.
+// You need to create a helper test and pass it into test_assert_exit in main test.
+// Pass the helper test and expected exit code to it.
+// Example:
+//      Test helper_test() {
+//          int param1, param2;
+//          int result = exit_failure_function(&param1, &param2);
+//      }
+//      Test main_test() {
+//          test_assert_exit(helper_test, EXIT_FAILURE);
 //      }
 //
 // ----------------------------------------------------------------------------------------------------
@@ -63,5 +74,76 @@ typedef void Test; // this is just for nice indication that a function is a test
 typedef struct Tester Tester;
 typedef struct TestGroup TestGroup;
 typedef Test (*TestFn)();
+
+// Initalize new tester
+// You can skip this and just define it as NULL - it will initalize automatically
+//
+// Returns:
+//   pointer to the new tester
+extern Tester *new_tester();
+
+// Add new test group to the tester
+//
+// Arguments:
+//   tester
+//     tester to add the group to
+//
+//   group_name
+//     name of the group to add
+//
+// Returns:
+//   pointer to the added group
+#define add_test_group(tester, group_name) ((!(tester) ? (tester) = new_tester() : 0), add_test_group_fn((tester), (group_name)))
+
+// Assert that an expression is true
+// Use in test functions to test correctness
+//
+// Arguments:
+//   expression
+//     expression to check - if it's true, test passes
+//                           if it's false, test fails
+//
+//   fail_message
+//     message to display when test fails
+extern void test_assert(int expression, const char *fail_message);
+
+// Assert that function exits with given exit code
+//
+// Arguments:
+//   function
+//     function that is supposed to exit
+//
+//   code
+//     expected exit code
+#define test_assert_exit(function, code) test_assert_exit_fn((function), (code), #function);
+
+// Add test to a test group
+//
+// Arguments:
+//   group
+//     test group to add the test to
+//
+//   test
+//     test to add to the group
+#define add_test(group, test) add_test_fn((group), (test), #test);
+
+// Run defined tests
+//
+// Arguments:
+//   tester
+//     tester with tests to run
+extern void run_tests(Tester *tester);
+
+// Free the tester
+//
+// Arguments:
+//   tester
+//     tester to free
+extern void free_tester(Tester *tester);
+
+// Function prototypes for macros
+extern TestGroup *add_test_group_fn(Tester *tester, const char *group_name);
+extern void test_assert_exit_fn(TestFn function, int code, const char *name);
+extern void add_test_fn(TestGroup *group, TestFn test, const char *name);
 
 #endif // MOSLIB_TESTER_H

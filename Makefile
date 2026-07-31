@@ -26,9 +26,10 @@ structures:
 	$(CC) $(CFLAGS) -c src/ds/array.c
 
 test:
-	$(CC) $(CFLAGS_TEST) tests/main.c -o run_tests
-	./run_tests
-	rm run_tests
+	$(CC) $(CFLAGS_TEST) -c tests/mem/alloc_tests.c
+	$(CC) $(CFLAGS_TEST) *.o tests/tests.c -o run_tests
+	./run_tests 2>/dev/null
+	rm run_tests *.o
 
 .PHONY: clean
 clean:
