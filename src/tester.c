@@ -72,14 +72,12 @@ TestGroup *add_test_group_fn(Tester *tester, const char *group_name) {
     }
 
     TestGroup *group = tester->groups + tester->n_groups++;
-    // clang-format off
     *group = (TestGroup){
         .name = group_name,
         .tests = safe_malloc(INIT_TEST_CAP * sizeof(TestName)),
         .n_tests = 0,
-        .test_cap = INIT_TEST_CAP
+        .test_cap = INIT_TEST_CAP,
     };
-    // clang-format on
     return group;
 }
 
