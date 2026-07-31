@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-std=c99 -Wall -Wextra -I./include -O2 -s
-CFLAGS_TEST=-std=c99 -Wall -Wextra -Og -g -fsanitize=address
+CFLAGS_TEST=-std=c99 -Wall -Wextra -lmoslib -Og -g
 AR=ar rcs
 
 both: shared static clean
