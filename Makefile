@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-std=c99 -Wall -Wextra -I./include -O2 -s
+CFLAGS=-std=c99 -Wall -Wextra -fPIC -I./include -O2 -s
 CFLAGS_TEST=-std=c99 -Wall -Wextra -lmoslib -Og -g
 AR=ar rcs
 
