@@ -73,14 +73,14 @@
 typedef void Test; // this is just for nice indication that a function is a test
 typedef struct Tester Tester;
 typedef struct TestGroup TestGroup;
-typedef Test (*TestFn)();
+typedef Test (*TestFn)(void);
 
 // Initalize new tester
 // You can skip this and just define it as NULL - it will initalize automatically
 //
 // Returns:
 //   pointer to the new tester
-extern Tester *new_tester();
+extern Tester *new_tester(void);
 
 // Add new test group to the tester
 //

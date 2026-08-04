@@ -27,6 +27,7 @@ structures:
 
 test:
 	$(CC) $(CFLAGS_TEST) -c tests/mem/alloc_tests.c
+	$(CC) $(CFLAGS_TEST) -c tests/ds/array_tests.c
 	$(CC) $(CFLAGS_TEST) *.o tests/tests.c -o run_tests
 	./run_tests 2>/dev/null
 	rm run_tests *.o

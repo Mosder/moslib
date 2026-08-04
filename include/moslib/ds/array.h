@@ -30,24 +30,24 @@
 //
 // To append/push to the array use:
 //
-//      size_t index = arr_append(&array, item);
+//      size_t index = arr_append(array, item);
 //
 // or:
 //
-//      size_t index = arr_push(&array, item);
+//      size_t index = arr_push(array, item);
 //
 // It returns the index of the newly appended/pushed item.
 //
 // To insert into specific index of the array and push items after it to the right use:
 //
-//      size_t index = arr_insert(&array, i, item);
+//      size_t index = arr_insert(array, i, item);
 //
 // It returns the index of the newly inserted item
 // If index is greater or equal to array length then it functions identically to arr_append/arr_push.
 //
 // To put into specific index (and update if value exists) use:
 //
-//      size_t zerod = arr_put(&array, i, item);
+//      size_t zerod = arr_put(array, i, item);
 //
 // If index is greater or equal to array length it will extend the length to the put item and it will
 // zero all items between previously last item to the new item.
@@ -55,10 +55,10 @@
 //
 // If you want to add more items than 1 at once, you can use these:
 //
-//      size_t index = arr_append_n(&array, items, n_items);
-//      size_t index = arr_push_n(&array, items, n_items);
-//      size_t index = arr_insert_n(&array, i, items, n_items);
-//      size_t zerod = arr_put_n(&array, i, items, n_items);
+//      size_t index = arr_append_n(array, items, n_items);
+//      size_t index = arr_push_n(array, items, n_items);
+//      size_t index = arr_insert_n(array, i, items, n_items);
+//      size_t zerod = arr_put_n(array, i, items, n_items);
 //
 // They work the same way as their counterparts without n, but accept an array of items instead.
 //
@@ -66,7 +66,7 @@
 //
 // To concatenate two dynamic arrays of the same type use:
 //
-//      size_t index = arr_concat(&array1, array2);
+//      size_t index = arr_concat(array1, array2);
 //
 // First array will be the destination.
 // Returns index of the first item of array2 in array1.
@@ -117,7 +117,7 @@
 // 
 // You can also set length:
 //
-//      size_t deleted = arr_set_len(&array, new_len);
+//      size_t deleted = arr_set_len(array, new_len);
 // 
 // If it's bigger than current length - it will zero new items.
 // If it's smaller than current length - it will delete items.
@@ -131,7 +131,7 @@
 // 
 // You can also set capacity:
 //
-//      size_t new_cap = arr_cap(&array, target_cap);
+//      size_t new_cap = arr_cap(array, target_cap);
 // 
 // When target_cap is lower than array length it will set capacity to array length.
 // Returns the new capacity.

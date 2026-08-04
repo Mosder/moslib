@@ -55,7 +55,7 @@ struct TestGroup {
     size_t test_cap;
 };
 
-Tester *new_tester() {
+Tester *new_tester(void) {
     Tester *tester = safe_malloc(sizeof(Tester));
     *tester = (Tester){
         .groups = safe_malloc(INIT_GROUP_CAP * sizeof(TestGroup)),
