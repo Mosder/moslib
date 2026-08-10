@@ -18,6 +18,21 @@
 #define RENDER_WIDTH 80
 
 int failed = 0;
+FILE *dev_null = NULL;
+
+typedef struct {
+    FILE ***outs;
+    FILE **ogs;
+    size_t n_outs;
+    size_t out_cap;
+} Outputs;
+
+Outputs suppressed = {
+    .outs = NULL,
+    .ogs = NULL,
+    .n_outs = 0,
+    .out_cap = 4,
+};
 
 #define print_color(template, ...) printf("\033[%dm" template "\033[0m", __VA_ARGS__)
 #define nl printf("\n")
@@ -112,6 +127,35 @@ void test_assert_exit_fn(TestFn function, int code, const char *name) {
     }
 }
 
+void suppress_output(FILE **out) {
+    if (!suppressed.outs || suppressed.n_outs >= suppressed.out_cap) {
+        while (suppressed.n_outs >= suppressed.out_cap)
+            suppressed.out_cap *= 2;
+        suppressed.outs = safe_realloc(suppressed.outs, suppressed.out_cap);
+        suppressed.ogs = safe_realloc(suppressed.ogs, suppressed.out_cap);
+    }
+    suppressed.outs[suppressed.n_outs] = out;
+    suppressed.ogs[suppressed.n_outs++] = *out;
+
+    if (!dev_null) {
+        dev_null = fopen("/dev/null", "w");
+        if (!dev_null)
+            return;
+    }
+
+    *out = dev_null;
+}
+
+void unsuppress_outputs(void) {
+    if (!suppressed.outs || !suppressed.ogs)
+        return;
+
+    for (size_t i = 0; i < suppressed.n_outs; i++)
+        *suppressed.outs[i] = suppressed.ogs[i];
+
+    suppressed.n_outs = 0;
+}
+
 void add_test_fn(TestGroup *group, TestFn test, const char *name) {
     if (group->n_tests >= group->test_cap) {
         group->test_cap *= 2;
@@ -178,12 +222,17 @@ void run_tests(Tester *tester) {
 }
 
 void free_tester(Tester *tester) {
-    if (!tester)
-        return;
-
-    for (size_t i = 0; i < tester->n_groups; i++) {
-        free(tester->groups[i].tests);
+    if (tester) {
+        for (size_t i = 0; i < tester->n_groups; i++)
+            free(tester->groups[i].tests);
+        free(tester->groups);
+        free(tester);
     }
-    free(tester->groups);
-    free(tester);
+    if (dev_null) {
+        fclose(dev_null);
+    }
+    if (suppressed.outs) {
+        free(suppressed.outs);
+        suppressed.n_outs = 0;
+    }
 }

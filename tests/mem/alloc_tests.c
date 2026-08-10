@@ -10,8 +10,11 @@ Test malloc_exit() {
 
 Test test_safe_malloc() {
     void *p = safe_malloc(1024);
-    test_assert(p != NULL, "Should be able to malloc 1KiB");
+    test_assert(p != NULL, "Failed to malloc 1KiB");
+
+    suppress_output(&stderr);
     test_assert_exit(malloc_exit, EXIT_FAILURE);
+    unsuppress_outputs();
 }
 
 Test realloc_exit() {
@@ -22,12 +25,14 @@ Test realloc_exit() {
 Test test_safe_realloc() {
     void *p = NULL;
     p = safe_realloc(p, 1024);
-    test_assert(p != NULL, "Should be able to realloc NULL to 1KiB");
+    test_assert(p != NULL, "Failed to realloc NULL to 1KiB");
 
     p = safe_realloc(p, 4096);
-    test_assert(p != NULL, "Should be able to realloc 1KiB to 4KiB");
+    test_assert(p != NULL, "Failed to realloc 1KiB to 4KiB");
 
+    suppress_output(&stderr);
     test_assert_exit(realloc_exit, EXIT_FAILURE);
+    unsuppress_outputs();
 }
 
 void mem_alloc_tests(Tester *tester) {

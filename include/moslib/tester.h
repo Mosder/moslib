@@ -30,8 +30,8 @@
 //          int result1 = 1 + 2;
 //          int result2 = 3 + 5;
 //
-//          test_assert(result1 == 3, "1 + 2 should equal 3");
-//          test_assert(result2 == 8, "3 + 5 should equal 8");
+//          test_assert(result1 == 3, "1 + 2 is not equal 3");
+//          test_assert(result2 == 8, "3 + 5 is not equal 8");
 //      }
 //
 // You can also test if a function is supposed to call exit.
@@ -44,6 +44,17 @@
 //      }
 //      Test main_test() {
 //          test_assert_exit(helper_test, EXIT_FAILURE);
+//      }
+//
+// If your functions have output and you want to suppress them for the sake of tests,
+// you can do so using suppress_output and unsupress_outputs.
+// Example:
+//      Test error_test() {
+//          suppress_output(&stdout);
+//          suppress_output(&stderr);
+//          int code = fun_that_fails_with_output();
+//          unsuppress_outputs();
+//          test_assert(code == 0, "function didn't fail");
 //      }
 //
 // ----------------------------------------------------------------------------------------------------
@@ -66,6 +77,8 @@
 //
 // ----------------------------------------------------------------------------------------------------
 // ===================================== END OF QUICK USAGE GUIDE =====================================
+
+#include <stdio.h>
 
 #ifndef MOSLIB_TESTER_H
 #define MOSLIB_TESTER_H
@@ -116,6 +129,17 @@ extern void test_assert(int expression, const char *fail_message);
 //   code
 //     expected exit code
 #define test_assert_exit(function, code) test_assert_exit_fn((function), (code), #function);
+
+// Suppress given output
+//
+// Arguments:
+//   out
+//     pointer to outpout to suppress
+extern void suppress_output(FILE **out);
+
+// Unuppress previously suppressed outputs
+// Will unsupress all of the outputs that were suppressed
+extern void unsuppress_outputs(void);
 
 // Add test to a test group
 //

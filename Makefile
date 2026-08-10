@@ -29,7 +29,7 @@ test:
 	$(CC) $(CFLAGS_TEST) -c tests/mem/alloc_tests.c
 	$(CC) $(CFLAGS_TEST) -c tests/ds/array_tests.c
 	$(CC) $(CFLAGS_TEST) -lmoslib *.o tests/tests.c -o run_tests
-	./run_tests 2>/dev/null
+	./run_tests
 	rm run_tests *.o
 
 .PHONY: clean

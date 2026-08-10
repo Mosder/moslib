@@ -90,7 +90,7 @@ Test getting_items() {
     arr_append(arr, (struct test){0});
     test_assert(arr_first(arr) == arr_last(arr), "first and last are different for array of length 1");
 
-    arr_append(arr, (struct test){1});
+    arr_append(arr, (struct test){1, 1});
     test_assert(arr_first(arr) != arr_last(arr), "first and last are the same for array of length >1");
 
     struct test *next_first = arr_next(arr, NULL);
@@ -114,7 +114,7 @@ Test getting_items() {
 
 Test deleting_items() {
     int *arr = NULL;
-    int *items = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    int items[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     arr_append_n(arr, items, 9);
 
     // {1, 2, 3, 4, 5, 6, 7, 8}
@@ -160,7 +160,7 @@ Test arr_concat_test() {
     test_assert(index == 2, "arr_concat returned wrong index");
     unsigned long expected[] = {4, 5, 1, 2, 3, 4, 5};
     test_assert(arr_len(arr2) == 7, "arr_concat produced array of wrong length");
-    test_assert(!memcmp(arr2, items, 7 * sizeof(unsigned long)), "arr_concat produced wrong array");
+    test_assert(!memcmp(arr2, expected, 7 * sizeof(unsigned long)), "arr_concat produced wrong array");
 }
 
 void ds_array_tests(Tester *tester) {
