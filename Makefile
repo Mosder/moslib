@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-std=c99 -Wall -Wextra -fPIC -I./include -O2 -s
-CFLAGS_TEST=-std=c99 -Wall -Wextra -lmoslib -Og -g
+CFLAGS_TEST=-std=c99 -Wall -Wextra -Og -ggdb
 AR=ar rcs
 
 both: shared static clean
@@ -28,7 +28,7 @@ structures:
 test:
 	$(CC) $(CFLAGS_TEST) -c tests/mem/alloc_tests.c
 	$(CC) $(CFLAGS_TEST) -c tests/ds/array_tests.c
-	$(CC) $(CFLAGS_TEST) *.o tests/tests.c -o run_tests
+	$(CC) $(CFLAGS_TEST) -lmoslib *.o tests/tests.c -o run_tests
 	./run_tests 2>/dev/null
 	rm run_tests *.o
 
