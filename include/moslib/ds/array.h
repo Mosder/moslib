@@ -131,7 +131,7 @@
 // 
 // You can also set capacity:
 //
-//      size_t new_cap = arr_cap(array, target_cap);
+//      size_t new_cap = arr_set_cap(array, target_cap);
 // 
 // When target_cap is lower than array length it will set capacity to array length.
 // Returns the new capacity.
