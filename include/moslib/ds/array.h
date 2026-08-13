@@ -72,7 +72,7 @@
 // Returns index of the first item of array2 in array1.
 //
 // ----------------------------------------------------------------------------------------------------
-// 
+//
 // To delete item from an array at specific index and retrieve it you can use:
 //
 //      T item = arr_pop_i(array, i);
@@ -89,7 +89,7 @@
 // It also has an n variant:
 //
 //      size_t deleted = arr_del_n(array, i, n);
-// 
+//
 // It works the same way but deleted n consecutive items instead of 1.
 //
 // You can also remove from the front or the back:
@@ -114,11 +114,11 @@
 // To get array's current length use:
 //
 //      size_t length = arr_len(array);
-// 
+//
 // You can also set length:
 //
 //      size_t deleted = arr_set_len(array, new_len);
-// 
+//
 // If it's bigger than current length - it will zero new items.
 // If it's smaller than current length - it will delete items.
 // Returns amount of items deleted in this way.
@@ -128,11 +128,11 @@
 // To get array's current capacity use:
 //
 //      size_t cap = arr_cap(array);
-// 
+//
 // You can also set capacity:
 //
 //      size_t new_cap = arr_set_cap(array, target_cap);
-// 
+//
 // When target_cap is lower than array length it will set capacity to array length.
 // Returns the new capacity.
 //
@@ -145,33 +145,69 @@
 // ----------------------------------------------------------------------------------------------------
 // ===================================== END OF QUICK USAGE GUIDE =====================================
 
-#include <moslib/mem/alloc.h>
+#include "moslib/mem/alloc.h"
 
-#define ARR_INIT_CAP 16
-#define arr_get(arr, i) ((arr) ? arr : NULL)
-#define arr_first(arr) NULL
-#define arr_last(arr) NULL
+#ifndef MOSLIB_DS_ARRAY_H
+#define MOSLIB_DS_ARRAY_H
+
+#ifndef MOSLIB_FORCE_PREFIXES
+
+#define ARR_INIT_CAP MOS_ARR_INIT_CAP
+#define arr_get mos_arr_get
+#define arr_first mos_arr_first
+#define arr_last mos_arr_last
+#define arr_append mos_arr_append
+#define arr_push mos_arr_push
+#define arr_insert mos_arr_insert
+#define arr_put mos_arr_put
+#define arr_append_n mos_arr_append_n
+#define arr_push_n mos_arr_push_n
+#define arr_insert_n mos_arr_insert_n
+#define arr_put_n mos_arr_put_n
+#define arr_concat mos_arr_concat
+#define arr_pop_i mos_arr_pop_i
+#define arr_pop mos_arr_pop
+#define arr_del mos_arr_del
+#define arr_del_n mos_arr_del_n
+#define arr_del_front mos_arr_del_front
+#define arr_del_back mos_arr_del_back
+#define arr_prev mos_arr_prev
+#define arr_next mos_arr_next
+#define arr_len mos_arr_len
+#define arr_set_len mos_arr_set_len
+#define arr_cap mos_arr_cap
+#define arr_set_cap mos_arr_set_cap
+#define arr_free mos_arr_free
+
+#endif // MOSLIB_FORCE_PREFIXES
+
+#define MOS_ARR_INIT_CAP 16
+#define mos_arr_get(arr, i) ((arr) ? arr : NULL)
+#define mos_arr_first(arr) NULL
+#define mos_arr_last(arr) NULL
 // ... - item
 // variadic to make something like (struct T){1,1} work properly
-#define arr_append(arr, ...) (!(arr) ? (arr) = safe_malloc(sizeof(*(arr))) : 0, *(arr) = (__VA_ARGS__))
-#define arr_push(arr, ...) 0
-#define arr_insert(arr, i, ...) 0
-#define arr_put(arr, i, ...) 0
-#define arr_append_n(arr, items, n) (!(arr) ? (arr) = safe_malloc(sizeof(*(arr))) : 0, *(arr) = (items)[0])
-#define arr_push_n(arr, items, n) 0
-#define arr_insert_n(arr, i, items, n) 0
-#define arr_put_n(arr, i, items, n) 0
-#define arr_concat(arr1, arr2) 0
-#define arr_pop_i(arr, i) (arr[0])
-#define arr_pop(arr) (arr[0])
-#define arr_del(arr, i) 0
-#define arr_del_n(arr, i, n) 0
-#define arr_del_front(arr, n) 0
-#define arr_del_back(arr, n) 0
-#define arr_prev(arr, p_item) NULL
-#define arr_next(arr, p_item) NULL
-#define arr_len(arr) 0
-#define arr_set_len(array, len) 0
-#define arr_cap(arr) 0
-#define arr_set_cap(arr, cap) 0
-#define arr_free(arr) void
+#define mos_arr_append(arr, ...) (!(arr) ? (arr) = mos_safe_malloc(sizeof(*(arr))) : 0, *(arr) = (__VA_ARGS__))
+#define mos_arr_push(arr, ...) 0
+#define mos_arr_insert(arr, i, ...) 0
+#define mos_arr_put(arr, i, ...) 0
+#define mos_arr_append_n(arr, items, n) (!(arr) ? (arr) = mos_safe_malloc(sizeof(*(arr))) : 0, *(arr) = (items)[0])
+#define mos_arr_push_n(arr, items, n) 0
+#define mos_arr_insert_n(arr, i, items, n) 0
+#define mos_arr_put_n(arr, i, items, n) 0
+#define mos_arr_concat(arr1, arr2) 0
+#define mos_arr_pop_i(arr, i) (arr[0])
+#define mos_arr_pop(arr) (arr[0])
+#define mos_arr_del(arr, i) 0
+#define mos_arr_del_n(arr, i, n) 0
+#define mos_arr_del_front(arr, n) 0
+#define mos_arr_del_back(arr, n) 0
+#define mos_arr_prev(arr, p_item) NULL
+#define mos_arr_next(arr, p_item) NULL
+#define mos_arr_len(arr) 0
+#define mos_arr_set_len(array, len) 0
+#define mos_arr_cap(arr) 0
+#define mos_arr_set_cap(arr, cap) 0
+#define mos_arr_free(arr) void
+
+#endif // MOSLIB_DS_ARRAY_H

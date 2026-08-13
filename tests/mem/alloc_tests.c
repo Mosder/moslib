@@ -1,7 +1,7 @@
 #include "alloc_tests.h"
+#include "moslib/mem/alloc.h"
 
 #include <limits.h>
-#include <moslib/mem/alloc.h>
 #include <stdlib.h>
 
 Test malloc_exit() {

@@ -83,17 +83,35 @@
 #ifndef MOSLIB_TESTER_H
 #define MOSLIB_TESTER_H
 
-typedef void Test; // this is just for nice indication that a function is a test
-typedef struct Tester Tester;
-typedef struct TestGroup TestGroup;
-typedef Test (*TestFn)(void);
+#ifndef MOSLIB_FORCE_PREFIXES
+
+#define Test MosTest
+#define Tester MosTester
+#define TestGroup MosTestGroup
+#define TestFn MosTestFn
+#define new_tester mos_new_tester
+#define add_test_group mos_add_test_group
+#define test_assert mos_test_assert
+#define test_assert_exit mos_test_assert_exit
+#define suppress_output mos_suppress_output
+#define unsuppress_outputs mos_unsuppress_outputs
+#define add_test mos_add_test
+#define run_tests mos_run_tests
+#define free_tester mos_free_tester
+
+#endif // MOSLIB_FORCE_PREFIXES
+
+typedef void MosTest; // this is just for nice indication that a function is a test
+typedef struct MosTester MosTester;
+typedef struct MosTestGroup MosTestGroup;
+typedef MosTest (*MosTestFn)(void);
 
 // Initalize new tester
 // You can skip this and just define it as NULL - it will initalize automatically
 //
 // Returns:
 //   pointer to the new tester
-extern Tester *new_tester(void);
+extern MosTester *mos_new_tester(void);
 
 // Add new test group to the tester
 //
@@ -106,7 +124,7 @@ extern Tester *new_tester(void);
 //
 // Returns:
 //   pointer to the added group
-#define add_test_group(tester, group_name) ((!(tester) ? (tester) = new_tester() : 0), add_test_group_fn((tester), (group_name)))
+#define mos_add_test_group(tester, group_name) ((!(tester) ? (tester) = mos_new_tester() : 0), mos_add_test_group_fn((tester), (group_name)))
 
 // Assert that an expression is true
 // Use in test functions to test correctness
@@ -118,7 +136,7 @@ extern Tester *new_tester(void);
 //
 //   fail_message
 //     message to display when test fails
-extern void test_assert(int expression, const char *fail_message);
+extern void mos_test_assert(int expression, const char *fail_message);
 
 // Assert that function exits with given exit code
 //
@@ -128,18 +146,18 @@ extern void test_assert(int expression, const char *fail_message);
 //
 //   code
 //     expected exit code
-#define test_assert_exit(function, code) test_assert_exit_fn((function), (code), #function);
+#define mos_test_assert_exit(function, code) mos_test_assert_exit_fn((function), (code), #function);
 
 // Suppress given output
 //
 // Arguments:
 //   out
 //     pointer to outpout to suppress
-extern void suppress_output(FILE **out);
+extern void mos_suppress_output(FILE **out);
 
 // Unuppress previously suppressed outputs
 // Will unsupress all of the outputs that were suppressed
-extern void unsuppress_outputs(void);
+extern void mos_unsuppress_outputs(void);
 
 // Add test to a test group
 //
@@ -149,25 +167,25 @@ extern void unsuppress_outputs(void);
 //
 //   test
 //     test to add to the group
-#define add_test(group, test) add_test_fn((group), (test), #test);
+#define mos_add_test(group, test) mos_add_test_fn((group), (test), #test);
 
 // Run defined tests
 //
 // Arguments:
 //   tester
 //     tester with tests to run
-extern void run_tests(Tester *tester);
+extern void mos_run_tests(MosTester *tester);
 
 // Free the tester
 //
 // Arguments:
 //   tester
 //     tester to free
-extern void free_tester(Tester *tester);
+extern void mos_free_tester(MosTester *tester);
 
 // Function prototypes for macros
-extern TestGroup *add_test_group_fn(Tester *tester, const char *group_name);
-extern void test_assert_exit_fn(TestFn function, int code, const char *name);
-extern void add_test_fn(TestGroup *group, TestFn test, const char *name);
+extern MosTestGroup *mos_add_test_group_fn(MosTester *tester, const char *group_name);
+extern void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name);
+extern void mos_add_test_fn(MosTestGroup *group, MosTestFn test, const char *name);
 
 #endif // MOSLIB_TESTER_H

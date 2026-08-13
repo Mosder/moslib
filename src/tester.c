@@ -1,3 +1,4 @@
+#define MOSLIB_FORCE_PREFIXES
 #include "moslib/tester.h"
 
 #include <setjmp.h>
@@ -53,50 +54,50 @@ void print_center(const char *text, int color, char padding_char) {
 }
 
 typedef struct {
-    TestFn test;
+    MosTestFn test;
     const char *name;
 } TestName;
 
-struct Tester {
-    TestGroup *groups;
+struct MosTester {
+    MosTestGroup *groups;
     size_t n_groups;
     size_t group_cap;
 };
 
-struct TestGroup {
+struct MosTestGroup {
     const char *name;
     TestName *tests;
     size_t n_tests;
     size_t test_cap;
 };
 
-Tester *new_tester(void) {
-    Tester *tester = safe_malloc(sizeof(Tester));
-    *tester = (Tester){
-        .groups = safe_malloc(INIT_GROUP_CAP * sizeof(TestGroup)),
+MosTester *mos_new_tester(void) {
+    MosTester *tester = mos_safe_malloc(sizeof(MosTester));
+    *tester = (MosTester){
+        .groups = mos_safe_malloc(INIT_GROUP_CAP * sizeof(MosTestGroup)),
         .n_groups = 0,
         .group_cap = INIT_GROUP_CAP,
     };
     return tester;
 }
 
-TestGroup *add_test_group_fn(Tester *tester, const char *group_name) {
+MosTestGroup *mos_add_test_group_fn(MosTester *tester, const char *group_name) {
     if (tester->n_groups >= tester->group_cap) {
         tester->group_cap *= 2;
-        tester->groups = safe_realloc(tester->groups, tester->group_cap * sizeof(TestGroup));
+        tester->groups = mos_safe_realloc(tester->groups, tester->group_cap * sizeof(MosTestGroup));
     }
 
-    TestGroup *group = tester->groups + tester->n_groups++;
-    *group = (TestGroup){
+    MosTestGroup *group = tester->groups + tester->n_groups++;
+    *group = (MosTestGroup){
         .name = group_name,
-        .tests = safe_malloc(INIT_TEST_CAP * sizeof(TestName)),
+        .tests = mos_safe_malloc(INIT_TEST_CAP * sizeof(TestName)),
         .n_tests = 0,
         .test_cap = INIT_TEST_CAP,
     };
     return group;
 }
 
-void test_assert(int expression, const char *fail_message) {
+void mos_test_assert(int expression, const char *fail_message) {
     if (!expression) {
         failed = 1;
         print_color("ASSERT FAILED: ", RED);
@@ -116,7 +117,7 @@ void exit(int code) {
     longjmp(jump_env, 1);
 }
 
-void test_assert_exit_fn(TestFn function, int code, const char *name) {
+void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name) {
     expected_code = code;
     fn_name = name;
     if (setjmp(jump_env) == 0) {
@@ -127,12 +128,12 @@ void test_assert_exit_fn(TestFn function, int code, const char *name) {
     }
 }
 
-void suppress_output(FILE **out) {
+void mos_suppress_output(FILE **out) {
     if (!suppressed.outs || suppressed.n_outs >= suppressed.out_cap) {
         while (suppressed.n_outs >= suppressed.out_cap)
             suppressed.out_cap *= 2;
-        suppressed.outs = safe_realloc(suppressed.outs, suppressed.out_cap);
-        suppressed.ogs = safe_realloc(suppressed.ogs, suppressed.out_cap);
+        suppressed.outs = mos_safe_realloc(suppressed.outs, suppressed.out_cap);
+        suppressed.ogs = mos_safe_realloc(suppressed.ogs, suppressed.out_cap);
     }
     suppressed.outs[suppressed.n_outs] = out;
     suppressed.ogs[suppressed.n_outs++] = *out;
@@ -146,7 +147,7 @@ void suppress_output(FILE **out) {
     *out = dev_null;
 }
 
-void unsuppress_outputs(void) {
+void mos_unsuppress_outputs(void) {
     if (!suppressed.outs || !suppressed.ogs)
         return;
 
@@ -156,16 +157,16 @@ void unsuppress_outputs(void) {
     suppressed.n_outs = 0;
 }
 
-void add_test_fn(TestGroup *group, TestFn test, const char *name) {
+void mos_add_test_fn(MosTestGroup *group, MosTestFn test, const char *name) {
     if (group->n_tests >= group->test_cap) {
         group->test_cap *= 2;
-        group->tests = safe_realloc(group->tests, group->test_cap * sizeof(TestName));
+        group->tests = mos_safe_realloc(group->tests, group->test_cap * sizeof(TestName));
     }
 
     group->tests[group->n_tests++] = (TestName){.test = test, .name = name};
 }
 
-void run_tests(Tester *tester) {
+void mos_run_tests(MosTester *tester) {
     if (!tester)
         return;
 
@@ -177,7 +178,7 @@ void run_tests(Tester *tester) {
 
     for (size_t i = 0; i < tester->n_groups; i++) {
         nl;
-        TestGroup *group = tester->groups + i;
+        MosTestGroup *group = tester->groups + i;
         size_t tests_passed = 0;
         size_t tests_failed = 0;
 
@@ -221,7 +222,7 @@ void run_tests(Tester *tester) {
     print_center("END", WHITE, '=');
 }
 
-void free_tester(Tester *tester) {
+void mos_free_tester(MosTester *tester) {
     if (tester) {
         for (size_t i = 0; i < tester->n_groups; i++)
             free(tester->groups[i].tests);

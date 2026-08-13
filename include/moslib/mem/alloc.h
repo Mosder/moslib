@@ -6,7 +6,15 @@
 #ifndef MOSLIB_MEM_ALLOC_H
 #define MOSLIB_MEM_ALLOC_H
 
-#define MOSLIB_MAX_ALLOC_ATTEMPTS 3
+#ifndef MOSLIB_FORCE_PREFIXES
+
+#define MAX_ALLOC_ATTEMPTS MOS_MAX_ALLOC_ATTEMPTS
+#define safe_malloc mos_safe_malloc
+#define safe_realloc mos_safe_realloc
+
+#endif // MOSLIB_FORCE_PREFIXES
+
+#define MOS_MAX_ALLOC_ATTEMPTS 3
 
 // Tries to malloc MOSLIB_MAX_ALLOC_ATTEMPTS times
 // If all attempts fail - exits with EXIT_FAILURE code
@@ -17,7 +25,7 @@
 //
 // Returns:
 //   pointer to the allocated memory
-#define safe_malloc(size) safe_malloc_fn(size, __FILE__, __LINE__, __func__)
+#define mos_safe_malloc(size) mos_safe_malloc_fn(size, __FILE__, __LINE__, __func__)
 
 // Tries to realloc MOSLIB_MAX_ALLOC_ATTEMPTS times
 // If all attempts fail - exits with EXIT_FAILURE code
@@ -31,10 +39,10 @@
 //
 // Returns:
 //   pointer to the reallocated memory
-#define safe_realloc(ptr, size) safe_realloc_fn(ptr, size, __FILE__, __LINE__, __func__)
+#define mos_safe_realloc(ptr, size) mos_safe_realloc_fn(ptr, size, __FILE__, __LINE__, __func__)
 
 // Function prototypes for macros
-extern void *safe_malloc_fn(size_t size, const char *file, int line, const char *func);
-extern void *safe_realloc_fn(void *ptr, size_t size, const char *file, int line, const char *func);
+extern void *mos_safe_malloc_fn(size_t size, const char *file, int line, const char *func);
+extern void *mos_safe_realloc_fn(void *ptr, size_t size, const char *file, int line, const char *func);
 
 #endif // MOSLIB_MEM_ALLOC_H

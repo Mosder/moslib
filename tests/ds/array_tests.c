@@ -1,6 +1,6 @@
 #include "array_tests.h"
+#include "moslib/ds/array.h"
 
-#include <moslib/ds/array.h>
 #include <string.h>
 
 Test cap_test() {
