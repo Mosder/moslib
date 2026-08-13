@@ -144,3 +144,34 @@
 //
 // ----------------------------------------------------------------------------------------------------
 // ===================================== END OF QUICK USAGE GUIDE =====================================
+
+#include <moslib/mem/alloc.h>
+
+#define ARR_INIT_CAP 16
+#define arr_get(arr, i) ((arr) ? arr : NULL)
+#define arr_first(arr) NULL
+#define arr_last(arr) NULL
+// ... - item
+// variadic to make something like (struct T){1,1} work properly
+#define arr_append(arr, ...) (!(arr) ? (arr) = safe_malloc(sizeof(*(arr))) : 0, *(arr) = (__VA_ARGS__))
+#define arr_push(arr, ...) 0
+#define arr_insert(arr, i, ...) 0
+#define arr_put(arr, i, ...) 0
+#define arr_append_n(arr, items, n) (!(arr) ? (arr) = safe_malloc(sizeof(*(arr))) : 0, *(arr) = (items)[0])
+#define arr_push_n(arr, items, n) 0
+#define arr_insert_n(arr, i, items, n) 0
+#define arr_put_n(arr, i, items, n) 0
+#define arr_concat(arr1, arr2) 0
+#define arr_pop_i(arr, i) (arr[0])
+#define arr_pop(arr) (arr[0])
+#define arr_del(arr, i) 0
+#define arr_del_n(arr, i, n) 0
+#define arr_del_front(arr, n) 0
+#define arr_del_back(arr, n) 0
+#define arr_prev(arr, p_item) NULL
+#define arr_next(arr, p_item) NULL
+#define arr_len(arr) 0
+#define arr_set_len(array, len) 0
+#define arr_cap(arr) 0
+#define arr_set_cap(arr, cap) 0
+#define arr_free(arr) void
