@@ -50,8 +50,8 @@ Test adding_items() {
     test_assert(index == 1, "item inserted at index <= arr_len didn't return same index");
 
     // {3, 1, 8, 0, 0, 7}
-    size_t zerod = arr_put(arr, 5, 7);
-    test_assert(zerod == 2, "item put at index > arr_len didn't return proper zerod count");
+    index = arr_put(arr, 5, 7);
+    test_assert(index == 5, "item put at index > arr_len didn't return proper index");
 
     // {3, 1, 8, 0, 0, 7, 1, 2}
     int items[] = {1, 2, 3, 4, 5, 6, 7};
@@ -67,8 +67,8 @@ Test adding_items() {
     test_assert(index == 0, "insert_n returned wrong index");
 
     // {4, 5, 3, 1, 8, 6, 7, 7, 1, 2, 3}
-    zerod = arr_put_n(arr, 5, items + 5, 2);
-    test_assert(zerod == 0, "put_n returned wrong zerod value");
+    index = arr_put_n(arr, 5, items + 5, 2);
+    test_assert(index == 5, "put_n returned wrong index");
 
     size_t len = arr_len(arr);
     test_assert(len == 11, "arr_len after adding all items was incorrect");
@@ -94,8 +94,8 @@ Test getting_items() {
     test_assert(arr_first(arr) != arr_last(arr), "first and last are the same for array of length >1");
 
     struct test *next_first = arr_next(arr, NULL);
-    struct test *next_last = arr_next(arr, next_last);
-    struct test *next_null = arr_next(arr, next_null);
+    struct test *next_last = arr_next(arr, next_first);
+    struct test *next_null = arr_next(arr, next_last);
     struct test *prev_last = arr_prev(arr, NULL);
     struct test *prev_first = arr_prev(arr, prev_last);
     struct test *prev_null = arr_prev(arr, prev_first);
@@ -105,7 +105,7 @@ Test getting_items() {
     test_assert(!next_null, "next didn't give NULL after running out of items");
     test_assert(!prev_null, "prev didn't give NULL after running out of items");
 
-    test_assert(!arr_get(arr, (size_t)-1) && !arr_get(arr, 2), "arr_get didn't give NULL when out of bounds");
+    test_assert(arr_get(arr, -1) == NULL && arr_get(arr, 2) == NULL, "arr_get didn't give NULL when out of bounds");
 
     struct test i0 = *arr_get(arr, 0);
     struct test i1 = *arr_get(arr, 1);
@@ -119,17 +119,15 @@ Test deleting_items() {
 
     // {1, 2, 3, 4, 5, 6, 7, 8}
     int i1 = arr_pop(arr);
-    // {1, 2, 3, 4, 6, 7, 8}
-    int i2 = arr_pop_i(arr, 4);
-    test_assert(i1 == 9 && i2 == 5, "arr_pop returned wrong values");
+    test_assert(i1 == 9, "arr_pop returned wrong value");
 
-    // {1, 2, 3, 6, 7, 8}
+    // {1, 2, 3, 5, 6, 7, 8}
     size_t deleted = arr_del(arr, 3);
     test_assert(deleted == 1, "failed to delete item in bounds");
 
     // {1, 8}
-    deleted = arr_del_n(arr, 1, 4);
-    test_assert(deleted == 4, "del_n deleted wrong number of items");
+    deleted = arr_del_n(arr, 1, 5);
+    test_assert(deleted == 5, "del_n deleted wrong number of items");
     test_assert(arr_len(arr) == 2 && arr[0] == 1 && arr[1] == 8, "deleted wrong items");
 
     deleted = arr_del_front(arr, 10);
@@ -147,11 +145,18 @@ Test arr_concat_test() {
     unsigned long *arr1 = NULL;
     unsigned long *arr2 = NULL;
 
+    size_t index = arr_concat(arr1, arr2);
+    test_assert(index == (size_t)-1, "arr_concat with arr2 as NULL didn't return -1");
+
+    arr_set_len(arr2, 0);
+    index = arr_concat(arr1, arr2);
+    test_assert(index == (size_t)-1, "arr_concat with 0 length arr2 didn't return -1");
+
     unsigned long items[] = {1, 2, 3, 4, 5};
     arr_append_n(arr1, items, 3);
     arr_append_n(arr2, items + 3, 2);
 
-    size_t index = arr_concat(arr1, arr2);
+    index = arr_concat(arr1, arr2);
     test_assert(index == 3, "arr_concat returned wrong index");
     test_assert(arr_len(arr1) == 5, "arr_concat produced array of wrong length");
     test_assert(!memcmp(arr1, items, 5 * sizeof(unsigned long)), "arr_concat produced wrong array");

@@ -6,3 +6,4 @@ Defnitely not the best implementations ever made, but they're mine, so idc.
 ## Contains:
 - memory management helpers
 - testing framework
+- dynamic array implementation

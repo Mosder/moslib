@@ -124,7 +124,7 @@ extern MosTester *mos_new_tester(void);
 //
 // Returns:
 //   pointer to the added group
-#define mos_add_test_group(tester, group_name) ((!(tester) ? (tester) = mos_new_tester() : 0), mos_add_test_group_fn((tester), (group_name)))
+#define mos_add_test_group(tester, group_name) ((!(tester) ? (tester) = mos_new_tester() : 0), mos_add_test_group_fn(tester, group_name))
 
 // Assert that an expression is true
 // Use in test functions to test correctness
@@ -146,7 +146,7 @@ extern void mos_test_assert(int expression, const char *fail_message);
 //
 //   code
 //     expected exit code
-#define mos_test_assert_exit(function, code) mos_test_assert_exit_fn((function), (code), #function);
+#define mos_test_assert_exit(function, code) mos_test_assert_exit_fn(function, code, #function);
 
 // Suppress given output
 //
@@ -167,7 +167,7 @@ extern void mos_unsuppress_outputs(void);
 //
 //   test
 //     test to add to the group
-#define mos_add_test(group, test) mos_add_test_fn((group), (test), #test);
+#define mos_add_test(group, test) mos_add_test_fn(group, test, #test);
 
 // Run defined tests
 //

@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS=-std=c99 -Wall -Wextra -fPIC -I./include -O2 -s
-CFLAGS_TEST=-std=c99 -Wall -Wextra -Og -ggdb
+CFLAGS=-std=c99 -Wall -Wextra -Wpointer-arith -fPIC -I./include -O2 -s
+CFLAGS_TEST=-std=c99 -Wall -Wextra -Wpointer-arith -Og -ggdb
 AR=ar rcs
 
 both: shared static clean
