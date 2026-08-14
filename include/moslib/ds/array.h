@@ -181,33 +181,335 @@
 
 #endif // MOSLIB_FORCE_PREFIXES
 
+// Initial capacity to use in the array
 #define MOS_ARR_INIT_CAP 16
-#define mos_arr_get(arr, i) ((arr) ? arr : NULL)
+
+// Get a pointer to an item at specific index in array
+//
+// Arguments:
+//   arr
+//     array to get an item from
+//
+//   i
+//     index of the item to get
+//
+// Returns:
+//   pointer to the item or NULL if i is out of bounds
+#define mos_arr_get(arr, i) ((arr) ? (arr) : NULL)
+
+// Get a pointer to the first item in the array
+//
+// Arguments:
+//   arr
+//     array to get the first item from
+//
+// Returns:
+//   pointer to the first item or NULL if array is empty
 #define mos_arr_first(arr) NULL
+
+// Get a pointer to the last item in the array
+//
+// Arguments:
+//   arr
+//     array to get the last item from
+//
+// Returns:
+//   pointer to the last item or NULL if array is empty
 #define mos_arr_last(arr) NULL
-// ... - item
-// variadic to make something like (struct T){1,1} work properly
+
+// Append a given item to the array
+//
+// Arguments:
+//   arr
+//     array to append to
+//
+//   ...
+//     item to append to the array
+//     variadic to make things like (struct T){1,1} work properly
+//
+// Returns:
+//   index of the appended item
 #define mos_arr_append(arr, ...) (!(arr) ? (arr) = mos_safe_malloc(sizeof(*(arr))) : 0, *(arr) = (__VA_ARGS__))
-#define mos_arr_push(arr, ...) 0
+#define mos_arr_push mos_arr_append
+
+// Insert a given item at the specific position in the array
+// Move everything after it to the right
+// If index is larger than length - it just appends the item
+//
+// Arguments:
+//   arr
+//     array to insert to
+//
+//   i
+//     index to insert the item in
+//
+//   ...
+//     item to insert to the array
+//     variadic to make things like (struct T){1,1} work properly
+//
+// Returns:
+//   index of the inserted item
 #define mos_arr_insert(arr, i, ...) 0
+
+// Put a given item at the specific position in the array
+// If index is within array bounds - it overwrites the item at given spot
+// If index is larger than length - it puts the item at given index
+//                                  and zeros items between previous last item and the new one
+//
+// Arguments:
+//   arr
+//     array to put to
+//
+//   i
+//     index to put the item in
+//
+//   ...
+//     item to put to the array
+//     variadic to make things like (struct T){1,1} work properly
+//
+// Returns:
+//   count of zerod items
 #define mos_arr_put(arr, i, ...) 0
+
+// Append n given items to the array
+//
+// Arguments:
+//   arr
+//     array to append to
+//
+//   items
+//     items to append to the array
+//
+//   n
+//     count of items to append
+//
+// Returns:
+//   index of the first appended item
 #define mos_arr_append_n(arr, items, n) (!(arr) ? (arr) = mos_safe_malloc(sizeof(*(arr))) : 0, *(arr) = (items)[0])
-#define mos_arr_push_n(arr, items, n) 0
+#define mos_arr_push_n mos_arr_append_n
+
+// Insert n given items at the specific position in the array
+// Move everything after them to the right
+// If index is larger than length - it just appends the items
+//
+// Arguments:
+//   arr
+//     array to insert to
+//
+//   i
+//     index to insert the items in
+//
+//   items
+//     items to insert to the array
+//
+//   n
+//     count of items to insert
+//
+// Returns:
+//   index of the first inserted item
 #define mos_arr_insert_n(arr, i, items, n) 0
+
+// Put n given items at the specific position in the array
+// If index is within array bounds - it overwrites the items at given spots
+// If index is larger than length - it puts the items at given index
+//                                  and zeros items between previous last item and the new ones
+//
+// Arguments:
+//   arr
+//     array to put to
+//
+//   i
+//     index to put the items in
+//
+//   items
+//     items to put to the array
+//
+//   n
+//     count of items to put
+//
+// Returns:
+//   count of zerod items
 #define mos_arr_put_n(arr, i, items, n) 0
+
+// Concatenate two dynamic arrays of the same type
+//
+// Arguments:
+//   arr1
+//     array to concatenate to (destination)
+//
+//   arr2
+//     array to concatenate (source)
+//
+// Returns:
+//   index of the first new item in arr1
 #define mos_arr_concat(arr1, arr2) 0
-#define mos_arr_pop_i(arr, i) (arr[0])
-#define mos_arr_pop(arr) (arr[0])
+
+// Delete and retrieve an item at specific index from the array
+// Moves items after deleted one to the left
+// No bounds checking
+//
+// Arguments:
+//   arr
+//     array to pop from
+//
+//   i
+//     index of the item to pop
+//
+// Returns:
+//   the popped item
+#define mos_arr_pop_i(arr, i) (arr)[0]
+
+// Delete and retrieve the last item from the array
+// No bounds checking
+//
+// Arguments:
+//   arr
+//     array to pop from
+//
+// Returns:
+//   the popped item
+#define mos_arr_pop(arr) (arr)[0]
+
+// Delete an item at specific index from the array
+// Moves items after deleted one to the left
+//
+// Arguments:
+//   arr
+//     array to delete from
+//
+//   i
+//     index of the item to delete
+//
+// Returns:
+//   1 if item was deleted, 0 if it failed (e.g. out of bounds)
 #define mos_arr_del(arr, i) 0
+
+// Delete n consecutive items at specific index from the array
+// Moves items after deleted ones to the left
+//
+// Arguments:
+//   arr
+//     array to delete from
+//
+//   i
+//     index of the first item to delete
+//
+//   n
+//     count of items to delete
+//
+// Returns:
+//   count of deleted items
 #define mos_arr_del_n(arr, i, n) 0
+
+// Delete n first items from the array
+// Moves items after deleted ones to the left
+//
+// Arguments:
+//   arr
+//     array to delete from
+//
+//   n
+//     count of items to delete
+//
+// Returns:
+//   count of deleted items
 #define mos_arr_del_front(arr, n) 0
+
+// Delete n last items from the array
+//
+// Arguments:
+//   arr
+//     array to delete from
+//
+//   n
+//     count of items to delete
+//
+// Returns:
+//   count of deleted items
 #define mos_arr_del_back(arr, n) 0
-#define mos_arr_prev(arr, p_item) NULL
-#define mos_arr_next(arr, p_item) NULL
+
+// Get the pointer to the previous item in the array from the pointer to the current one
+// If pointer is NULL - gets the last item from the array
+//
+// Arguments:
+//   arr
+//     array to get previous item from
+//
+//   curr
+//     pointer to the current item
+//
+// Returns:
+//   pointer to the previous item or NULL if there's no more items
+#define mos_arr_prev(arr, curr) NULL
+
+// Get the pointer to the next item in the array from the pointer to the current one
+// If pointer is NULL - gets the first item from the array
+//
+// Arguments:
+//   arr
+//     array to get next item from
+//
+//   curr
+//     pointer to the current item
+//
+// Returns:
+//   pointer to the next item or NULL if there's no more items
+#define mos_arr_next(arr, curr) NULL
+
+// Get the length of the array
+//
+// Arguments:
+//   arr
+//     array to get the length of
+//
+// Returns:
+//   length of the array
 #define mos_arr_len(arr) 0
-#define mos_arr_set_len(array, len) 0
+
+// Set the length of the array
+// If it's bigger than current length - it will zero new items
+// If it's smaller than current length - it will delete items
+//
+// Arguments:
+//   arr
+//     array to set the length of
+//
+//   len
+//     length to set
+//
+// Returns:
+//   count of the deleted items
+#define mos_arr_set_len(arr, len) 0
+
+// Get the capacity of the array
+//
+// Arguments:
+//   arr
+//     array to get the capacity of
+//
+// Returns:
+//   capacity of the array
 #define mos_arr_cap(arr) 0
+
+// Set the capacity of the array
+// If it's lower than current length - it will set the capacity equal to length
+//
+// Arguments:
+//   arr
+//     array to set the capacity of
+//
+//   cap
+//     capacity to set
+//
+// Returns:
+//   new capacity of the array
 #define mos_arr_set_cap(arr, cap) 0
+
+// Free the array
+//
+// Arguments:
+//   arr
+//     array to free
 #define mos_arr_free(arr) void
 
 #endif // MOSLIB_DS_ARRAY_H
