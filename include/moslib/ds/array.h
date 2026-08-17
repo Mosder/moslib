@@ -444,7 +444,7 @@
 //
 // Returns:
 //   pointer to the previous item or NULL if there's no more items
-#define mos_arr_prev(arr, curr) (mos_arr_len(arr) == 0 ? NULL : (!(curr) ? mos_arr_last(arr) : ((curr) == (arr) ? NULL : (curr) - 1)))
+#define mos_arr_prev(arr, curr) ((!(arr) || !(curr)) ? mos_arr_last(arr) : ((curr) == mos_arr_first(arr) ? NULL : (arr) + mos_arr_p_diff(curr, arr) - 1))
 
 // Get the pointer to the next item in the array from the pointer to the current one
 // If pointer is NULL - gets the first item from the array
@@ -458,7 +458,7 @@
 //
 // Returns:
 //   pointer to the next item or NULL if there's no more items
-#define mos_arr_next(arr, curr) (mos_arr_len(arr) == 0 ? NULL : (!(curr) ? (arr) : ((curr) == mos_arr_last(arr) ? NULL : (curr) + 1)))
+#define mos_arr_next(arr, curr) ((!(arr) || !(curr)) ? mos_arr_first(arr) : ((curr) == mos_arr_last(arr) ? NULL : (arr) + mos_arr_p_diff(curr, arr) + 1))
 
 // Get the length of the array
 //
@@ -520,6 +520,8 @@ typedef struct {
     size_t len;
     size_t cap;
 } MosArrHeader;
+
+#define mos_arr_p_diff(p1, p2) (((char *)(p1) - (char*)(p2)) / sizeof(*(p2)))
 
 // Function prototypes for macros
 extern void mos_arr_append_fn(void *p_arr, size_t el_size);
