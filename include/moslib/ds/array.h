@@ -10,6 +10,9 @@
 //
 // Then on the first usage of the array it's gonna be initialized.
 // You can use arr_set_cap function right after definition to initalize to the specified capacity.
+// To set the default init capacity, define (before including the header):
+//
+//      #define MOS_ARR_INIT_CAP <desired_init_cap>
 //
 // ----------------------------------------------------------------------------------------------------
 //
@@ -522,7 +525,7 @@ typedef struct {
     size_t cap;
 } MosArrHeader;
 
-#define mos_arr_p_diff(p1, p2) (((char *)(p1) - (char*)(p2)) / sizeof(*(p2)))
+#define mos_arr_p_diff(p1, p2) (((char *)(p1) - (char *)(p2)) / sizeof(*(p2)))
 
 // Function prototypes for macros
 extern void mos_arr_append_fn(void *p_arr, size_t el_size, size_t init_cap);
