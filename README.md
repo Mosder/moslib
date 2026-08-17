@@ -8,7 +8,7 @@ Defnitely not the best implementations ever made, but they're mine, so idc.
 - testing framework
 - dynamic array implementation
 
-## Planned
+## Planned:
 - string slices
 - hashmap implementation
 - a bunch of other stuff most certainly
