@@ -150,9 +150,13 @@
 #ifndef MOSLIB_DS_ARRAY_H
 #define MOSLIB_DS_ARRAY_H
 
-#ifndef MOSLIB_FORCE_PREFIXES
+// Initial capacity to use in the array
+#ifndef MOS_ARR_INIT_CAP
+#define MOS_ARR_INIT_CAP 16
+#endif // MOS_ARR_INIT_CAP
 
-#define ARR_INIT_CAP MOS_ARR_INIT_CAP
+#ifndef MOS_FORCE_PREFIXES
+
 #define arr_get mos_arr_get
 #define arr_first mos_arr_first
 #define arr_last mos_arr_last
@@ -178,10 +182,7 @@
 #define arr_set_cap mos_arr_set_cap
 #define arr_free mos_arr_free
 
-#endif // MOSLIB_FORCE_PREFIXES
-
-// Initial capacity to use in the array
-#define MOS_ARR_INIT_CAP 16
+#endif // MOS_FORCE_PREFIXES
 
 // Get a pointer to an item at specific index in array
 //
@@ -231,10 +232,10 @@
 // Returns:
 //   index of the appended item
 #define mos_arr_push mos_arr_append
-#define mos_arr_append(arr, ...) (             \
-    mos_arr_append_fn(&(arr), sizeof(*(arr))), \
-    (arr)[mos_arr_len(arr) - 1] = __VA_ARGS__, \
-    mos_arr_len(arr) - 1                       \
+#define mos_arr_append(arr, ...) (                               \
+    mos_arr_append_fn(&(arr), sizeof(*(arr)), MOS_ARR_INIT_CAP), \
+    (arr)[mos_arr_len(arr) - 1] = __VA_ARGS__,                   \
+    mos_arr_len(arr) - 1                                         \
 )
 
 // Insert a given item at the specific position in the array
@@ -254,14 +255,14 @@
 //
 // Returns:
 //   index of the inserted item
-#define mos_arr_insert(arr, i, ...) (                 \
-    (size_t)(i) >= mos_arr_len(arr) ? (               \
-        mos_arr_append(arr, __VA_ARGS__)              \
-    ) : (                                             \
-        mos_arr_insert_fn(&(arr), i, sizeof(*(arr))), \
-        (arr)[(size_t)(i)] = __VA_ARGS__,             \
-        (size_t)(i)                                   \
-    )                                                 \
+#define mos_arr_insert(arr, i, ...) (                                   \
+    (size_t)(i) >= mos_arr_len(arr) ? (                                 \
+        mos_arr_append(arr, __VA_ARGS__)                                \
+    ) : (                                                               \
+        mos_arr_insert_fn(&(arr), i, sizeof(*(arr)), MOS_ARR_INIT_CAP), \
+        (arr)[(size_t)(i)] = __VA_ARGS__,                               \
+        (size_t)(i)                                                     \
+    )                                                                   \
 )
 
 // Put a given item at the specific position in the array
@@ -282,10 +283,10 @@
 //
 // Returns:
 //   index of the put item
-#define mos_arr_put(arr, i, ...) (             \
-    mos_arr_put_fn(&(arr), i, sizeof(*(arr))), \
-    (arr)[(size_t)(i)] = __VA_ARGS__,          \
-    (size_t)(i)                                \
+#define mos_arr_put(arr, i, ...) (                               \
+    mos_arr_put_fn(&(arr), i, sizeof(*(arr)), MOS_ARR_INIT_CAP), \
+    (arr)[(size_t)(i)] = __VA_ARGS__,                            \
+    (size_t)(i)                                                  \
 )
 
 // clang-format on
@@ -305,7 +306,7 @@
 // Returns:
 //   index of the first appended item
 #define mos_arr_push_n mos_arr_append_n
-#define mos_arr_append_n(arr, items, n) mos_arr_append_n_fn(&(arr), items, n, sizeof(*(arr)))
+#define mos_arr_append_n(arr, items, n) mos_arr_append_n_fn(&(arr), items, n, sizeof(*(arr)), MOS_ARR_INIT_CAP)
 
 // Insert n given items at the specific position in the array
 // Move everything after them to the right
@@ -326,7 +327,7 @@
 //
 // Returns:
 //   index of the first inserted item
-#define mos_arr_insert_n(arr, i, items, n) mos_arr_insert_n_fn(&(arr), i, items, n, sizeof(*(arr)))
+#define mos_arr_insert_n(arr, i, items, n) mos_arr_insert_n_fn(&(arr), i, items, n, sizeof(*(arr)), MOS_ARR_INIT_CAP)
 
 // Put n given items at the specific position in the array
 // If index is within array bounds - it overwrites the items at given spots
@@ -348,7 +349,7 @@
 //
 // Returns:
 //   index of the first put item
-#define mos_arr_put_n(arr, i, items, n) mos_arr_put_n_fn(&(arr), i, items, n, sizeof(*(arr)))
+#define mos_arr_put_n(arr, i, items, n) mos_arr_put_n_fn(&(arr), i, items, n, sizeof(*(arr)), MOS_ARR_INIT_CAP)
 
 // Concatenate two dynamic arrays of the same type
 //
@@ -361,7 +362,7 @@
 //
 // Returns:
 //   index of the first new item in arr1 or (size_t)-1 if arr2 is NULL or has length 0
-#define mos_arr_concat(arr1, arr2) mos_arr_concat_fn(&(arr1), arr2, sizeof(*(arr1)))
+#define mos_arr_concat(arr1, arr2) mos_arr_concat_fn(&(arr1), arr2, sizeof(*(arr1)), MOS_ARR_INIT_CAP)
 
 // Delete and retrieve the last item from the array
 // No bounds checking
@@ -483,7 +484,7 @@ extern size_t mos_arr_len(void *arr);
 //
 // Returns:
 //   count of the deleted items
-#define mos_arr_set_len(arr, len) mos_arr_set_len_fn(&(arr), len, sizeof(*(arr)))
+#define mos_arr_set_len(arr, len) mos_arr_set_len_fn(&(arr), len, sizeof(*(arr)), MOS_ARR_INIT_CAP)
 
 // Get the capacity of the array
 //
@@ -524,18 +525,18 @@ typedef struct {
 #define mos_arr_p_diff(p1, p2) (((char *)(p1) - (char*)(p2)) / sizeof(*(p2)))
 
 // Function prototypes for macros
-extern void mos_arr_append_fn(void *p_arr, size_t el_size);
-extern void mos_arr_insert_fn(void *p_arr, size_t i, size_t el_size);
-extern void mos_arr_put_fn(void *p_arr, size_t i, size_t el_size);
-extern size_t mos_arr_append_n_fn(void *p_arr, void *items, size_t n, size_t el_size);
-extern size_t mos_arr_insert_n_fn(void *p_arr, size_t i, void *items, size_t n, size_t el_size);
-extern size_t mos_arr_put_n_fn(void *p_arr, size_t i, void *items, size_t n, size_t el_size);
-extern size_t mos_arr_concat_fn(void *p_arr, void *arr2, size_t el_size);
+extern void mos_arr_append_fn(void *p_arr, size_t el_size, size_t init_cap);
+extern void mos_arr_insert_fn(void *p_arr, size_t i, size_t el_size, size_t init_cap);
+extern void mos_arr_put_fn(void *p_arr, size_t i, size_t el_size, size_t init_cap);
+extern size_t mos_arr_append_n_fn(void *p_arr, void *items, size_t n, size_t el_size, size_t init_cap);
+extern size_t mos_arr_insert_n_fn(void *p_arr, size_t i, void *items, size_t n, size_t el_size, size_t init_cap);
+extern size_t mos_arr_put_n_fn(void *p_arr, size_t i, void *items, size_t n, size_t el_size, size_t init_cap);
+extern size_t mos_arr_concat_fn(void *p_arr, void *arr2, size_t el_size, size_t init_cap);
 extern size_t mos_arr_del_fn(void *arr, size_t i, size_t el_size);
 extern size_t mos_arr_del_n_fn(void *arr, size_t i, size_t n, size_t el_size);
 extern size_t mos_arr_del_front_fn(void *arr, size_t n, size_t el_size);
 extern size_t mos_arr_del_back_fn(void *arr, size_t n);
-extern size_t mos_arr_set_len_fn(void *p_arr, size_t len, size_t el_size);
+extern size_t mos_arr_set_len_fn(void *p_arr, size_t len, size_t el_size, size_t init_cap);
 extern size_t mos_arr_set_cap_fn(void *p_arr, size_t cap, size_t el_size);
 
 #endif // MOSLIB_DS_ARRAY_H

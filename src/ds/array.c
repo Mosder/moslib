@@ -1,4 +1,4 @@
-#define MOSLIB_FORCE_PREFIXES
+#define MOS_FORCE_PREFIXES
 #include "moslib/ds/array.h"
 
 #include <stdio.h>
@@ -15,14 +15,10 @@ void *hdr2arr(MosArrHeader *hdr) {
     return hdr + 1;
 }
 
-void *init_cap(size_t cap, size_t el_size) {
+void *init(size_t cap, size_t el_size) {
     MosArrHeader *hdr = mos_safe_malloc(sizeof(MosArrHeader) + cap * el_size);
     *hdr = (MosArrHeader){.len = 0, .cap = cap};
     return hdr2arr(hdr);
-}
-
-void *init(size_t el_size) {
-    return init_cap(MOS_ARR_INIT_CAP, el_size);
 }
 
 void *expand(void *arr, size_t min_cap, size_t el_size) {
@@ -43,25 +39,25 @@ void *expand(void *arr, size_t min_cap, size_t el_size) {
 // clang-format off
 // init array if it's not, define arr, hdr vars and expand to fit min_cap
 #define ini(min_cap)                                                    \
-    !*(void**)p_arr ? *(void **)p_arr = init(el_size) : 0;              \
+    !*(void**)p_arr ? *(void **)p_arr = init(init_cap, el_size) : 0;    \
     MosArrHeader *hdr = arr2hdr(*(void**)p_arr);                        \
     *(void **)p_arr = expand(*(void**)p_arr, min_cap, el_size);         \
     void *arr = *(void **)p_arr;                                        \
     hdr = arr2hdr(arr)
 // clang-format on
 
-void mos_arr_append_fn(void *p_arr, size_t el_size) {
+void mos_arr_append_fn(void *p_arr, size_t el_size, size_t init_cap) {
     ini(hdr->len + 1);
     hdr->len++;
     (void)arr;
 }
 
-void mos_arr_insert_fn(void *p_arr, size_t i, size_t el_size) {
+void mos_arr_insert_fn(void *p_arr, size_t i, size_t el_size, size_t init_cap) {
     ini(hdr->len + 1);
     memmove((char *)arr + (i + 1) * el_size, (char *)arr + i * el_size, (hdr->len++ - i) * el_size);
 }
 
-void mos_arr_put_fn(void *p_arr, size_t i, size_t el_size) {
+void mos_arr_put_fn(void *p_arr, size_t i, size_t el_size, size_t init_cap) {
     ini(i + 1);
     if (i > hdr->len) {
         memset((char *)arr + hdr->len * el_size, 0, (i - hdr->len) * el_size);
@@ -69,7 +65,7 @@ void mos_arr_put_fn(void *p_arr, size_t i, size_t el_size) {
     }
 }
 
-size_t mos_arr_append_n_fn(void *p_arr, void *items, size_t n, size_t el_size) {
+size_t mos_arr_append_n_fn(void *p_arr, void *items, size_t n, size_t el_size, size_t init_cap) {
     ini(hdr->len + n);
     size_t i = hdr->len;
 
@@ -78,10 +74,10 @@ size_t mos_arr_append_n_fn(void *p_arr, void *items, size_t n, size_t el_size) {
     return i;
 }
 
-size_t mos_arr_insert_n_fn(void *p_arr, size_t i, void *items, size_t n, size_t el_size) {
+size_t mos_arr_insert_n_fn(void *p_arr, size_t i, void *items, size_t n, size_t el_size, size_t init_cap) {
     ini(hdr->len + n);
     if (i >= hdr->len)
-        return mos_arr_append_n_fn(p_arr, items, n, el_size);
+        return mos_arr_append_n_fn(p_arr, items, n, el_size, init_cap);
 
     memmove((char *)arr + (i + n) * el_size, (char *)arr + i * el_size, (hdr->len - i) * el_size);
     memmove((char *)arr + i * el_size, items, n * el_size);
@@ -89,7 +85,7 @@ size_t mos_arr_insert_n_fn(void *p_arr, size_t i, void *items, size_t n, size_t 
     return i;
 }
 
-size_t mos_arr_put_n_fn(void *p_arr, size_t i, void *items, size_t n, size_t el_size) {
+size_t mos_arr_put_n_fn(void *p_arr, size_t i, void *items, size_t n, size_t el_size, size_t init_cap) {
     ini(i + n + 1);
     if (i > hdr->len) {
         memset((char *)arr + hdr->len * el_size, 0, (i - hdr->len) * el_size);
@@ -101,12 +97,12 @@ size_t mos_arr_put_n_fn(void *p_arr, size_t i, void *items, size_t n, size_t el_
     return i;
 }
 
-size_t mos_arr_concat_fn(void *p_arr, void *arr2, size_t el_size) {
+size_t mos_arr_concat_fn(void *p_arr, void *arr2, size_t el_size, size_t init_cap) {
     size_t arr2_len = mos_arr_len(arr2);
     if (arr2_len == 0)
         return -1;
 
-    return mos_arr_append_n_fn(p_arr, arr2, arr2_len, el_size);
+    return mos_arr_append_n_fn(p_arr, arr2, arr2_len, el_size, init_cap);
 }
 
 size_t mos_arr_del_fn(void *arr, size_t i, size_t el_size) {
@@ -147,7 +143,7 @@ size_t mos_arr_len(void *arr) {
     return arr2hdr(arr)->len;
 }
 
-size_t mos_arr_set_len_fn(void *p_arr, size_t len, size_t el_size) {
+size_t mos_arr_set_len_fn(void *p_arr, size_t len, size_t el_size, size_t init_cap) {
     ini(len);
 
     size_t del = hdr->len > len ? hdr->len - len : 0;
@@ -167,7 +163,7 @@ size_t mos_arr_cap(void *arr) {
 size_t mos_arr_set_cap_fn(void *p_arr, size_t cap, size_t el_size) {
     void *arr = *(void **)p_arr;
     if (!arr) {
-        *(void **)p_arr = init_cap(cap, el_size);
+        *(void **)p_arr = init(cap, el_size);
         return cap;
     }
 

@@ -1,4 +1,5 @@
 #include "alloc_tests.h"
+#define MOS_MAX_ALLOC_ATTEMPTS 1
 #include "moslib/mem/alloc.h"
 
 #include <limits.h>

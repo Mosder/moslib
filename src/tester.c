@@ -1,4 +1,4 @@
-#define MOSLIB_FORCE_PREFIXES
+#define MOS_FORCE_PREFIXES
 #include "moslib/tester.h"
 
 #include <setjmp.h>

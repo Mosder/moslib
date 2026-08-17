@@ -1,4 +1,5 @@
 #include "array_tests.h"
+#define MOS_ARR_INIT_CAP 8
 #include "moslib/ds/array.h"
 
 #include <string.h>
@@ -8,17 +9,17 @@ Test cap_test() {
     test_assert(arr_cap(arr) == 0, "uninitialized array has capacity different than 0");
 
     arr_append(arr, 0.0);
-    test_assert(arr_cap(arr) == ARR_INIT_CAP, "initial arr capacity is incorrect");
+    test_assert(arr_cap(arr) == MOS_ARR_INIT_CAP, "initial arr capacity is incorrect");
 
-    float items[ARR_INIT_CAP] = {0};
-    arr_append_n(arr, items, ARR_INIT_CAP);
-    test_assert(arr_cap(arr) == 2 * ARR_INIT_CAP, "capacity didn't increase 2 times");
+    float items[MOS_ARR_INIT_CAP] = {0};
+    arr_append_n(arr, items, MOS_ARR_INIT_CAP);
+    test_assert(arr_cap(arr) == 2 * MOS_ARR_INIT_CAP, "capacity didn't increase 2 times");
 
-    size_t new_cap = arr_set_cap(arr, 3 * ARR_INIT_CAP);
-    test_assert(new_cap == arr_cap(arr) && new_cap == 3 * ARR_INIT_CAP, "set cap didn't set correct capacity (cap >= len)");
+    size_t new_cap = arr_set_cap(arr, 3 * MOS_ARR_INIT_CAP);
+    test_assert(new_cap == arr_cap(arr) && new_cap == 3 * MOS_ARR_INIT_CAP, "set cap didn't set correct capacity (cap >= len)");
 
     new_cap = arr_set_cap(arr, 0);
-    test_assert(new_cap == arr_cap(arr) && new_cap == ARR_INIT_CAP + 1, "set cap didn't set correct capacity (cap < len)");
+    test_assert(new_cap == arr_cap(arr) && new_cap == MOS_ARR_INIT_CAP + 1, "set cap didn't set correct capacity (cap < len)");
 }
 
 Test len_test() {

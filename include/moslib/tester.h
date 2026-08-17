@@ -83,7 +83,7 @@
 #ifndef MOSLIB_TESTER_H
 #define MOSLIB_TESTER_H
 
-#ifndef MOSLIB_FORCE_PREFIXES
+#ifndef MOS_FORCE_PREFIXES
 
 #define Test MosTest
 #define Tester MosTester
@@ -99,7 +99,7 @@
 #define run_tests mos_run_tests
 #define free_tester mos_free_tester
 
-#endif // MOSLIB_FORCE_PREFIXES
+#endif // MOS_FORCE_PREFIXES
 
 typedef void MosTest; // this is just for nice indication that a function is a test
 typedef struct MosTester MosTester;
