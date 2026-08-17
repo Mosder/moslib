@@ -46,7 +46,8 @@ void *expand(void *arr, size_t min_cap, size_t el_size) {
     !*(void**)p_arr ? *(void **)p_arr = init(el_size) : 0;              \
     MosArrHeader *hdr = arr2hdr(*(void**)p_arr);                        \
     *(void **)p_arr = expand(*(void**)p_arr, min_cap, el_size);         \
-    void *arr = *(void **)p_arr
+    void *arr = *(void **)p_arr;                                        \
+    hdr = arr2hdr(arr)
 // clang-format on
 
 void mos_arr_append_fn(void *p_arr, size_t el_size) {

@@ -132,8 +132,8 @@ void mos_suppress_output(FILE **out) {
     if (!suppressed.outs || suppressed.n_outs >= suppressed.out_cap) {
         while (suppressed.n_outs >= suppressed.out_cap)
             suppressed.out_cap *= 2;
-        suppressed.outs = mos_safe_realloc(suppressed.outs, suppressed.out_cap);
-        suppressed.ogs = mos_safe_realloc(suppressed.ogs, suppressed.out_cap);
+        suppressed.outs = mos_safe_realloc(suppressed.outs, suppressed.out_cap * sizeof(FILE **));
+        suppressed.ogs = mos_safe_realloc(suppressed.ogs, suppressed.out_cap * sizeof(FILE *));
     }
     suppressed.outs[suppressed.n_outs] = out;
     suppressed.ogs[suppressed.n_outs++] = *out;
@@ -234,6 +234,7 @@ void mos_free_tester(MosTester *tester) {
     }
     if (suppressed.outs) {
         free(suppressed.outs);
+        free(suppressed.ogs);
         suppressed.n_outs = 0;
     }
 }
