@@ -7,3 +7,8 @@ Defnitely not the best implementations ever made, but they're mine, so idc.
 - memory management helpers
 - testing framework
 - dynamic array implementation
+
+## Planned
+- string slices
+- hashmap implementation
+- a bunch of other stuff most certainly
