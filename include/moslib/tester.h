@@ -67,7 +67,7 @@
 //
 // Run tests:
 //
-//      run_tests(tester);
+//      int all_passed = run_tests(tester);
 //
 // ----------------------------------------------------------------------------------------------------
 //
@@ -174,7 +174,10 @@ extern void mos_unsuppress_outputs(void);
 // Arguments:
 //   tester
 //     tester with tests to run
-extern void mos_run_tests(MosTester *tester);
+//
+// Returns:
+//   1 if all tests passed, 0 if not
+extern int mos_run_tests(MosTester *tester);
 
 // Free the tester
 //

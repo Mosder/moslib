@@ -166,9 +166,9 @@ void mos_add_test_fn(MosTestGroup *group, MosTestFn test, const char *name) {
     group->tests[group->n_tests++] = (TestName){.test = test, .name = name};
 }
 
-void mos_run_tests(MosTester *tester) {
+int mos_run_tests(MosTester *tester) {
     if (!tester)
-        return;
+        return 0;
 
     size_t total_passed = 0;
     size_t total_failed = 0;
@@ -220,6 +220,8 @@ void mos_run_tests(MosTester *tester) {
     sprintf(buf, "%zu FAILED", total_failed);
     print_center(buf, RED, ' ');
     print_center("END", WHITE, '=');
+
+    return total_failed == 0;
 }
 
 void mos_free_tester(MosTester *tester) {
