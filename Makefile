@@ -25,11 +25,13 @@ memory:
 
 structures:
 	$(CC) $(CFLAGS) -c src/ds/array.c
+	$(CC) $(CFLAGS) -c src/ds/hashmap.c
 
 test:
 	$(CC) $(CFLAGS_TEST) -c tests/mem/alloc_tests.c
 	$(CC) $(CFLAGS_TEST) -c tests/ds/array_tests.c
 	$(CC) $(CFLAGS_TEST) -c tests/string_tests.c
+	$(CC) $(CFLAGS_TEST) -c tests/ds/hashmap_tests.c
 	$(CC) $(CFLAGS_TEST) -lmoslib *.o tests/tests.c -o run_tests
 	./run_tests
 	rm run_tests *.o
