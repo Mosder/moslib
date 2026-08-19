@@ -19,6 +19,12 @@
 //      char *str = "Hello, World!";
 //      StringSlice ss = ss_from_str(str);
 //
+// When you have a slice and want to create a copy, you can use:
+//
+//      StringSlice ss2 = ss_copy(ss);
+//
+// It will share the same pointer as the original, so freeing the original will free this one too.
+//
 // If you want to use a string literal to create a slice at compile time, use:
 //
 //      StringSlice ss = SS_LIT("literal");
@@ -59,7 +65,43 @@
 //
 // ----------------------------------------------------------------------------------------------------
 //
-// You can split a slice in two using "split" functions:
+// You can trim a slice from whitespace using:
+//
+//      StringSlice trimmed   = ss_trim(ss); // same as trim_left + trim_right
+//      StringSlice trimmed_l = ss_trim_left(ss);
+//      StringSlice trimmed_r = ss_trim_right(ss);
+//
+// ----------------------------------------------------------------------------------------------------
+//
+// To check whether a slice starts or ends with a slice / string, you can use:
+//
+//      int flag = ss_starts_with(ss, ss_prefix);
+//      int flag = ss_ends_with(ss, ss_suffix);
+//      int flag = ss_starts_with_str(ss, str_prefix);
+//      int flag = ss_ends_with_str(ss, str_suffix);
+//
+// ----------------------------------------------------------------------------------------------------
+//
+// To delete from the left or the right, use:
+//
+//      size_t deleted = ss_del_left(&ss, n);
+//      size_t deleted = ss_del_right(&ss, n);
+//
+// It will delete n first / last characters from the slice and return the deleted count.
+//
+// You can also delete a prefix / suffix:
+//
+//      int flag = ss_del_prefix(&ss, ss_prefix);
+//      int flag = ss_del_suffix(&ss, ss_suffix);
+//      int flag = ss_del_prefix_str(&ss, str_prefix);
+//      int flag = ss_del_suffix_str(&ss, str_suffix);
+//
+// It will return whether or not the slice started / ended with the prefix / suffix and delete it if
+// it did.
+//
+// ----------------------------------------------------------------------------------------------------
+//
+// You can split a slice by a delimiter using ss_split functions:
 //
 //      StringSlice ss1 = ss_from_str("Hello, World!");
 //      StringSlice ss2 = ss_split(&ss1, ',');                   // ss2 = "Hello", ss3 = " World!"
@@ -68,25 +110,17 @@
 //
 // They will return a slice containing everything before the delimiter and modify in place the given
 // slice to contain everything after the delimiter.
-// If the delimiter wasn't found - returned slice will be the same as the given one and the given one
-// will be emptied. The same will happen for an empty delimiter in _str / _ss variants.
+// In the _str / _ss variants, if the delimter is empty - it will treat the start of the slice
+// as the delimiter.
+// If the delimiter wasn't found - it will treat the end of the slice as the delimiter.
 //
-// ----------------------------------------------------------------------------------------------------
+// You can also split by the n first / last characters:
 //
-// You can trim a slice from whitespace using:
+//      StringSlice ss_middle = ss_from_str("[left][middle][right]");
+//      StringSlice ss_left   = ss_split_left(&ss_middle, 6);
+//      StringSlice ss_right  = ss_split_right(&ss_middle, 7);
 //
-//      StringSlice trimmed = ss_trim(ss); // same as trim_left + trim_right
-//      StringSlice trimmed_l = ss_trim_left(ss);
-//      StringSlice trimmed_r = ss_trim_right(ss);
-//
-// ----------------------------------------------------------------------------------------------------
-//
-// To check whether a slice starts or ends with a slice / string, you can use:
-//
-//      int flag1 = ss_starts_with(ss, ss_prefix);
-//      int flag2 = ss_ends_with(ss, ss_suffix);
-//      int flag3 = ss_starts_with_str(ss, str_prefix);
-//      int flag4 = ss_ends_with_str(ss, str_suffix);
+// It will return the "split" part and leave the remainder in the argument slice.
 //
 // ----------------------------------------------------------------------------------------------------
 //
@@ -119,6 +153,7 @@
 
 #define StringSlice MosStringSlice
 #define ss_from_str mos_ss_from_str
+#define ss_copy mos_ss_copy
 #define SS_LIT MOS_SS_LIT
 #define ss_from_arr mos_ss_from_arr
 #define ss_from_vars mos_ss_from_vars
@@ -126,9 +161,6 @@
 #define SS_FMT MOS_SS_FMT
 #define SS_ARGS MOS_SS_ARGS
 #define ss_eq mos_ss_eq
-#define ss_split mos_ss_split
-#define ss_split_str mos_ss_split_str
-#define ss_split_ss mos_ss_split_ss
 #define ss_trim mos_ss_trim
 #define ss_trim_left mos_ss_trim_left
 #define ss_trim_right mos_ss_trim_right
@@ -136,6 +168,17 @@
 #define ss_ends_with mos_ss_ends_with
 #define ss_starts_with_str mos_ss_starts_with_str
 #define ss_ends_with_str mos_ss_ends_with_str
+#define ss_del_left mos_ss_del_left
+#define ss_del_right mos_ss_del_right
+#define ss_del_prefix mos_ss_del_prefix
+#define ss_del_suffix mos_ss_del_suffix
+#define ss_del_prefix_str mos_ss_del_prefix_str
+#define ss_del_suffix_str mos_ss_del_suffix_str
+#define ss_split mos_ss_split
+#define ss_split_str mos_ss_split_str
+#define ss_split_ss mos_ss_split_ss
+#define ss_split_left mos_ss_split_left
+#define ss_split_right mos_ss_split_right
 #define ss_find mos_ss_find
 #define ss_find_str mos_ss_find_str
 #define ss_utf8_len mos_ss_utf8_len
@@ -156,6 +199,17 @@ typedef struct {
 // Returns:
 //   a newly created string slice
 extern MosStringSlice mos_ss_from_str(const char *str);
+
+// Create a copy of a string slice
+// No allocations - the pointer will be shared between slices
+//
+// Arguments:
+//   ss
+//     a slice to create a copy of
+//
+// Returns:
+//   a copy of a string slice
+extern MosStringSlice mos_ss_copy(MosStringSlice ss);
 
 // Create a string slice from a string literal at compile time
 //
@@ -215,51 +269,6 @@ extern void mos_ss_print(MosStringSlice ss);
 // Returns:
 //   1 if slices are equal, 0 otherwise
 extern int mos_ss_eq(MosStringSlice ss1, MosStringSlice ss2);
-
-// Split a slice by a character delimiter
-// If the delimiter is not found - treats the end of the slice as the delimiter
-//
-// Arguments:
-//   ss
-//     pointer to the slice to split
-//     will be modified in place to contain everything after the delimiter
-//
-//   delim
-//     the delimiter to split by
-//
-// Returns:
-//   a slice containing everything before the delimiter
-extern MosStringSlice mos_ss_split(MosStringSlice *ss, char delim);
-
-// Split a slice by a C string delimiter
-// If the delimiter is not found or is an empty string - treats the end of the slice as the delimiter
-//
-// Arguments:
-//   ss
-//     pointer to the slice to split
-//     will be modified in place to contain everything after the delimiter
-//
-//   delim
-//     the delimiter to split by
-//
-// Returns:
-//   a slice containing everything before the delimiter
-extern MosStringSlice mos_ss_split_str(MosStringSlice *ss, const char *delim);
-
-// Split a slice by a slice delimiter
-// If the delimiter is not found or is an empty slice - treats the end of the slice as the delimiter
-//
-// Arguments:
-//   ss
-//     pointer to the slice to split
-//     will be modified in place to contain everything after the delimiter
-//
-//   delim
-//     the delimiter to split by
-//
-// Returns:
-//   a slice containing everything before the delimiter
-extern MosStringSlice mos_ss_split_ss(MosStringSlice *ss, MosStringSlice delim);
 
 // Time a slice of white space from both the left and the right side
 //
@@ -342,6 +351,163 @@ extern int mos_ss_starts_with_str(MosStringSlice ss, const char *prefix);
 // Returns:
 //   1 if the slice ends with the suffix, 0 otherwise
 extern int mos_ss_ends_with_str(MosStringSlice ss, const char *suffix);
+
+// Delete first n characters from a slice
+//
+// Arguments:
+//   ss
+//     pointer to the slice to delete from
+//
+//   n
+//     count of characters to delete
+//
+// Returns:
+//   count of characters deleted
+extern size_t mos_ss_del_left(MosStringSlice *ss, size_t n);
+
+// Delete last n characters from a slice
+//
+// Arguments:
+//   ss
+//     pointer to the slice to delete from
+//
+//   n
+//     count of characters to delete
+//
+// Returns:
+//   count of characters deleted
+extern size_t mos_ss_del_right(MosStringSlice *ss, size_t n);
+
+// Delete the slice prefix from a string slice
+// If it's not the prefix, do nothing
+//
+// Arguments:
+//   ss
+//     pointer to the slice to delete from
+//
+//   prefix
+//     slice prefix to delete
+//
+// Returns:
+//   1 if the prefix was deleted, 0 otherwise
+extern int mos_ss_del_prefix(MosStringSlice *ss, MosStringSlice prefix);
+
+// Delete the slice suffix from a string slice
+// If it's not the suffix, do nothing
+//
+// Arguments:
+//   ss
+//     pointer to the slice to delete from
+//
+//   suffix
+//     slice suffix to delete
+//
+// Returns:
+//   1 if the suffix was deleted, 0 otherwise
+extern int mos_ss_del_suffix(MosStringSlice *ss, MosStringSlice suffix);
+
+// Delete the string prefix from a slice
+// If it's not the prefix, do nothing
+//
+// Arguments:
+//   ss
+//     pointer to the slice to delete from
+//
+//   prefix
+//     string prefix to delete
+//
+// Returns:
+//   1 if the prefix was deleted, 0 otherwise
+extern int mos_ss_del_prefix_str(MosStringSlice *ss, char *prefix);
+
+// Delete the string suffix from a slice
+// If it's not the suffix, do nothing
+//
+// Arguments:
+//   ss
+//     pointer to the slice to delete from
+//
+//   suffix
+//     string suffix to delete
+//
+// Returns:
+//   1 if the suffix was deleted, 0 otherwise
+extern int mos_ss_del_suffix_str(MosStringSlice *ss, char *suffix);
+
+// Split a slice by a character delimiter
+// If the delimiter is not found - treats the end of the slice as the delimiter
+//
+// Arguments:
+//   ss
+//     pointer to the slice to split
+//     will be modified in place to contain everything after the delimiter
+//
+//   delim
+//     the delimiter to split by
+//
+// Returns:
+//   a slice containing everything before the delimiter
+extern MosStringSlice mos_ss_split(MosStringSlice *ss, char delim);
+
+// Split a slice by a C string delimiter
+// If the delimiter is an empty string - treats the start of the slice as the delimiter
+// If the delimiter is not found       - treats the end of the slice as the delimiter
+//
+// Arguments:
+//   ss
+//     pointer to the slice to split
+//     will be modified in place to contain everything after the delimiter
+//
+//   delim
+//     the delimiter to split by
+//
+// Returns:
+//   a slice containing everything before the delimiter
+extern MosStringSlice mos_ss_split_str(MosStringSlice *ss, const char *delim);
+
+// Split a slice by a slice delimiter
+// If the delimiter is an empty slice - treats the start of the slice as the delimiter
+// If the delimiter is not found      - treats the end of the slice as the delimiter
+//
+// Arguments:
+//   ss
+//     pointer to the slice to split
+//     will be modified in place to contain everything after the delimiter
+//
+//   delim
+//     the delimiter to split by
+//
+// Returns:
+//   a slice containing everything before the delimiter
+extern MosStringSlice mos_ss_split_ss(MosStringSlice *ss, MosStringSlice delim);
+
+// Split a slice by the first n characters
+//
+// Arguments:
+//   ss
+//     pointer to the slice to split
+//     first n characters will be deleted from it
+//
+//   n
+//     count of characters to split by
+//
+// Returns:
+//   a slice containing the first n characters of the original slice
+extern MosStringSlice mos_ss_split_left(MosStringSlice *ss, size_t n);
+
+// Split a slice by the last n characters
+//
+// Arguments:
+//   ss
+//     pointer to the slice to split
+//     last n characters will be deleted from it
+//
+//   n
+//     count of characters to split by
+//
+// Returns:
+//   a slice containing the last n characters of the original slice
+extern MosStringSlice mos_ss_split_right(MosStringSlice *ss, size_t n);
 
 // Find the given slice target inside a slice
 //
