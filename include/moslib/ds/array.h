@@ -95,10 +95,10 @@
 //
 // It works the same way but deleted n consecutive items instead of 1.
 //
-// You can also remove from the front or the back:
+// You can also remove from the left or the right:
 //
-//      size_t deleted = arr_del_front(array, n);
-//      size_t deleted = arr_del_back(array, n);
+//      size_t deleted = arr_del_left(array, n);
+//      size_t deleted = arr_del_right(array, n);
 //
 // They work like arr_del_n without needing to specify the indices.
 //
@@ -175,8 +175,8 @@
 #define arr_pop mos_arr_pop
 #define arr_del mos_arr_del
 #define arr_del_n mos_arr_del_n
-#define arr_del_front mos_arr_del_front
-#define arr_del_back mos_arr_del_back
+#define arr_del_left mos_arr_del_left
+#define arr_del_right mos_arr_del_right
 #define arr_prev mos_arr_prev
 #define arr_next mos_arr_next
 #define arr_len mos_arr_len
@@ -376,7 +376,7 @@
 //
 // Returns:
 //   the popped item
-#define mos_arr_pop(arr) (mos_arr_del_back(arr, 1), (arr)[mos_arr_len(arr)])
+#define mos_arr_pop(arr) (mos_arr_del_right(arr, 1), (arr)[mos_arr_len(arr)])
 
 // Delete an item at specific index from the array
 // Moves items after deleted one to the left
@@ -421,7 +421,7 @@
 //
 // Returns:
 //   count of deleted items
-#define mos_arr_del_front(arr, n) mos_arr_del_front_fn(arr, n, sizeof(*(arr)))
+#define mos_arr_del_left(arr, n) mos_arr_del_left_fn(arr, n, sizeof(*(arr)))
 
 // Delete n last items from the array
 //
@@ -434,7 +434,7 @@
 //
 // Returns:
 //   count of deleted items
-#define mos_arr_del_back(arr, n) mos_arr_del_back_fn(arr, n)
+#define mos_arr_del_right(arr, n) mos_arr_del_right_fn(arr, n)
 
 // Get the pointer to the previous item in the array from the pointer to the current one
 // If pointer is NULL - gets the last item from the array
@@ -537,8 +537,8 @@ extern size_t mos_arr_put_n_fn(void *p_arr, size_t i, void *items, size_t n, siz
 extern size_t mos_arr_concat_fn(void *p_arr, void *arr2, size_t el_size, size_t init_cap);
 extern size_t mos_arr_del_fn(void *arr, size_t i, size_t el_size);
 extern size_t mos_arr_del_n_fn(void *arr, size_t i, size_t n, size_t el_size);
-extern size_t mos_arr_del_front_fn(void *arr, size_t n, size_t el_size);
-extern size_t mos_arr_del_back_fn(void *arr, size_t n);
+extern size_t mos_arr_del_left_fn(void *arr, size_t n, size_t el_size);
+extern size_t mos_arr_del_right_fn(void *arr, size_t n);
 extern size_t mos_arr_set_len_fn(void *p_arr, size_t len, size_t el_size, size_t init_cap);
 extern size_t mos_arr_set_cap_fn(void *p_arr, size_t cap, size_t el_size);
 

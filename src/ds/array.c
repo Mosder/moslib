@@ -123,11 +123,11 @@ size_t mos_arr_del_n_fn(void *arr, size_t i, size_t n, size_t el_size) {
     return new_n;
 }
 
-size_t mos_arr_del_front_fn(void *arr, size_t n, size_t el_size) {
+size_t mos_arr_del_left_fn(void *arr, size_t n, size_t el_size) {
     return mos_arr_del_n_fn(arr, 0, n, el_size);
 }
 
-size_t mos_arr_del_back_fn(void *arr, size_t n) {
+size_t mos_arr_del_right_fn(void *arr, size_t n) {
     if (!arr)
         return 0;
 

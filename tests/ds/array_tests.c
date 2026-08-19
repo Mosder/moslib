@@ -131,14 +131,14 @@ Test deleting_items() {
     test_assert(deleted == 5, "del_n deleted wrong number of items");
     test_assert(arr_len(arr) == 2 && arr[0] == 1 && arr[1] == 8, "deleted wrong items");
 
-    deleted = arr_del_front(arr, 10);
-    test_assert(deleted == 2, "del_front deleted wrong number of items");
-    deleted = arr_del_back(arr, 10);
-    test_assert(deleted == 0, "del_back deleted wrong number of items");
+    deleted = arr_del_left(arr, 10);
+    test_assert(deleted == 2, "del_left deleted wrong number of items");
+    deleted = arr_del_right(arr, 10);
+    test_assert(deleted == 0, "del_right deleted wrong number of items");
 
     arr_append_n(arr, items, 9);
-    arr_del_front(arr, 2);
-    arr_del_back(arr, 6);
+    arr_del_left(arr, 2);
+    arr_del_right(arr, 6);
     test_assert(arr_len(arr) == 1 && arr[0] == 3, "wrong array after deletions");
 }
 
