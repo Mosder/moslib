@@ -16,19 +16,17 @@ static: compile headers
 headers:
 	sudo cp -r include/* /usr/local/include
 
-compile: memory structures
+compile: structures
 	$(CC) $(CFLAGS) -c src/tester.c
+	$(CC) $(CFLAGS) -c src/safe.c
 	$(CC) $(CFLAGS) -c src/string.c
-
-memory:
-	$(CC) $(CFLAGS) -c src/mem/alloc.c
 
 structures:
 	$(CC) $(CFLAGS) -c src/ds/array.c
 	$(CC) $(CFLAGS) -c src/ds/hashmap.c
 
 test:
-	$(CC) $(CFLAGS_TEST) -c tests/mem/alloc_tests.c
+	$(CC) $(CFLAGS_TEST) -c tests/safe_tests.c
 	$(CC) $(CFLAGS_TEST) -c tests/ds/array_tests.c
 	$(CC) $(CFLAGS_TEST) -c tests/string_tests.c
 	$(CC) $(CFLAGS_TEST) -c tests/ds/hashmap_tests.c

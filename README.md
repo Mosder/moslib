@@ -4,11 +4,11 @@ Just a bunch of useful code for me put into a single lib, so I don't have to imp
 Defnitely not the best implementations ever made, but they're mine, so idc.
 
 ## Contains:
-- memory management helpers
+- "safe" wrappers for "unsafe" functions
 - testing framework
 - dynamic array implementation
 
 ## Planned:
-- string slices
+- length aware string slices
 - hashmap implementation
 - a bunch of other stuff most certainly

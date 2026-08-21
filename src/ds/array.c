@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "moslib/mem/alloc.h"
+#include "moslib/safe.h"
 
 MosArrHeader *arr2hdr(void *arr) {
     return (MosArrHeader *)arr - 1;

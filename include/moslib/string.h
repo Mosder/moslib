@@ -549,4 +549,4 @@ extern MosStringSlice mos_ss_find_str(MosStringSlice ss, const char *target);
 //   utf-8 length
 extern size_t mos_ss_utf8_len(MosStringSlice ss);
 
-#endif // MOSLIB_MEM_ALLOC_H
+#endif // MOSLIB_STRING_H

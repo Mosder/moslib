@@ -148,7 +148,7 @@
 // ----------------------------------------------------------------------------------------------------
 // ===================================== END OF QUICK USAGE GUIDE =====================================
 
-#include "moslib/mem/alloc.h"
+#include "moslib/safe.h"
 
 #ifndef MOSLIB_DS_ARRAY_H
 #define MOSLIB_DS_ARRAY_H
