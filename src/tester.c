@@ -6,8 +6,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-#include "moslib/mem/alloc.h"
+#include "moslib/safe.h"
 
 #define INIT_GROUP_CAP 8
 #define INIT_TEST_CAP 16
@@ -22,8 +23,8 @@ int failed = 0;
 FILE *dev_null = NULL;
 
 typedef struct {
-    FILE ***outs;
-    FILE **ogs;
+    int *outs;
+    int *ogs;
     size_t n_outs;
     size_t out_cap;
 } Outputs;
@@ -128,31 +129,64 @@ void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name) {
     }
 }
 
-void mos_suppress_output(FILE **out) {
+void mos_test_assert_out_fn(MosTestFn function, FILE *stream, const char *output, const char *fn_name, const char *stream_name) {
+    size_t n = strlen(output);
+    char *out = mos_safe_calloc(n + 2, 1);
+
+    FILE *tmp = mos_safe_tmpfile();
+
+    int fd = fileno(stream);
+    int og = mos_safe_dup(fd);
+    fflush(stream);
+    mos_safe_dup2(fileno(tmp), fd);
+
+    function();
+    fflush(stream);
+    rewind(tmp);
+    fread(out, 1, n + 1, tmp);
+    fclose(tmp);
+
+    mos_safe_dup2(og, fd);
+    close(og);
+
+    if (strcmp(out, output)) {
+        failed = 1;
+        print_color("ASSERT FAILED: ", RED);
+        printf("function %s outputed to %s:\n", fn_name, stream_name);
+        printf("               %s (first %zu chars)\n", out, n + 1);
+        printf("               expected: %s\n", output);
+    }
+    free(out);
+}
+
+void mos_suppress_output(FILE *out) {
     if (!suppressed.outs || suppressed.n_outs >= suppressed.out_cap) {
         while (suppressed.n_outs >= suppressed.out_cap)
             suppressed.out_cap *= 2;
-        suppressed.outs = mos_safe_realloc(suppressed.outs, suppressed.out_cap * sizeof(FILE **));
-        suppressed.ogs = mos_safe_realloc(suppressed.ogs, suppressed.out_cap * sizeof(FILE *));
+        suppressed.outs = mos_safe_realloc(suppressed.outs, suppressed.out_cap * sizeof(int));
+        suppressed.ogs = mos_safe_realloc(suppressed.ogs, suppressed.out_cap * sizeof(int));
     }
-    suppressed.outs[suppressed.n_outs] = out;
-    suppressed.ogs[suppressed.n_outs++] = *out;
+    suppressed.outs[suppressed.n_outs] = fileno(out);
+    suppressed.ogs[suppressed.n_outs++] = dup(fileno(out));
 
-    if (!dev_null) {
-        dev_null = fopen("/dev/null", "w");
-        if (!dev_null)
-            return;
-    }
+    if (!dev_null)
+        dev_null = mos_safe_fopen("/dev/null", "w");
 
-    *out = dev_null;
+    fflush(out);
+    dup2(fileno(dev_null), fileno(out));
 }
 
 void mos_unsuppress_outputs(void) {
     if (!suppressed.outs || !suppressed.ogs)
         return;
 
-    for (size_t i = 0; i < suppressed.n_outs; i++)
-        *suppressed.outs[i] = suppressed.ogs[i];
+    if (dev_null)
+        fflush(dev_null);
+
+    for (size_t i = suppressed.n_outs; i-- > 0;) {
+        dup2(suppressed.ogs[i], suppressed.outs[i]);
+        close(suppressed.ogs[i]);
+    }
 
     suppressed.n_outs = 0;
 }
@@ -231,8 +265,10 @@ void mos_free_tester(MosTester *tester) {
         free(tester->groups);
         free(tester);
     }
+    mos_unsuppress_outputs();
     if (dev_null) {
         fclose(dev_null);
+        dev_null = NULL;
     }
     if (suppressed.outs) {
         free(suppressed.outs);

@@ -46,12 +46,23 @@
 //          test_assert_exit(helper_test, EXIT_FAILURE);
 //      }
 //
+// You can also test if a function writes correct output.
+// You need to create a helper test and pass it into test_assert_out in main test.
+// Pass the helper test, output stream, and expected output to it.
+// Example:
+//      Test helper_test() {
+//          printf("output");
+//      }
+//      Test main_test() {
+//          test_assert_out(helper_test, stdout, "output");
+//      }
+//
 // If your functions have output and you want to suppress them for the sake of tests,
 // you can do so using suppress_output and unsupress_outputs.
 // Example:
 //      Test error_test() {
-//          suppress_output(&stdout);
-//          suppress_output(&stderr);
+//          suppress_output(stdout);
+//          suppress_output(stderr);
 //          int code = fun_that_fails_with_output();
 //          unsuppress_outputs();
 //          test_assert(code == 0, "function didn't fail");
@@ -93,6 +104,7 @@
 #define add_test_group mos_add_test_group
 #define test_assert mos_test_assert
 #define test_assert_exit mos_test_assert_exit
+#define test_assert_out mos_test_assert_out
 #define suppress_output mos_suppress_output
 #define unsuppress_outputs mos_unsuppress_outputs
 #define add_test mos_add_test
@@ -148,12 +160,25 @@ extern void mos_test_assert(int expression, const char *fail_message);
 //     expected exit code
 #define mos_test_assert_exit(function, code) mos_test_assert_exit_fn(function, code, #function);
 
+// Assert that function writes correct output to specified stream
+//
+// Arguments:
+//   function
+//     function that is supposed to write output
+//
+//   stream
+//     stream to write the output to
+//
+//   output
+//     expected output of the function
+#define mos_test_assert_out(function, stream, output) mos_test_assert_out_fn(function, stream, output, #function, #stream);
+
 // Suppress given output
 //
 // Arguments:
 //   out
-//     pointer to outpout to suppress
-extern void mos_suppress_output(FILE **out);
+//     outpout to suppress
+extern void mos_suppress_output(FILE *out);
 
 // Unuppress previously suppressed outputs
 // Will unsupress all of the outputs that were suppressed
@@ -189,6 +214,7 @@ extern void mos_free_tester(MosTester *tester);
 // Function prototypes for macros
 extern MosTestGroup *mos_add_test_group_fn(MosTester *tester, const char *group_name);
 extern void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name);
+extern void mos_test_assert_out_fn(MosTestFn function, FILE *stream, const char *output, const char *fn_name, const char *stream_name);
 extern void mos_add_test_fn(MosTestGroup *group, MosTestFn test, const char *name);
 
 #endif // MOSLIB_TESTER_H
