@@ -7,8 +7,8 @@ Defnitely not the best implementations ever made, but they're mine, so idc.
 - "safe" wrappers for "unsafe" functions
 - testing framework
 - dynamic array implementation
+- length aware string slices
 
 ## Planned:
-- length aware string slices
 - hashmap implementation
 - a bunch of other stuff most certainly

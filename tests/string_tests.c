@@ -17,9 +17,10 @@ Test creating() {
     test_assert(ss1.data == str && ss1.len == str_len, "ss_from_str created wrong slice");
 
     char *arr = NULL;
-    arr_append_n(arr, str, 13);
+    arr_append_n(arr, str, 5);
+    arr_append_n(arr, str + 5, 8);
     StringSlice ss2 = ss_from_arr(arr);
-    test_assert(ss2.data == str && ss2.len == str_len, "ss_from_arr created wrong slice");
+    test_assert(ss2.data == arr && ss2.len == str_len, "ss_from_arr created wrong slice");
 
     StringSlice ss3 = ss_from_vars(str, 13);
     test_assert(ss3.data == str && ss3.len == str_len, "ss_from_vars created wrong slice");
@@ -85,17 +86,17 @@ Test trimming() {
 Test prefix_suffix() {
     StringSlice ss = ss_from_str("pre mid suf");
 
-    test_assert(ss_starts_with(ss, ss_from_str("pre")), "slice doesn't start with its prefix");
-    test_assert(ss_starts_with(ss, ss_from_str("suf")) == 0, "slice starts with not prefix");
+    test_assert(ss_starts_with(ss, ss_from_str("pre")), "slice doesn't start with its slice prefix");
+    test_assert(ss_starts_with(ss, ss_from_str("suf")) == 0, "slice starts with not slice prefix");
 
-    test_assert(ss_ends_with(ss, ss_from_str("suf")), "slice doesn't end with its suffix");
-    test_assert(ss_ends_with(ss, ss_from_str("pre")) == 0, "slice ends with not suffix");
+    test_assert(ss_ends_with(ss, ss_from_str("suf")), "slice doesn't end with its slice suffix");
+    test_assert(ss_ends_with(ss, ss_from_str("pre")) == 0, "slice ends with not slice suffix");
 
-    test_assert(ss_starts_with_str(ss, "pre mid"), "slice doesn't start with its prefix");
-    test_assert(ss_starts_with_str(ss, "suf") == 0, "slice starts with not prefix");
+    test_assert(ss_starts_with_str(ss, "pre mid"), "slice doesn't start with its string prefix");
+    test_assert(ss_starts_with_str(ss, "suf") == 0, "slice starts with not string prefix");
 
-    test_assert(ss_ends_with_str(ss, "mid suf"), "slice doesn't end with its suffix");
-    test_assert(ss_ends_with_str(ss, "pre") == 0, "slice ends with not suffix");
+    test_assert(ss_ends_with_str(ss, "mid suf"), "slice doesn't end with its string suffix");
+    test_assert(ss_ends_with_str(ss, "pre") == 0, "slice ends with not string suffix");
 
     StringSlice ss2 = ss_from_str("");
     test_assert(ss_starts_with(ss2, ss_from_str("")), "starts_with breaks for empty slice and prefix");
@@ -121,29 +122,29 @@ Test deleting() {
     test_assert(deleted == 0, "ss_del_right returned wrong deleted count (n > len)");
     test_assert(ss_eq_str(ss, ""), "del_right deleted wrong chars (n > len)");
 
-    ss = ss_from_str("prepre sufsuf");
+    ss = ss_from_str("preprepre sufsufsuf");
     StringSlice pre = ss_from_str("pre");
     StringSlice suf = ss_from_str("suf");
 
     int flag = ss_del_prefix(&ss, pre);
-    test_assert(flag && ss.len == 10, "del_prefix didn't work properly for found prefix");
+    test_assert(flag && ss.len == 16, "del_prefix didn't work properly for found prefix");
     flag = ss_del_prefix(&ss, suf);
-    test_assert(!flag && ss.len == 10, "del_prefix didn't work properly for not found prefix");
+    test_assert(!flag && ss.len == 16, "del_prefix didn't work properly for not found prefix");
 
     flag = ss_del_suffix(&ss, suf);
-    test_assert(flag && ss.len == 7, "del_suffix didn't work properly for found suffix");
-    flag = ss_del_prefix(&ss, pre);
-    test_assert(!flag && ss.len == 7, "del_suffix didn't work properly for not found suffix");
+    test_assert(flag && ss.len == 13, "del_suffix didn't work properly for found suffix");
+    flag = ss_del_suffix(&ss, pre);
+    test_assert(!flag && ss.len == 13, "del_suffix didn't work properly for not found suffix");
 
     flag = ss_del_prefix_str(&ss, "pre");
-    test_assert(flag && ss.len == 4, "del_prefix_str didn't work properly for found prefix");
+    test_assert(flag && ss.len == 10, "del_prefix_str didn't work properly for found prefix");
     flag = ss_del_prefix_str(&ss, "suf");
-    test_assert(!flag && ss.len == 4, "del_prefix_str didn't work properly for not found prefix");
+    test_assert(!flag && ss.len == 10, "del_prefix_str didn't work properly for not found prefix");
 
     flag = ss_del_suffix_str(&ss, "suf");
-    test_assert(flag && ss.len == 1, "del_suffix_str didn't work properly for found suffix");
-    flag = ss_del_prefix_str(&ss, "pre");
-    test_assert(!flag && ss.len == 1, "del_suffix_str didn't work properly for not found suffix");
+    test_assert(flag && ss.len == 7, "del_suffix_str didn't work properly for found suffix");
+    flag = ss_del_suffix_str(&ss, "pre");
+    test_assert(!flag && ss.len == 7, "del_suffix_str didn't work properly for not found suffix");
 }
 
 Test splitting() {
@@ -156,7 +157,7 @@ Test splitting() {
     test_assert(ss_eq_str(ss3, "He") && ss_eq_str(ss2, "o"), "ss_split_str didn't split proprely");
 
     StringSlice ss4 = ss_split_ss(&ss1, SS_LIT("rld"));
-    test_assert(ss_eq_str(ss4, "Wo") && ss_eq_str(ss1, "!"), "ss_split_ss didn't split proprely");
+    test_assert(ss_eq_str(ss4, " Wo") && ss_eq_str(ss1, "!"), "ss_split_ss didn't split proprely");
 
     ss1 = ss_from_str("hiii");
 
