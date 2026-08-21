@@ -153,7 +153,7 @@ void mos_test_assert_out_fn(MosTestFn function, FILE *stream, const char *output
         failed = 1;
         print_color("ASSERT FAILED: ", RED);
         printf("function %s outputed to %s:\n", fn_name, stream_name);
-        printf("               %s (first %zu chars)\n", out, n + 1);
+        printf("               %s (capped at %zu chars)\n", out, n + 1);
         printf("               expected: %s\n", output);
     }
     free(out);
