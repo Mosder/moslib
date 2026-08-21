@@ -24,6 +24,10 @@ int mos_ss_eq(MosStringSlice ss1, MosStringSlice ss2) {
     return 0;
 }
 
+int mos_ss_eq_str(MosStringSlice ss, const char *str) {
+    return 0;
+}
+
 MosStringSlice mos_ss_trim(MosStringSlice ss) {
     return (MosStringSlice){0};
 }

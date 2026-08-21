@@ -59,9 +59,10 @@
 //
 // ----------------------------------------------------------------------------------------------------
 //
-// To check if two slices are equal, use:
+// To check if two slices / slice and string are equal, use:
 //
 //      int are_eq = ss_eq(ss1, ss2);
+//      int are_eq = ss_eq_str(ss1, "string");
 //
 // ----------------------------------------------------------------------------------------------------
 //
@@ -104,9 +105,9 @@
 // You can split a slice by a delimiter using ss_split functions:
 //
 //      StringSlice ss1 = ss_from_str("Hello, World!");
-//      StringSlice ss2 = ss_split(&ss1, ',');                   // ss2 = "Hello", ss3 = " World!"
+//      StringSlice ss2 = ss_split(&ss1, ',');                   // ss2 = "Hello", ss1 = " World!"
 //      StringSlice ss3 = ss_split_str(&ss2, "ll");              // ss3 = "He",    ss2 = "o"
-//      StringSlice ss4 = ss_split_ss(&ss1, ss_from_lit("rld")); // ss4 = " Wo",   ss1 = "!"
+//      StringSlice ss4 = ss_split_ss(&ss1, SS_LIT("rld")); // ss4 = " Wo",   ss1 = "!"
 //
 // They will return a slice containing everything before the delimiter and modify in place the given
 // slice to contain everything after the delimiter.
@@ -161,6 +162,7 @@
 #define SS_FMT MOS_SS_FMT
 #define SS_ARGS MOS_SS_ARGS
 #define ss_eq mos_ss_eq
+#define ss_eq_str mos_ss_eq_str
 #define ss_trim mos_ss_trim
 #define ss_trim_left mos_ss_trim_left
 #define ss_trim_right mos_ss_trim_right
@@ -269,6 +271,19 @@ extern void mos_ss_print(MosStringSlice ss);
 // Returns:
 //   1 if slices are equal, 0 otherwise
 extern int mos_ss_eq(MosStringSlice ss1, MosStringSlice ss2);
+
+// Check if slice is equal to a C string
+//
+// Arguments:
+//   ss
+//     slice to compare
+//
+//   str
+//     C string to compare
+//
+// Returns:
+//   1 if slice is equal to C string, 0 otherwise
+extern int mos_ss_eq_str(MosStringSlice ss, const char *str);
 
 // Time a slice of white space from both the left and the right side
 //
