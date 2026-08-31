@@ -10,6 +10,8 @@
 //          <type> key;
 //          <type> val;
 //      };
+//      can use:
+//      HM_DEF(name, tk, tv) -> expands to: typedef struct {tk key; tv val;} name
 //
 //      Struct needs to have these two values. Ig it could have more and it would work if you just use
 //      the entry functions, but would have uninitialized values for hm_put as that one will only
@@ -45,6 +47,7 @@
 
 #ifndef MOS_FORCE_PREFIXES
 
+#define HM_DEF MOS_HM_DEF
 #define hm_new mos_hm_new
 #define hm_put mos_hm_put
 #define hm_put_e mos_hm_put_e
@@ -61,6 +64,11 @@ typedef struct {
     uint32_t (*hash)(void *key);
     int (*eq)(void *key1, void *key2);
 } MosHmInitArgs;
+
+// clang-format off
+// Macro to define Entry struct easier
+#define MOS_HM_DEF(name, key_t, val_t) typedef struct {key_t key; val_t val;} name
+// clang-format on
 
 // Create a new hashmap
 //
@@ -80,7 +88,7 @@ typedef struct {
 //
 // Returns:
 //   pointer to the new hashmap
-#define mos_hm_new(...) mos_hm_new_fn((MosHmInitArgs){.key = DEFAULT, __VA_ARGS__})
+#define mos_hm_new(...) mos_hm_new_fn((MosHmInitArgs){__VA_ARGS__})
 
 // Put given value with given key in the hashmap
 // If entry of the same key exists - overwrites it
@@ -120,7 +128,7 @@ typedef struct {
 //
 // Returns:
 //   value of the entry with given key or 0 if no such entry exist
-#define mos_hm_get(hm, key)
+#define mos_hm_get(hm, key) 0
 
 // Get a pointer to an entry with specific key in hashmap
 //
@@ -133,7 +141,7 @@ typedef struct {
 //
 // Returns:
 //   pointer to the entry or NULL if no entry with such key exists
-#define mos_hm_get_e(hm, key)
+#define mos_hm_get_e(hm, key) NULL
 
 // Get a pointer to the first entry in the hashmap
 //
@@ -143,7 +151,7 @@ typedef struct {
 //
 // Returns:
 //   pointer to the first entry or NULL if hashmap is empty
-#define mos_hm_first(hm)
+#define mos_hm_first(hm) NULL
 
 // Get the pointer to the next entry in the hashmap from the pointer to the current one
 // If pointer is NULL - gets the first entry from the hashmap
@@ -157,7 +165,7 @@ typedef struct {
 //
 // Returns:
 //   pointer to the next entry or NULL if there's no more entries
-#define mos_hm_next(hm, curr)
+#define mos_hm_next(hm, curr) NULL
 
 // Free the hashmap
 //
