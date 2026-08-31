@@ -20,6 +20,8 @@ Test cap_test() {
 
     new_cap = arr_set_cap(arr, 0);
     test_assert(new_cap == arr_cap(arr) && new_cap == MOS_ARR_INIT_CAP + 1, "set cap didn't set correct capacity (cap < len)");
+
+    arr_free(arr);
 }
 
 Test len_test() {
@@ -33,6 +35,8 @@ Test len_test() {
     deleted = arr_set_len(arr, 3);
     test_assert(arr_len(arr) == 3, "set_len set wrong length");
     test_assert(deleted == 2, "decreasing length deleted wrong amount of items");
+
+    arr_free(arr);
 }
 
 Test adding_items() {
@@ -76,6 +80,8 @@ Test adding_items() {
 
     int expected[] = {4, 5, 3, 1, 8, 6, 7, 7, 1, 2, 3};
     test_assert(!memcmp(arr, expected, len * sizeof(int)), "array has wrong value(s) in it");
+
+    arr_free(arr);
 }
 
 Test getting_items() {
@@ -111,6 +117,8 @@ Test getting_items() {
     struct test i0 = *arr_get(arr, 0);
     struct test i1 = *arr_get(arr, 1);
     test_assert(!memcmp(&i0, &arr[0], sizeof(struct test)) && !memcmp(&i1, &arr[1], sizeof(struct test)), "arr_get(arr, i) gives different result than arr[i]");
+
+    arr_free(arr);
 }
 
 Test deleting_items() {
@@ -140,6 +148,8 @@ Test deleting_items() {
     arr_del_left(arr, 2);
     arr_del_right(arr, 6);
     test_assert(arr_len(arr) == 1 && arr[0] == 3, "wrong array after deletions");
+
+    arr_free(arr);
 }
 
 Test arr_concat_test() {
@@ -167,6 +177,9 @@ Test arr_concat_test() {
     unsigned long expected[] = {4, 5, 1, 2, 3, 4, 5};
     test_assert(arr_len(arr2) == 7, "arr_concat produced array of wrong length");
     test_assert(!memcmp(arr2, expected, 7 * sizeof(unsigned long)), "arr_concat produced wrong array");
+
+    arr_free(arr1);
+    arr_free(arr2);
 }
 
 void ds_array_tests(Tester *tester) {
