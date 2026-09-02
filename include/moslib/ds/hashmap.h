@@ -4,37 +4,96 @@
 // ======================================== QUICK USAGE GUIDE =========================================
 // ----------------------------------------------------------------------------------------------------
 //
-// NOTE: quick temporary note about how this should be implemented - to be changed ofc
+// Start by defining an Entry struct:
 //
 //      struct Entry {
 //          <type> key;
 //          <type> val;
 //      };
-//      can use:
-//      HM_DEF(name, tk, tv) -> expands to: typedef struct {tk key; tv val;} name
 //
-//      Struct needs to have these two values. Ig it could have more and it would work if you just use
-//      the entry functions, but would have uninitialized values for hm_put as that one will only
-//      assign .key and .val fields.
+// The fields of the struct have to be named "key" and "val".
 //
-//      Initialization:
+// For simple cases you can use the given macro:
 //
-//      Entry *hm = NULL;
-//      or
-//      Entry *hm = hm_new(opt_args);
+//      #define MOS_HM_DEF(name, key_t, val_t) typedef struct {key_t key; val_t val;} name
 //
-//      Don't need to do hm_new - only needed when wanting to change hashing / equals functions
-//      from the default byte by byte versions (strings, slices, pointers in general y'know)
-//      hm_new only mallocs and sets the header, since it doesn't know key / val size
-//      on first operation it will allocate init cap, since then it knows sizeof
+// Then you simply define hashmap as:
 //
-//      will be open addressing with linear probing most certainly, no deleting for now as I don't
-//      have a use case for now and it'd add a lot of complexity
+//      struct Entry *hm = NULL;
 //
-//      needs a sentinel at index 0 which is memset to 0, to use it for hm_get when key doesn't exist
-//      should allocate cap + 1 then, so cap means cap of actual data - not data + sentinel, then
-//      (hash & cap) + 1 gives index, sans collisions (cap = 2^n - I don't feel the need to add user
-//      set capacity, so that's fine I think)
+// You can also redefine the default byte-by-byte hash and/or equals functions by using hm_new:
+//
+//      struct Entry *hm = hm_new(opt_args);
+//
+// It accepts these optional arguments:
+//
+//      .key (enum {DEFAULT, STR, SS})        - use predefined hash and equals functions
+//                                              for C strings or StringSlice
+//      .hash (uint32_t (*)(void *key))       - user defined hash function
+//      .eq (int (*)(void *key1, void *key2)) - user defined equals function
+//                                              should return 1 if keys are equal, 0 otherwise
+//
+// .hash and .eq will overwrite the functions set by .key.
+//
+// It's better to assign NULL than to call hm_new with no arguments when you don't redefine anything.
+//
+// Examples:
+//
+//      HM_DEF(str_int, char *, int);
+//      str_int *hm1 = hm_new(.key = STR);
+//
+//      HM_DEF(ss_float, StringSlice, float);
+//      ss_float *hm2 = hm_new(.key = SS);
+//
+//      uint32_t hash_int(void *key) {
+//          return (uint32_t)(*(int *)key);
+//      }
+//      HM_DEF(int_int, int, int);
+//      int_int *hm3 = hm_new(.hash = hash_int);
+//
+// ----------------------------------------------------------------------------------------------------
+//
+// To put a key/value pair or an entry into a hashmap use:
+//
+//      hm_put(hm, key, val);
+//      hm_put_e(hm, entry);
+//
+// If an entry with the same key already exists - it will be overwritten.
+//
+// ----------------------------------------------------------------------------------------------------
+//
+// To get a value from a hashmap use:
+//
+//      val_t val = hm_get(hm, key);
+//
+// If an entry of given key is not in the hashmap, it will return a value with all bytes set to 0.
+//
+// You can also get a pointer to an entire entry in the hashmap:
+//
+//      struct Entry *entry = hm_get_e(hm, key);
+//
+// If an entry of given key is not in the hashmap it will return NULL.
+//
+// ----------------------------------------------------------------------------------------------------
+//
+// You can loop over the hashmap using these functions:
+//
+//      struct Entry *first = hm_first(hm);
+//      struct Entry *next = hm_next(hm, curr);
+//
+// hm_first will return the pointer to the "first entry" (with the lowest hash) in the hashmap.
+// If hashmap is empty - it will return NULL.
+//
+// hm_next returns the pointer to the next entry in the hashmap from the pointer to the current one.
+// If hashmap is empty        - it will return NULL.
+// If curr is NULL            - same as hm_first.
+// If curr is the last entry  - it will return NULL.
+//
+// ----------------------------------------------------------------------------------------------------
+//
+// Free the hashmap with:
+//
+//      hm_free(hm);
 //
 // ----------------------------------------------------------------------------------------------------
 // ===================================== END OF QUICK USAGE GUIDE =====================================
