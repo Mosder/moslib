@@ -1,5 +1,5 @@
-#define MOS_FORCE_PREFIXES
 #define _GNU_SOURCE
+#define MOS_FORCE_PREFIXES
 #include "moslib/string.h"
 
 #include <ctype.h>

@@ -10,6 +10,7 @@
 // This way you can, for example, avoid collisions
 
 #include "moslib/ds/array.h"
+#include "moslib/ds/hashmap.h"
 #include "moslib/safe.h"
 #include "moslib/string.h"
 #include "moslib/tester.h"
