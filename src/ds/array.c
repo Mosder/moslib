@@ -10,24 +10,24 @@
 typedef struct {
     size_t len;
     size_t cap;
-} MosArrHeader;
+} Header;
 
-MosArrHeader *arr2hdr(void *arr) {
-    return (MosArrHeader *)arr - 1;
+Header *arr2hdr(void *arr) {
+    return (Header *)arr - 1;
 }
 
-void *hdr2arr(MosArrHeader *hdr) {
+void *hdr2arr(Header *hdr) {
     return hdr + 1;
 }
 
 void *init(size_t cap, size_t el_size) {
-    MosArrHeader *hdr = mos_safe_malloc(sizeof(MosArrHeader) + cap * el_size);
-    *hdr = (MosArrHeader){.len = 0, .cap = cap};
+    Header *hdr = mos_safe_malloc(sizeof(Header) + cap * el_size);
+    *hdr = (Header){.len = 0, .cap = cap};
     return hdr2arr(hdr);
 }
 
 void *expand(void *arr, size_t min_cap, size_t el_size) {
-    MosArrHeader *hdr = arr2hdr(arr);
+    Header *hdr = arr2hdr(arr);
     if (hdr->cap >= min_cap)
         return arr;
 
@@ -37,7 +37,7 @@ void *expand(void *arr, size_t min_cap, size_t el_size) {
     while (hdr->cap < min_cap)
         hdr->cap *= 2;
 
-    hdr = mos_safe_realloc(hdr, sizeof(MosArrHeader) + hdr->cap * el_size);
+    hdr = mos_safe_realloc(hdr, sizeof(Header) + hdr->cap * el_size);
     return hdr2arr(hdr);
 }
 
@@ -45,7 +45,7 @@ void *expand(void *arr, size_t min_cap, size_t el_size) {
 // init array if it's not, define arr, hdr vars and expand to fit min_cap
 #define ini(min_cap)                                                    \
     !*(void**)p_arr ? *(void **)p_arr = init(init_cap, el_size) : 0;    \
-    MosArrHeader *hdr = arr2hdr(*(void**)p_arr);                        \
+    Header *hdr = arr2hdr(*(void**)p_arr);                        \
     *(void **)p_arr = expand(*(void**)p_arr, min_cap, el_size);         \
     void *arr = *(void **)p_arr;                                        \
     hdr = arr2hdr(arr)
@@ -118,7 +118,7 @@ size_t mos_arr_del_n_fn(void *arr, size_t i, size_t n, size_t el_size) {
     if (!arr)
         return 0;
 
-    MosArrHeader *hdr = arr2hdr(arr);
+    Header *hdr = arr2hdr(arr);
     if (i >= hdr->len)
         return 0;
 
@@ -136,7 +136,7 @@ size_t mos_arr_del_right_fn(void *arr, size_t n) {
     if (!arr)
         return 0;
 
-    MosArrHeader *hdr = arr2hdr(arr);
+    Header *hdr = arr2hdr(arr);
     size_t new_n = n > hdr->len ? hdr->len : n;
     hdr->len -= new_n;
     return new_n;
@@ -172,9 +172,9 @@ size_t mos_arr_set_cap_fn(void *p_arr, size_t cap, size_t el_size) {
         return cap;
     }
 
-    MosArrHeader *hdr = arr2hdr(arr);
+    Header *hdr = arr2hdr(arr);
     hdr->cap = hdr->len > cap ? hdr->len : cap;
-    hdr = mos_safe_realloc(hdr, sizeof(MosArrHeader) + hdr->cap * el_size);
+    hdr = mos_safe_realloc(hdr, sizeof(Header) + hdr->cap * el_size);
     *(void **)p_arr = hdr2arr(hdr);
     return hdr->cap;
 }
