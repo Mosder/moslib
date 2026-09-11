@@ -7,6 +7,11 @@
 
 #include "moslib/safe.h"
 
+typedef struct {
+    size_t len;
+    size_t cap;
+} MosArrHeader;
+
 MosArrHeader *arr2hdr(void *arr) {
     return (MosArrHeader *)arr - 1;
 }

@@ -520,11 +520,6 @@ extern size_t mos_arr_cap(void *arr);
 //     array to free
 extern void mos_arr_free(void *arr);
 
-typedef struct {
-    size_t len;
-    size_t cap;
-} MosArrHeader;
-
 #define mos_arr_p_diff(p1, p2) (((char *)(p1) - (char *)(p2)) / sizeof(*(p2)))
 
 // Function prototypes for macros
