@@ -472,7 +472,7 @@
 //
 // Returns:
 //   length of the array
-extern size_t mos_arr_len(void *arr);
+extern size_t mos_arr_len(const void *arr);
 
 // Set the length of the array
 // If it's bigger than current length - it will zero new items
@@ -497,7 +497,7 @@ extern size_t mos_arr_len(void *arr);
 //
 // Returns:
 //   capacity of the array
-extern size_t mos_arr_cap(void *arr);
+extern size_t mos_arr_cap(const void *arr);
 
 // Set the capacity of the array
 // If it's lower than current length - it will set the capacity equal to length
@@ -526,10 +526,10 @@ extern void mos_arr_free(void *arr);
 extern void mos_arr_append_fn(void *p_arr, size_t el_size, size_t init_cap);
 extern void mos_arr_insert_fn(void *p_arr, size_t i, size_t el_size, size_t init_cap);
 extern void mos_arr_put_fn(void *p_arr, size_t i, size_t el_size, size_t init_cap);
-extern size_t mos_arr_append_n_fn(void *p_arr, void *items, size_t n, size_t el_size, size_t init_cap);
-extern size_t mos_arr_insert_n_fn(void *p_arr, size_t i, void *items, size_t n, size_t el_size, size_t init_cap);
-extern size_t mos_arr_put_n_fn(void *p_arr, size_t i, void *items, size_t n, size_t el_size, size_t init_cap);
-extern size_t mos_arr_concat_fn(void *p_arr, void *arr2, size_t el_size, size_t init_cap);
+extern size_t mos_arr_append_n_fn(void *p_arr, const void *items, size_t n, size_t el_size, size_t init_cap);
+extern size_t mos_arr_insert_n_fn(void *p_arr, size_t i, const void *items, size_t n, size_t el_size, size_t init_cap);
+extern size_t mos_arr_put_n_fn(void *p_arr, size_t i, const void *items, size_t n, size_t el_size, size_t init_cap);
+extern size_t mos_arr_concat_fn(void *p_arr, const void *arr2, size_t el_size, size_t init_cap);
 extern size_t mos_arr_del_fn(void *arr, size_t i, size_t el_size);
 extern size_t mos_arr_del_n_fn(void *arr, size_t i, size_t n, size_t el_size);
 extern size_t mos_arr_del_left_fn(void *arr, size_t n, size_t el_size);

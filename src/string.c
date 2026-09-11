@@ -15,7 +15,7 @@ MosStringSlice mos_ss_copy(MosStringSlice ss) {
     return mos_ss_from_vars(ss.data, ss.len);
 }
 
-MosStringSlice mos_ss_from_arr(char *arr) {
+MosStringSlice mos_ss_from_arr(const char *arr) {
     return mos_ss_from_vars(arr, mos_arr_len(arr));
 }
 
@@ -117,11 +117,11 @@ int mos_ss_del_suffix(MosStringSlice *ss, MosStringSlice suffix) {
     return 1;
 }
 
-int mos_ss_del_prefix_str(MosStringSlice *ss, char *prefix) {
+int mos_ss_del_prefix_str(MosStringSlice *ss, const char *prefix) {
     return mos_ss_del_prefix(ss, mos_ss_from_str(prefix));
 }
 
-int mos_ss_del_suffix_str(MosStringSlice *ss, char *suffix) {
+int mos_ss_del_suffix_str(MosStringSlice *ss, const char *suffix) {
     return mos_ss_del_suffix(ss, mos_ss_from_str(suffix));
 }
 

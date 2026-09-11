@@ -231,7 +231,7 @@ extern MosStringSlice mos_ss_copy(MosStringSlice ss);
 //
 // Returns:
 //   a newly created string slice
-extern MosStringSlice mos_ss_from_arr(char *arr);
+extern MosStringSlice mos_ss_from_arr(const char *arr);
 
 // Create a string slice from two variables representing it
 //
@@ -433,7 +433,7 @@ extern int mos_ss_del_suffix(MosStringSlice *ss, MosStringSlice suffix);
 //
 // Returns:
 //   1 if the prefix was deleted, 0 otherwise
-extern int mos_ss_del_prefix_str(MosStringSlice *ss, char *prefix);
+extern int mos_ss_del_prefix_str(MosStringSlice *ss, const char *prefix);
 
 // Delete the string suffix from a slice
 // If it's not the suffix, do nothing
@@ -447,7 +447,7 @@ extern int mos_ss_del_prefix_str(MosStringSlice *ss, char *prefix);
 //
 // Returns:
 //   1 if the suffix was deleted, 0 otherwise
-extern int mos_ss_del_suffix_str(MosStringSlice *ss, char *suffix);
+extern int mos_ss_del_suffix_str(MosStringSlice *ss, const char *suffix);
 
 // Split a slice by a character delimiter
 // If the delimiter is not found - treats the end of the slice as the delimiter

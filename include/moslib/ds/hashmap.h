@@ -27,11 +27,12 @@
 //
 // It accepts these optional arguments:
 //
-//      .key (enum {DEFAULT, STR, SS})        - use predefined hash and equals functions
-//                                              for C strings or StringSlice
-//      .hash (uint32_t (*)(void *key))       - user defined hash function
-//      .eq (int (*)(void *key1, void *key2)) - user defined equals function
-//                                              should return 1 if keys are equal, 0 otherwise
+//      .key (enum {DEFAULT, STR, SS})                    - use predefined hash and equals functions
+//                                                          for C strings or StringSlice
+//      .hash (uint32_t (*)(const void *key))             - user defined hash function
+//      .eq (int (*)(const void *key1, cosnt void *key2)) - user defined equals function
+//                                                          should return 1 if keys are equal,
+//                                                          0 otherwise
 //
 // .hash and .eq will overwrite the functions set by .key.
 //
@@ -45,7 +46,7 @@
 //      HM_DEF(ss_float, StringSlice, float);
 //      ss_float *hm2 = hm_new(.key = SS);
 //
-//      uint32_t hash_int(void *key) {
+//      uint32_t hash_int(const void *key) {
 //          return (uint32_t)(*(int *)key);
 //      }
 //      HM_DEF(int_int, int, int);
@@ -120,8 +121,8 @@
 
 typedef struct {
     enum { DEFAULT, STR, SS } key;
-    uint32_t (*hash)(void *key);
-    int (*eq)(void *key1, void *key2);
+    uint32_t (*hash)(const void *key);
+    int (*eq)(const void *key1, const void *key2);
 } MosHmInitArgs;
 
 // clang-format off
