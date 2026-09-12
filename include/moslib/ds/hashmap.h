@@ -190,7 +190,7 @@ typedef struct {
 //   ...
 //     value of the entry to put
 //     variadic to make things like (struct Val){1,1} work properly
-#define mos_hm_put(hm, k, ...) (mos_hm_ini, (hm)->key = k, (hm)->val = __VA_ARGS__, mos_hm_put_fn(&(hm), mos_hm_fn_args, MOS_HM_LOAD_FACTOR))
+#define mos_hm_put(hm, k, ...) (mos_hm_ini(hm), (hm)->key = k, (hm)->val = __VA_ARGS__, mos_hm_put_fn(&(hm), mos_hm_fn_args(hm), MOS_HM_LOAD_FACTOR))
 
 // Put a given entry in the hashmap
 // If entry of the same key exists - overwrites it
@@ -202,7 +202,7 @@ typedef struct {
 //   ...
 //     entry to put into hashmap
 //     variadic to make things like (struct Entry){"key","val"} work properly
-#define mos_hm_put_e(hm, ...) (mos_hm_ini, (hm)[0] = __VA_ARGS__, mos_hm_put_fn(&(hm), mos_hm_fn_args, MOS_HM_LOAD_FACTOR))
+#define mos_hm_put_e(hm, ...) (mos_hm_ini(hm), (hm)[0] = __VA_ARGS__, mos_hm_put_fn(&(hm), mos_hm_fn_args(hm), MOS_HM_LOAD_FACTOR))
 
 // Get the value of entry with specific key
 //
@@ -215,7 +215,7 @@ typedef struct {
 //
 // Returns:
 //   value of the entry with given key or 0 if no such entry exist
-#define mos_hm_get(hm, k) (mos_hm_ini, (hm)->key = k, (hm)[mos_hm_get_fn(hm, mos_hm_fn_args)].val)
+#define mos_hm_get(hm, k) (mos_hm_ini(hm), (hm)->key = k, (hm)[mos_hm_get_fn(hm, mos_hm_fn_args(hm))].val)
 
 // Get a pointer to an entry with specific key in hashmap
 //
@@ -228,7 +228,7 @@ typedef struct {
 //
 // Returns:
 //   pointer to the entry or NULL if no entry with such key exists
-#define mos_hm_get_e(hm, k) (mos_hm_ini, (hm)->key = k, mos_hm_get_e_fn(hm, mos_hm_fn_args))
+#define mos_hm_get_e(hm, k) (mos_hm_ini(hm), (hm)->key = k, mos_hm_get_e_fn(hm, mos_hm_fn_args(hm)))
 
 // Delete an entry with specific key from the hashmap
 //
@@ -241,7 +241,7 @@ typedef struct {
 //
 // Returns:
 //   1 if an entry of given key was deleted, 0 otherwise
-#define mos_hm_del(hm, k) (mos_hm_ini, (hm)->key = k, mos_hm_del_fn(hm, mos_hm_fn_args))
+#define mos_hm_del(hm, k) (mos_hm_ini(hm), (hm)->key = k, mos_hm_del_fn(hm, mos_hm_fn_args(hm)))
 
 // Get a pointer to the first entry in the hashmap
 //
@@ -281,17 +281,17 @@ extern size_t mos_hm_size(const void *hm);
 //     hashmap to free
 extern void mos_hm_free(void *hm);
 
-#define mos_hm_ini mos_hm_init(&(hm), sizeof(*(hm)))
+#define mos_hm_ini(hm) mos_hm_init(&(hm), sizeof(*(hm)))
 extern void mos_hm_init(void *p_hm, size_t entry_size);
 
-#define mos_hm_fn_args &(hm)->key, sizeof(*(hm)), sizeof((hm)->key)
+#define mos_hm_fn_args(hm) &(hm)->key, sizeof(*(hm)), sizeof((hm)->key)
 
 // Function prototypes for macros
 extern void *mos_hm_new_fn(MosHmInitArgs args);
 extern void mos_hm_put_fn(void *p_hm, void *key, size_t entry_size, size_t key_size, uint8_t load_factor);
 extern size_t mos_hm_get_fn(void *hm, void *key, size_t entry_size, size_t key_size);
 extern void *mos_hm_get_e_fn(const void *hm, const void *key, size_t entry_size, size_t key_size);
-extern int mos_hm_del_fn(const void *hm, const void *key, size_t entry_size, size_t key_size);
+extern int mos_hm_del_fn(void *hm, void *key, size_t entry_size, size_t key_size);
 extern void *mos_hm_first_fn(const void *hm, size_t entry_size);
 extern void *mos_hm_next_fn(const void *hm, const void *curr, size_t entry_size);
 

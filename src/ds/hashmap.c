@@ -139,28 +139,29 @@ static size_t probe(const void *hm, const void *key, size_t entry_size, size_t k
     uint32_t hash = hdr->hash ? hdr->hash(key) : default_hash(key, key_size);
     size_t i = hash % hdr->cap;
 
-    size_t tomb = 0;
+    size_t tomb = -1;
     for (size_t it = 0; it < hdr->cap; it++) {
         void *key2 = (char *)hm + (i + 1) * entry_size + key_off;
         if (!filled(hm, i))
-            return tomb ? tomb : i;
+            return tomb != (size_t)-1 ? tomb : i;
         if (hdr->eq ? hdr->eq(key, key2) : default_eq(key, key2, key_size))
             return i;
-        if (put && tomb == 0 && dead(hm, i))
+        if (put && tomb == (size_t)-1 && dead(hm, i))
             tomb = i;
         i = (i + 1) % hdr->cap;
     }
-    return 0;
+    return -1;
 }
 
-static void expand(void *p_hm, size_t entry_size, size_t key_size, size_t key_off) {
+static void rehash(void *p_hm, size_t entry_size, size_t key_size, size_t key_off, uint8_t load_factor) {
     void *hm = *(void **)p_hm;
     Header *hdr = hm2hdr(hm);
+    size_t new_cap = (mos_hm_size(hm) * 400 >= hdr->cap * 3 * load_factor) ? 2 * hdr->cap : hdr->cap;
 
-    Header *new_hdr = mos_safe_malloc(sizeof(Header) + (2 * hdr->cap + 1) * entry_size);
+    Header *new_hdr = mos_safe_malloc(sizeof(Header) + (new_cap + 1) * entry_size);
     *new_hdr = (Header){
-        .filled = mos_safe_calloc((2 * hdr->cap - 1) / 8 + 1, 1),
-        .dead = mos_safe_calloc((2 * hdr->cap - 1) / 8 + 1, 1),
+        .filled = mos_safe_calloc((new_cap - 1) / 8 + 1, 1),
+        .dead = mos_safe_calloc((new_cap - 1) / 8 + 1, 1),
         .size = mos_hm_size(hm),
         .cap = 2 * hdr->cap,
         .hash = hdr->hash,
@@ -207,13 +208,13 @@ void mos_hm_put_fn(void *p_hm, void *key, size_t entry_size, size_t key_size, ui
     unkill(hm, i);
 
     if (hdr->size * 100 >= hdr->cap * load_factor)
-        expand(p_hm, entry_size, key_size, key_off);
+        rehash(p_hm, entry_size, key_size, key_off, load_factor);
 }
 
 size_t mos_hm_get_fn(void *hm, void *key, size_t entry_size, size_t key_size) {
     size_t key_off = (char *)key - (char *)hm;
     size_t i = probe(hm, key, entry_size, key_size, key_off, 0);
-    if (!filled(hm, i) || dead(hm, i)) {
+    if (i == (size_t)-1 || !filled(hm, i) || dead(hm, i)) {
         memset(hm, 0, entry_size);
         return 0;
     }
@@ -223,15 +224,15 @@ size_t mos_hm_get_fn(void *hm, void *key, size_t entry_size, size_t key_size) {
 void *mos_hm_get_e_fn(const void *hm, const void *key, size_t entry_size, size_t key_size) {
     size_t key_off = (char *)key - (char *)hm;
     size_t i = probe(hm, key, entry_size, key_size, key_off, 0);
-    if (!filled(hm, i) || dead(hm, i))
+    if (i == (size_t)-1 || !filled(hm, i) || dead(hm, i))
         return NULL;
     return (char *)hm + (i + 1) * entry_size;
 }
 
-int mos_hm_del_fn(const void *hm, const void *key, size_t entry_size, size_t key_size) {
+int mos_hm_del_fn(void *hm, void *key, size_t entry_size, size_t key_size) {
     size_t key_off = (char *)key - (char *)hm;
     size_t i = probe(hm, key, entry_size, key_size, key_off, 0);
-    if (!filled(hm, i) || dead(hm, i))
+    if (i == (size_t)-1 || !filled(hm, i) || dead(hm, i))
         return 0;
     kill(hm, i);
     return 1;
@@ -288,6 +289,8 @@ size_t mos_hm_size(const void *hm) {
     if (!hm)
         return 0;
     Header *hdr = hm2hdr(hm);
+    if (hdr->cap == 0)
+        return 0;
     return hdr->size - bit_count(hdr->dead, (hdr->cap - 1) / 8 + 1);
 }
 
