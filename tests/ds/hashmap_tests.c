@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "hashmap_tests.h"
 #include "moslib/ds/hashmap.h"
 
@@ -101,7 +102,7 @@ Test looping() {
     E items[] = {{1, 10}, {2, 20}, {3, 30}};
     arr_append_n(allowed, items, 3);
 
-    test_assert(memcmp(hm_first(hm), hm_next(hm, NULL), sizeof(E)), "hm_next(hm, NULL) != hm_first(hm)");
+    test_assert(memcmp(hm_first(hm), hm_next(hm, NULL), sizeof(E)) == 0, "hm_next(hm, NULL) != hm_first(hm)");
     E *e = NULL;
     while ((e = hm_next(hm, e))) {
         int flag = 0;

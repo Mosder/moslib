@@ -8,7 +8,7 @@
 
 #define ERR_MESS(...) err_mess(info, __VA_ARGS__)
 
-void err_mess(MosSafeErrInfo info, const char *msg, ...) {
+static void err_mess(MosSafeErrInfo info, const char *msg, ...) {
     va_list args;
     va_start(args, msg);
     fprintf(stderr, "%s:%d - fatal error in function %s:\n", info.file, info.line, info.func);

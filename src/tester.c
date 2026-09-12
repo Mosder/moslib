@@ -20,8 +20,8 @@
 
 #define RENDER_WIDTH 80
 
-int failed = 0;
-FILE *dev_null = NULL;
+static int failed = 0;
+static FILE *dev_null = NULL;
 
 typedef struct {
     int *outs;
@@ -30,7 +30,7 @@ typedef struct {
     size_t out_cap;
 } Outputs;
 
-Outputs suppressed = {
+static Outputs suppressed = {
     .outs = NULL,
     .ogs = NULL,
     .n_outs = 0,
@@ -40,7 +40,7 @@ Outputs suppressed = {
 #define print_color(template, ...) printf("\033[%dm" template "\033[0m", __VA_ARGS__)
 #define nl printf("\n")
 
-void print_center(const char *text, int color, char padding_char) {
+static void print_center(const char *text, int color, char padding_char) {
     size_t post_char_count = (RENDER_WIDTH - strlen(text)) / 2;
     size_t pre_char_count = RENDER_WIDTH - post_char_count - strlen(text);
 
@@ -107,9 +107,9 @@ void mos_test_assert(int expression, const char *fail_message) {
     }
 }
 
-jmp_buf jump_env;
-int expected_code;
-const char *fn_name;
+static jmp_buf jump_env;
+static int expected_code;
+static const char *fn_name;
 void exit(int code) {
     if (code != expected_code) {
         failed = 1;

@@ -12,21 +12,21 @@ typedef struct {
     size_t cap;
 } Header;
 
-Header *arr2hdr(const void *arr) {
+static Header *arr2hdr(const void *arr) {
     return (Header *)arr - 1;
 }
 
-void *hdr2arr(Header *hdr) {
+static void *hdr2arr(Header *hdr) {
     return hdr + 1;
 }
 
-void *init(size_t cap, size_t el_size) {
+static void *init(size_t cap, size_t el_size) {
     Header *hdr = mos_safe_malloc(sizeof(Header) + cap * el_size);
     *hdr = (Header){.len = 0, .cap = cap};
     return hdr2arr(hdr);
 }
 
-void *expand(void *arr, size_t min_cap, size_t el_size) {
+static void *expand(void *arr, size_t min_cap, size_t el_size) {
     Header *hdr = arr2hdr(arr);
     if (hdr->cap >= min_cap)
         return arr;

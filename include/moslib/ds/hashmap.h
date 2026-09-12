@@ -54,6 +54,12 @@
 //
 // ----------------------------------------------------------------------------------------------------
 //
+// To set the hashmap load factor, define (before including the header):
+//
+//      #define MOS_HM_LOAD_FACTOR <desired_load_factor_in_%>
+//
+// ----------------------------------------------------------------------------------------------------
+//
 // To put a key/value pair or an entry into a hashmap use:
 //
 //      hm_put(hm, key, val);
@@ -104,6 +110,11 @@
 
 #ifndef MOSLIB_DS_HASHMAP_H
 #define MOSLIB_DS_HASHMAP_H
+
+// Load factor (in %) to use in hashmap
+#ifndef MOS_HM_LOAD_FACTOR
+#define MOS_HM_LOAD_FACTOR 50
+#endif // MOS_HM_LOAD_FACTOR
 
 #ifndef MOS_FORCE_PREFIXES
 
@@ -163,7 +174,7 @@ typedef struct {
 //   ...
 //     value of the entry to put
 //     variadic to make things like (struct Val){1,1} work properly
-#define mos_hm_put(hm, key, ...)
+#define mos_hm_put(hm, k, ...) (mos_hm_ini, (hm)->key = k, (hm)->val = __VA_ARGS__, mos_hm_put_fn(&(hm), mos_hm_fn_args))
 
 // Put a given entry in the hashmap
 // If entry of the same key exists - overwrites it
@@ -175,7 +186,7 @@ typedef struct {
 //   ...
 //     entry to put into hashmap
 //     variadic to make things like (struct Entry){"key","val"} work properly
-#define mos_hm_put_e(hm, ...)
+#define mos_hm_put_e(hm, ...) (mos_hm_ini, (hm)[0] = __VA_ARGS__, mos_hm_put_fn(&(hm), mos_hm_fn_args))
 
 // Get the value of entry with specific key
 //
@@ -183,12 +194,12 @@ typedef struct {
 //   hm
 //     hashmap to get value from
 //
-//   key
+//   k
 //     key of the entry to get the value of
 //
 // Returns:
 //   value of the entry with given key or 0 if no such entry exist
-#define mos_hm_get(hm, key) 0
+#define mos_hm_get(hm, k) (mos_hm_ini, (hm)->key = k, (hm)[mos_hm_get_fn(hm, mos_hm_fn_args)].val)
 
 // Get a pointer to an entry with specific key in hashmap
 //
@@ -196,12 +207,12 @@ typedef struct {
 //   hm
 //     hashmap to get an entry from
 //
-//   key
+//   k
 //     key of the entry to get
 //
 // Returns:
 //   pointer to the entry or NULL if no entry with such key exists
-#define mos_hm_get_e(hm, key) NULL
+#define mos_hm_get_e(hm, k) (mos_hm_ini, (hm)->key = k, mos_hm_get_e_fn(hm, mos_hm_fn_args))
 
 // Get a pointer to the first entry in the hashmap
 //
@@ -211,7 +222,7 @@ typedef struct {
 //
 // Returns:
 //   pointer to the first entry or NULL if hashmap is empty
-#define mos_hm_first(hm) NULL
+#define mos_hm_first(hm) mos_hm_first_fn(hm, sizeof(*(hm)))
 
 // Get the pointer to the next entry in the hashmap from the pointer to the current one
 // If pointer is NULL - gets the first entry from the hashmap
@@ -225,7 +236,7 @@ typedef struct {
 //
 // Returns:
 //   pointer to the next entry or NULL if there's no more entries
-#define mos_hm_next(hm, curr) NULL
+#define mos_hm_next(hm, curr) mos_hm_next_fn(hm, curr, sizeof(*(hm)))
 
 // Free the hashmap
 //
@@ -234,7 +245,17 @@ typedef struct {
 //     hashmap to free
 extern void mos_hm_free(void *hm);
 
+#define mos_hm_ini mos_hm_init(&(hm), sizeof(*(hm)))
+extern void mos_hm_init(void *p_hm, size_t entry_size);
+
+#define mos_hm_fn_args &(hm)->key, sizeof(*(hm)), sizeof((hm)->key)
+
 // Function prototypes for macros
 extern void *mos_hm_new_fn(MosHmInitArgs args);
+extern void mos_hm_put_fn(void *p_hm, void *key, size_t entry_size, size_t key_size);
+extern size_t mos_hm_get_fn(void *hm, void *key, size_t entry_size, size_t key_size);
+extern void *mos_hm_get_e_fn(void *hm, void *key, size_t entry_size, size_t key_size);
+extern void *mos_hm_first_fn(void *hm, size_t entry_size);
+extern void *mos_hm_next_fn(void *hm, void *curr, size_t entry_size);
 
 #endif // MOSLIB_DS_HASHMAP_H
