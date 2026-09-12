@@ -5,11 +5,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-Test malloc_exit() {
+TEST_HELPER(malloc_exit) {
     safe_malloc(ULLONG_MAX);
 }
 
-Test test_safe_malloc() {
+TEST(test_safe_malloc) {
     void *p = safe_malloc(1024);
     test_assert(p != NULL, "Failed to malloc 1KiB");
 
@@ -18,11 +18,11 @@ Test test_safe_malloc() {
     unsuppress_outputs();
 }
 
-Test calloc_exit() {
+TEST_HELPER(calloc_exit) {
     safe_calloc(ULLONG_MAX, ULLONG_MAX);
 }
 
-Test test_safe_calloc() {
+TEST(test_safe_calloc) {
     void *p = safe_calloc(16, 16);
     test_assert(p != NULL, "Failed to calloc 16 items of 16 bytes");
 
@@ -31,12 +31,12 @@ Test test_safe_calloc() {
     unsuppress_outputs();
 }
 
-Test realloc_exit() {
+TEST_HELPER(realloc_exit) {
     void *p = NULL;
     safe_realloc(p, ULLONG_MAX);
 }
 
-Test test_safe_realloc() {
+TEST(test_safe_realloc) {
     void *p = NULL;
     p = safe_realloc(p, 1024);
     test_assert(p != NULL, "Failed to realloc NULL to 1KiB");
@@ -49,11 +49,11 @@ Test test_safe_realloc() {
     unsuppress_outputs();
 }
 
-Test fopen_exit() {
+TEST_HELPER(fopen_exit) {
     safe_fopen("/non-existing-file-name", "r");
 }
 
-Test test_safe_fopen() {
+TEST(test_safe_fopen) {
     FILE *fp = safe_fopen(__FILE__, "r");
     test_assert(fp != NULL, "Failed to fopen current file");
 
@@ -62,16 +62,16 @@ Test test_safe_fopen() {
     unsuppress_outputs();
 }
 
-Test test_safe_tmpfile() {
+TEST(test_safe_tmpfile) {
     FILE *fp = safe_tmpfile();
     test_assert(fp != NULL, "Failed to create a tmpfile");
 }
 
-Test dup_exit() {
+TEST_HELPER(dup_exit) {
     safe_dup(-1);
 }
 
-Test test_safe_dup() {
+TEST(test_safe_dup) {
     int fd = safe_dup(STDOUT_FILENO);
     test_assert(fd != -1, "Failed to dup STDOUT_FILENO");
     close(fd);
@@ -81,11 +81,11 @@ Test test_safe_dup() {
     unsuppress_outputs();
 }
 
-Test dup2_exit() {
+TEST_HELPER(dup2_exit) {
     safe_dup2(-1, STDOUT_FILENO);
 }
 
-Test test_safe_dup2() {
+TEST(test_safe_dup2) {
     int res = dup2(STDOUT_FILENO, STDOUT_FILENO);
     test_assert(res != -1, "Failed to dup STDOUT_FILENO 2 itself");
 

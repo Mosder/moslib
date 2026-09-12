@@ -23,10 +23,9 @@
 // ----------------------------------------------------------------------------------------------------
 //
 // Create tests.
-// Tests are of type TestFn (Test (*)()).
 // They should use test_assert functions to check correctness.
 // Example:
-//      Test test_fn() {
+//      TEST(test_fn) {
 //          int result1 = 1 + 2;
 //          int result2 = 3 + 5;
 //
@@ -38,11 +37,11 @@
 // You need to create a helper test and pass it into test_assert_exit in main test.
 // Pass the helper test and expected exit code to it.
 // Example:
-//      Test helper_test() {
+//      TEST_HELPER(helper_test) {
 //          int param1, param2;
 //          int result = exit_failure_function(&param1, &param2);
 //      }
-//      Test main_test() {
+//      TEST(main_test) {
 //          test_assert_exit(helper_test, EXIT_FAILURE);
 //      }
 //
@@ -50,17 +49,17 @@
 // You need to create a helper test and pass it into test_assert_out in main test.
 // Pass the helper test, output stream, and expected output to it.
 // Example:
-//      Test helper_test() {
+//      TEST_HELPER(helper_test) {
 //          printf("output");
 //      }
-//      Test main_test() {
+//      TEST(main_test) {
 //          test_assert_out(helper_test, stdout, "output");
 //      }
 //
 // If your functions have output and you want to suppress them for the sake of tests,
 // you can do so using suppress_output and unsupress_outputs.
 // Example:
-//      Test error_test() {
+//      TEST(error_test) {
 //          suppress_output(stdout);
 //          suppress_output(stderr);
 //          int code = fun_that_fails_with_output();
@@ -96,7 +95,8 @@
 
 #ifndef MOS_FORCE_PREFIXES
 
-#define Test MosTest
+#define TEST MOS_TEST
+#define TEST_HELPER MOS_TEST_HELPER
 #define Tester MosTester
 #define TestGroup MosTestGroup
 #define TestFn MosTestFn
@@ -113,10 +113,11 @@
 
 #endif // MOS_FORCE_PREFIXES
 
-typedef void MosTest; // this is just for nice indication that a function is a test
+#define MOS_TEST(name) static void name(void)
+#define MOS_TEST_HELPER MOS_TEST
 typedef struct MosTester MosTester;
 typedef struct MosTestGroup MosTestGroup;
-typedef MosTest (*MosTestFn)(void);
+typedef void (*MosTestFn)(void);
 
 // Initalize new tester
 // You can skip this and just define it as NULL - it will initalize automatically

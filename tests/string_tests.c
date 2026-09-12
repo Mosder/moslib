@@ -9,7 +9,7 @@
 
 #define HELLO_WORLD_LIT "Hello, World!"
 
-Test creating() {
+TEST(creating) {
     char *str = HELLO_WORLD_LIT;
     size_t str_len = strlen(str);
 
@@ -32,12 +32,12 @@ Test creating() {
     test_assert(ss5.data == ss1.data && ss5.len == ss1.len, "ss_from_arr created wrong slice");
 }
 
-Test ss_print_helper() {
+TEST(ss_print_helper) {
     StringSlice ss = ss_from_str("test");
     ss_print(ss);
 }
 
-Test printing() {
+TEST(printing) {
     test_assert_out(ss_print_helper, stdout, "test");
 
     StringSlice ss = ss_from_str("slice");
@@ -46,7 +46,7 @@ Test printing() {
     test_assert(strcmp(buf, "out: slice :)") == 0, "SS_FMT + SS_ARGS printed wrong output");
 }
 
-Test comparing() {
+TEST(comparing) {
     StringSlice ss = ss_from_str("hello world");
     test_assert(ss_eq(ss, ss), "slice is not equal to itself");
     test_assert(ss_eq_str(ss, ss.data), "slice is not equal to its C string");
@@ -66,7 +66,7 @@ Test comparing() {
     test_assert(ss_eq_str(ss4, "world") == 0, "slice is equal to different string");
 }
 
-Test trimming() {
+TEST(trimming) {
     StringSlice ss = ss_from_str("   Hi  :)  ");
     StringSlice t = ss_trim(ss);
     test_assert(ss_eq_str(t, "Hi  :)"), "trim didn't trim properly");
@@ -83,7 +83,7 @@ Test trimming() {
     test_assert(ss_eq_str(t, ""), "trimming breaks for all whitespace slice");
 }
 
-Test prefix_suffix() {
+TEST(prefix_suffix) {
     StringSlice ss = ss_from_str("pre mid suf");
 
     test_assert(ss_starts_with(ss, ss_from_str("pre")), "slice doesn't start with its slice prefix");
@@ -103,7 +103,7 @@ Test prefix_suffix() {
     test_assert(ss_ends_with(ss2, ss_from_str("")), "ends_with breaks for empty slice and suffix");
 }
 
-Test deleting() {
+TEST(deleting) {
     StringSlice ss = ss_from_str("1234567890");
 
     size_t deleted = ss_del_left(&ss, 2);
@@ -147,7 +147,7 @@ Test deleting() {
     test_assert(!flag && ss.len == 7, "del_suffix_str didn't work properly for not found suffix");
 }
 
-Test splitting() {
+TEST(splitting) {
     StringSlice ss1 = ss_from_str("Hello, World!");
 
     StringSlice ss2 = ss_split(&ss1, ',');
@@ -191,7 +191,7 @@ Test splitting() {
     test_assert(ss_eq_str(ss_right, "") && ss_eq_str(ss_middle, ""), "ss_split_right didn't split properly (n > len)");
 }
 
-Test finding() {
+TEST(finding) {
     char *txt = "a slice of FINDME text";
     StringSlice ss = ss_from_str(txt);
 
@@ -205,7 +205,7 @@ Test finding() {
     test_assert(ss_eq_str(ss_find_str(ss, "abcd"), ""), "find_str didn't return empty slice for not found target");
 }
 
-Test utf8_len_test() {
+TEST(utf8_len_test) {
     StringSlice ss = ss_from_str("1 byte chars");
     test_assert(ss_utf8_len(ss) == ss.len, "utf8_len differs from len for all 1 byte characters");
 

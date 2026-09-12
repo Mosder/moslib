@@ -4,7 +4,7 @@
 
 #include <string.h>
 
-Test cap_test() {
+TEST(cap_test) {
     float *arr = NULL;
     test_assert(arr_cap(arr) == 0, "uninitialized array has capacity different than 0");
 
@@ -24,7 +24,7 @@ Test cap_test() {
     arr_free(arr);
 }
 
-Test len_test() {
+TEST(len_test) {
     char *arr = NULL;
     test_assert(arr_len(arr) == 0, "uninitialized array has length different than 0");
 
@@ -39,7 +39,7 @@ Test len_test() {
     arr_free(arr);
 }
 
-Test adding_items() {
+TEST(adding_items) {
     int *arr = NULL;
 
     // {3}
@@ -84,7 +84,7 @@ Test adding_items() {
     arr_free(arr);
 }
 
-Test getting_items() {
+TEST(getting_items) {
     struct test {
         int f1;
         char f2;
@@ -121,7 +121,7 @@ Test getting_items() {
     arr_free(arr);
 }
 
-Test deleting_items() {
+TEST(deleting_items) {
     int *arr = NULL;
     int items[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     arr_append_n(arr, items, 9);
@@ -152,7 +152,7 @@ Test deleting_items() {
     arr_free(arr);
 }
 
-Test arr_concat_test() {
+TEST(arr_concat_test) {
     unsigned long *arr1 = NULL;
     unsigned long *arr2 = NULL;
 

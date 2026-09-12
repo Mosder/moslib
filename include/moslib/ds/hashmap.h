@@ -83,6 +83,14 @@
 //
 // ----------------------------------------------------------------------------------------------------
 //
+// To delete an an entry from a hashmap use:
+//
+//      int deleted = hm_del(hm, key);
+//
+// It will return 1 if entry of such key existed and was deleted, 0 otherwise.
+//
+// ----------------------------------------------------------------------------------------------------
+//
 // You can loop over the hashmap using these functions:
 //
 //      struct Entry *first = hm_first(hm);
@@ -130,6 +138,7 @@
 #define hm_put_e mos_hm_put_e
 #define hm_get mos_hm_get
 #define hm_get_e mos_hm_get_e
+#define hm_del mos_hm_del
 #define hm_first mos_hm_first
 #define hm_next mos_hm_next
 #define hm_size mos_hm_size
@@ -221,6 +230,19 @@ typedef struct {
 //   pointer to the entry or NULL if no entry with such key exists
 #define mos_hm_get_e(hm, k) (mos_hm_ini, (hm)->key = k, mos_hm_get_e_fn(hm, mos_hm_fn_args))
 
+// Delete an entry with specific key from the hashmap
+//
+// Arguments:
+//   hm
+//     hashmap to delete from
+//
+//   k
+//     key of the entry to delete
+//
+// Returns:
+//   1 if an entry of given key was deleted, 0 otherwise
+#define mos_hm_del(hm, k) (mos_hm_ini, (hm)->key = k, mos_hm_del_fn(hm, mos_hm_fn_args))
+
 // Get a pointer to the first entry in the hashmap
 //
 // Arguments:
@@ -250,7 +272,7 @@ typedef struct {
 // Arguments:
 //   hm
 //     hashmap to get the count of entries from
-extern size_t mos_hm_size(void *hm);
+extern size_t mos_hm_size(const void *hm);
 
 // Free the hashmap
 //
@@ -268,8 +290,9 @@ extern void mos_hm_init(void *p_hm, size_t entry_size);
 extern void *mos_hm_new_fn(MosHmInitArgs args);
 extern void mos_hm_put_fn(void *p_hm, void *key, size_t entry_size, size_t key_size, uint8_t load_factor);
 extern size_t mos_hm_get_fn(void *hm, void *key, size_t entry_size, size_t key_size);
-extern void *mos_hm_get_e_fn(void *hm, void *key, size_t entry_size, size_t key_size);
-extern void *mos_hm_first_fn(void *hm, size_t entry_size);
-extern void *mos_hm_next_fn(void *hm, void *curr, size_t entry_size);
+extern void *mos_hm_get_e_fn(const void *hm, const void *key, size_t entry_size, size_t key_size);
+extern int mos_hm_del_fn(const void *hm, const void *key, size_t entry_size, size_t key_size);
+extern void *mos_hm_first_fn(const void *hm, size_t entry_size);
+extern void *mos_hm_next_fn(const void *hm, const void *curr, size_t entry_size);
 
 #endif // MOSLIB_DS_HASHMAP_H
