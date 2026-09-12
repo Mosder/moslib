@@ -163,7 +163,7 @@ static void rehash(void *p_hm, size_t entry_size, size_t key_size, size_t key_of
         .filled = mos_safe_calloc((new_cap - 1) / 8 + 1, 1),
         .dead = mos_safe_calloc((new_cap - 1) / 8 + 1, 1),
         .size = mos_hm_size(hm),
-        .cap = 2 * hdr->cap,
+        .cap = new_cap,
         .hash = hdr->hash,
         .eq = hdr->eq,
     };

@@ -129,6 +129,9 @@
 #ifndef MOS_HM_LOAD_FACTOR
 #define MOS_HM_LOAD_FACTOR 75
 #endif // MOS_HM_LOAD_FACTOR
+#if MOS_HM_LOAD_FACTOR < 1 || MOS_HM_LOAD_FACTOR > 100
+#error MOS_HM_LOAD_FACTOR should be an integer value between 1 and 100
+#endif
 
 #ifndef MOS_FORCE_PREFIXES
 
