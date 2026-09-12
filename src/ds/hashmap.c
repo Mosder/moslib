@@ -1,4 +1,3 @@
-#include <stddef.h>
 #define MOS_FORCE_PREFIXES
 #include "moslib/ds/hashmap.h"
 
@@ -172,7 +171,7 @@ static void expand(void *p_hm, size_t entry_size, size_t key_size, size_t key_of
     *(void **)p_hm = new_hm;
 }
 
-void mos_hm_put_fn(void *p_hm, void *key, size_t entry_size, size_t key_size) {
+void mos_hm_put_fn(void *p_hm, void *key, size_t entry_size, size_t key_size, uint8_t load_factor) {
     size_t key_off = (char *)key - *(char **)p_hm;
     Header *hdr = hm2hdr(*(void **)p_hm);
 
@@ -184,7 +183,7 @@ void mos_hm_put_fn(void *p_hm, void *key, size_t entry_size, size_t key_size) {
         fill(hm, i);
     }
 
-    if (hdr->size * 100 > hdr->cap * MOS_HM_LOAD_FACTOR)
+    if (hdr->size * 100 >= hdr->cap * load_factor)
         expand(p_hm, entry_size, key_size, key_off);
 }
 
@@ -241,6 +240,12 @@ void *mos_hm_next_fn(void *hm, void *curr, size_t entry_size) {
             return (char *)hm + (i + 1) * entry_size;
     }
     return NULL;
+}
+
+size_t mos_hm_size(void *hm) {
+    if (!hm)
+        return 0;
+    return hm2hdr(hm)->size;
 }
 
 void mos_hm_free(void *hm) {

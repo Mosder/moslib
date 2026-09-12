@@ -19,6 +19,7 @@ Test put_get() {
 
     hm_put(hm, 0.0f, 2137);
     test_assert(hm_get(hm, 0.0f) == 2137, "hm_put didn't update value properly");
+    test_assert(hm_size(hm) == 2, "hm_size returned wrong entry count");
 
     // a lot of puts and gets to test expansion of hashmap
     for (int i = 2; i < 100; i++) {
@@ -30,6 +31,7 @@ Test put_get() {
             flag = 0;
     }
     test_assert(flag, "hm_put / hm_get failed when expansion was needed");
+    test_assert(hm_size(hm) == 100, "hm_size returned wrong entry count");
 
     hm_free(hm);
 }

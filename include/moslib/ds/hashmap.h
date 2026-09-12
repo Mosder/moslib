@@ -98,6 +98,12 @@
 //
 // ----------------------------------------------------------------------------------------------------
 //
+// To get the count of entries in the hashmap, use:
+//
+//      hm_size(hm);
+//
+// ----------------------------------------------------------------------------------------------------
+//
 // Free the hashmap with:
 //
 //      hm_free(hm);
@@ -113,7 +119,7 @@
 
 // Load factor (in %) to use in hashmap
 #ifndef MOS_HM_LOAD_FACTOR
-#define MOS_HM_LOAD_FACTOR 50
+#define MOS_HM_LOAD_FACTOR 75
 #endif // MOS_HM_LOAD_FACTOR
 
 #ifndef MOS_FORCE_PREFIXES
@@ -126,6 +132,7 @@
 #define hm_get_e mos_hm_get_e
 #define hm_first mos_hm_first
 #define hm_next mos_hm_next
+#define hm_size mos_hm_size
 #define hm_free mos_hm_free
 
 #endif // MOS_FORCE_PREFIXES
@@ -168,13 +175,13 @@ typedef struct {
 //   hm
 //     hashmap to put into
 //
-//   key
+//   k
 //     key of the entry to put
 //
 //   ...
 //     value of the entry to put
 //     variadic to make things like (struct Val){1,1} work properly
-#define mos_hm_put(hm, k, ...) (mos_hm_ini, (hm)->key = k, (hm)->val = __VA_ARGS__, mos_hm_put_fn(&(hm), mos_hm_fn_args))
+#define mos_hm_put(hm, k, ...) (mos_hm_ini, (hm)->key = k, (hm)->val = __VA_ARGS__, mos_hm_put_fn(&(hm), mos_hm_fn_args, MOS_HM_LOAD_FACTOR))
 
 // Put a given entry in the hashmap
 // If entry of the same key exists - overwrites it
@@ -186,7 +193,7 @@ typedef struct {
 //   ...
 //     entry to put into hashmap
 //     variadic to make things like (struct Entry){"key","val"} work properly
-#define mos_hm_put_e(hm, ...) (mos_hm_ini, (hm)[0] = __VA_ARGS__, mos_hm_put_fn(&(hm), mos_hm_fn_args))
+#define mos_hm_put_e(hm, ...) (mos_hm_ini, (hm)[0] = __VA_ARGS__, mos_hm_put_fn(&(hm), mos_hm_fn_args, MOS_HM_LOAD_FACTOR))
 
 // Get the value of entry with specific key
 //
@@ -238,6 +245,13 @@ typedef struct {
 //   pointer to the next entry or NULL if there's no more entries
 #define mos_hm_next(hm, curr) mos_hm_next_fn(hm, curr, sizeof(*(hm)))
 
+// Get the count of entries in the hashmap
+//
+// Arguments:
+//   hm
+//     hashmap to get the count of entries from
+extern size_t mos_hm_size(void *hm);
+
 // Free the hashmap
 //
 // Arguments:
@@ -252,7 +266,7 @@ extern void mos_hm_init(void *p_hm, size_t entry_size);
 
 // Function prototypes for macros
 extern void *mos_hm_new_fn(MosHmInitArgs args);
-extern void mos_hm_put_fn(void *p_hm, void *key, size_t entry_size, size_t key_size);
+extern void mos_hm_put_fn(void *p_hm, void *key, size_t entry_size, size_t key_size, uint8_t load_factor);
 extern size_t mos_hm_get_fn(void *hm, void *key, size_t entry_size, size_t key_size);
 extern void *mos_hm_get_e_fn(void *hm, void *key, size_t entry_size, size_t key_size);
 extern void *mos_hm_first_fn(void *hm, size_t entry_size);
