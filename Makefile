@@ -1,7 +1,14 @@
 CC=gcc
-CFLAGS=-std=c99 -Wall -Wextra -Wpedantic -fPIC -I./include -O2 -s
+CFLAGS=-std=c99 -Wall -Wextra -Wpedantic -fPIC -I./include -O2
 CFLAGS_TEST=-std=c99 -Wall -Wextra -Wpedantic -Og -ggdb
 AR=ar rcs
+RUN_TESTS=./run_tests
+
+ifneq ($(shell uname -s),Darwin)
+	CFLAGS+= -s
+else
+	RUN_TESTS=DYLD_FALLBACK_LIBRARY_PATH="/usr/local/lib:$DYLD_FALLBACK_LIBRARY_PATH" ./run_tests; rm -rf run_tests.dSYM/
+endif
 
 both: shared static clean
 
@@ -31,7 +38,7 @@ test:
 	$(CC) $(CFLAGS_TEST) -c tests/string_tests.c
 	$(CC) $(CFLAGS_TEST) -c tests/ds/hashmap_tests.c
 	$(CC) $(CFLAGS_TEST) -lmoslib *.o tests/tests.c -o run_tests
-	./run_tests
+	$(RUN_TESTS)
 	rm run_tests *.o
 
 .PHONY: clean
