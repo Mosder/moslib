@@ -80,6 +80,7 @@
 //      struct Entry *entry = hm_get_e(hm, key);
 //
 // If an entry of given key is not in the hashmap it will return NULL.
+// Note that hm_put, hm_put_e and hm_del might cause a rehash which will leave that pointer dangling.
 //
 // ----------------------------------------------------------------------------------------------------
 //
@@ -88,6 +89,13 @@
 //      int deleted = hm_del(hm, key);
 //
 // It will return 1 if entry of such key existed and was deleted, 0 otherwise.
+//
+// If you want to ensure the hashmap is not rehashed after deleting, you can use:
+//
+//      int deleted = hm_del_norehash(hm, key);
+//
+// It works the same as hm_del - it just ensures no reallocation.
+// Useful when you want to delete entries while looping over them.
 //
 // ----------------------------------------------------------------------------------------------------
 //
@@ -98,11 +106,13 @@
 //
 // hm_first will return the pointer to the "first entry" (with the lowest hash) in the hashmap.
 // If hashmap is empty - it will return NULL.
+// Note that hm_put, hm_put_e and hm_del might cause a rehash which will leave that pointer dangling.
 //
 // hm_next returns the pointer to the next entry in the hashmap from the pointer to the current one.
 // If hashmap is empty        - it will return NULL.
 // If curr is NULL            - same as hm_first.
 // If curr is the last entry  - it will return NULL.
+// Note that hm_put, hm_put_e and hm_del might cause a rehash which will leave that pointer dangling.
 //
 // ----------------------------------------------------------------------------------------------------
 //
@@ -142,6 +152,7 @@
 #define hm_get mos_hm_get
 #define hm_get_e mos_hm_get_e
 #define hm_del mos_hm_del
+#define hm_del_norehash mos_hm_del_norehash
 #define hm_first mos_hm_first
 #define hm_next mos_hm_next
 #define hm_size mos_hm_size
@@ -153,7 +164,7 @@ typedef struct {
     enum { DEFAULT, STR, SS } key;
     uint32_t (*hash)(const void *key);
     int (*eq)(const void *key1, const void *key2);
-} MosHmInitArgs;
+} MosHmNewArgs;
 
 // clang-format off
 // Macro to define Entry struct easier
@@ -178,7 +189,7 @@ typedef struct {
 //
 // Returns:
 //   pointer to the new hashmap
-#define mos_hm_new(...) mos_hm_new_fn((MosHmInitArgs){__VA_ARGS__})
+#define mos_hm_new(...) mos_hm_new_fn((MosHmNewArgs){__VA_ARGS__})
 
 // Put given value with given key in the hashmap
 // If entry of the same key exists - overwrites it
@@ -244,7 +255,21 @@ typedef struct {
 //
 // Returns:
 //   1 if an entry of given key was deleted, 0 otherwise
-#define mos_hm_del(hm, k) (mos_hm_ini(hm), (hm)->key = k, mos_hm_del_fn(hm, mos_hm_fn_args(hm)))
+#define mos_hm_del(hm, k) mos_hm_del_(hm, k, 1)
+
+// Delete an entry with specific key from the hashmap
+// Ensures a rehash doesn't happen
+//
+// Arguments:
+//   hm
+//     hashmap to delete from
+//
+//   k
+//     key of the entry to delete
+//
+// Returns:
+//   1 if an entry of given key was deleted, 0 otherwise
+#define mos_hm_del_norehash(hm, k) mos_hm_del_(hm, k, 0)
 
 // Get a pointer to the first entry in the hashmap
 //
@@ -289,12 +314,14 @@ extern void mos_hm_init(void *p_hm, size_t entry_size);
 
 #define mos_hm_fn_args(hm) &(hm)->key, sizeof(*(hm)), sizeof((hm)->key)
 
+#define mos_hm_del_(hm, k, reh) (mos_hm_ini(hm), (hm)->key = k, mos_hm_del_fn(&(hm), mos_hm_fn_args(hm), MOS_HM_LOAD_FACTOR, reh))
+
 // Function prototypes for macros
-extern void *mos_hm_new_fn(MosHmInitArgs args);
+extern void *mos_hm_new_fn(MosHmNewArgs args);
 extern void mos_hm_put_fn(void *p_hm, void *key, size_t entry_size, size_t key_size, uint8_t load_factor);
 extern size_t mos_hm_get_fn(void *hm, void *key, size_t entry_size, size_t key_size);
 extern void *mos_hm_get_e_fn(void *hm, void *key, size_t entry_size, size_t key_size);
-extern int mos_hm_del_fn(void *hm, void *key, size_t entry_size, size_t key_size);
+extern int mos_hm_del_fn(void *p_hm, void *key, size_t entry_size, size_t key_size, uint8_t load_factor, int reh);
 extern void *mos_hm_first_fn(const void *hm, size_t entry_size);
 extern void *mos_hm_next_fn(const void *hm, const void *curr, size_t entry_size);
 

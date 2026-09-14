@@ -10,9 +10,9 @@
 #define INIT_CAP 16
 
 typedef struct {
-    uint8_t *filled;
-    uint8_t *dead;
-    size_t size;
+    uint16_t *filled_dead_map;
+    size_t n_filled;
+    size_t n_dead;
     size_t cap;
     uint32_t (*hash)(const void *key);
     int (*eq)(const void *key1, const void *key2);
@@ -26,24 +26,30 @@ static void *hdr2hm(Header *hdr) {
     return hdr + 1;
 }
 
-static int filled(const void *hm, size_t index) {
-    return hm2hdr(hm)->filled[index / 8] & (1 << index % 8);
+static int filled(const void *hm, size_t i) {
+    return hm2hdr(hm)->filled_dead_map[i / 8] & (1 << (i % 8 + 8));
 }
 
-static void fill(const void *hm, size_t index) {
-    hm2hdr(hm)->filled[index / 8] |= (1 << index % 8);
+static void fill(void *hm, size_t i) {
+    Header *hdr = hm2hdr(hm);
+    hdr->n_filled++;
+    hdr->filled_dead_map[i / 8] |= (1 << (i % 8 + 8));
 }
 
-static int dead(const void *hm, size_t index) {
-    return hm2hdr(hm)->dead[index / 8] & (1 << index % 8);
+static int dead(const void *hm, size_t i) {
+    return hm2hdr(hm)->filled_dead_map[i / 8] & (1 << i % 8);
 }
 
-static void kill(const void *hm, size_t index) {
-    hm2hdr(hm)->dead[index / 8] |= (1 << index % 8);
+static void kill(void *hm, size_t i) {
+    Header *hdr = hm2hdr(hm);
+    hdr->n_dead++;
+    hdr->filled_dead_map[i / 8] |= (1 << i % 8);
 }
 
-static void unkill(const void *hm, size_t index) {
-    hm2hdr(hm)->dead[index / 8] &= (0xFF ^ (1 << index % 8));
+static void unkill(void *hm, size_t i) {
+    Header *hdr = hm2hdr(hm);
+    hdr->n_dead--;
+    hdr->filled_dead_map[i / 8] &= ~(1 << i % 8);
 }
 
 // FNV-1a
@@ -83,9 +89,9 @@ void mos_hm_init(void *p_hm, size_t entry_size) {
     if (!*(void **)p_hm) {
         Header *hdr = mos_safe_malloc(sizeof(Header) + (INIT_CAP + 1) * entry_size);
         *hdr = (Header){
-            .filled = mos_safe_calloc((INIT_CAP - 1) / 8 + 1, 1),
-            .dead = mos_safe_calloc((INIT_CAP - 1) / 8 + 1, 1),
-            .size = 0,
+            .filled_dead_map = mos_safe_calloc((INIT_CAP - 1) / 8 + 1, 2),
+            .n_filled = 0,
+            .n_dead = 0,
             .cap = INIT_CAP,
             .hash = NULL,
             .eq = NULL,
@@ -97,19 +103,18 @@ void mos_hm_init(void *p_hm, size_t entry_size) {
     Header *hdr = hm2hdr(*(void **)p_hm);
     if (hdr->cap == 0) {
         hdr = mos_safe_realloc(hdr, sizeof(Header) + (INIT_CAP + 1) * entry_size);
-        hdr->filled = mos_safe_calloc((INIT_CAP - 1) / 8 + 1, 1);
-        hdr->dead = mos_safe_calloc((INIT_CAP - 1) / 8 + 1, 1);
+        hdr->filled_dead_map = mos_safe_calloc((INIT_CAP - 1) / 8 + 1, 2);
         hdr->cap = INIT_CAP;
         *(void **)p_hm = hdr2hm(hdr);
     }
 }
 
-void *mos_hm_new_fn(MosHmInitArgs args) {
+void *mos_hm_new_fn(MosHmNewArgs args) {
     Header *hdr = mos_safe_malloc(sizeof(Header));
-    hdr->filled = NULL;
-    hdr->dead = NULL;
+    hdr->filled_dead_map = NULL;
     hdr->cap = 0;
-    hdr->size = 0;
+    hdr->n_filled = 0;
+    hdr->n_dead = 0;
 
     switch (args.key) {
         case DEFAULT:
@@ -151,8 +156,9 @@ static size_t probe(const void *hm, const void *key, size_t entry_size, size_t k
         i = (i + 1) % hdr->cap;
     }
 
-    // NOTE: unreachable - rehash always happens after 100% fill, even at 100% load factor
-    return -1;
+    // NOTE: UNREACHABLE
+    // rehash always happens after 100% fill, even at 100% load factor
+    exit(EXIT_FAILURE);
 }
 
 static void rehash(void *p_hm, size_t entry_size, size_t key_size, size_t key_off, uint8_t load_factor) {
@@ -170,9 +176,9 @@ static void rehash(void *p_hm, size_t entry_size, size_t key_size, size_t key_of
 
     Header *new_hdr = mos_safe_malloc(sizeof(Header) + (new_cap + 1) * entry_size);
     *new_hdr = (Header){
-        .filled = mos_safe_calloc((new_cap - 1) / 8 + 1, 1),
-        .dead = mos_safe_calloc((new_cap - 1) / 8 + 1, 1),
-        .size = size,
+        .filled_dead_map = mos_safe_calloc((new_cap - 1) / 8 + 1, 2),
+        .n_filled = 0,
+        .n_dead = 0,
         .cap = new_cap,
         .hash = hdr->hash,
         .eq = hdr->eq,
@@ -198,26 +204,24 @@ static void rehash(void *p_hm, size_t entry_size, size_t key_size, size_t key_of
         }
     }
 
-    free(hdr->filled);
-    free(hdr->dead);
+    free(hdr->filled_dead_map);
     free(hdr);
     *(void **)p_hm = new_hm;
 }
 
 void mos_hm_put_fn(void *p_hm, void *key, size_t entry_size, size_t key_size, uint8_t load_factor) {
-    size_t key_off = (char *)key - *(char **)p_hm;
-    Header *hdr = hm2hdr(*(void **)p_hm);
-
     void *hm = *(void **)p_hm;
+    Header *hdr = hm2hdr(hm);
+    size_t key_off = (char *)key - (char *)hm;
+
     size_t i = probe(hm, key, entry_size, key_size, key_off, 1);
     memcpy((char *)hm + (i + 1) * entry_size, hm, entry_size);
-    if (!filled(hm, i)) {
-        hdr->size++;
+    if (!filled(hm, i))
         fill(hm, i);
-    }
-    unkill(hm, i);
+    if (dead(hm, i))
+        unkill(hm, i);
 
-    if (hdr->size * 100 >= hdr->cap * load_factor)
+    if (hdr->n_filled * 100 >= hdr->cap * load_factor)
         rehash(p_hm, entry_size, key_size, key_off, load_factor);
 }
 
@@ -239,12 +243,18 @@ void *mos_hm_get_e_fn(void *hm, void *key, size_t entry_size, size_t key_size) {
     return (char *)hm + (i + 1) * entry_size;
 }
 
-int mos_hm_del_fn(void *hm, void *key, size_t entry_size, size_t key_size) {
+int mos_hm_del_fn(void *p_hm, void *key, size_t entry_size, size_t key_size, uint8_t load_factor, int reh) {
+    void *hm = *(void **)p_hm;
+    Header *hdr = hm2hdr(hm);
     size_t key_off = (char *)key - (char *)hm;
+
     size_t i = probe(hm, key, entry_size, key_size, key_off, 0);
     if (!filled(hm, i) || dead(hm, i))
         return 0;
     kill(hm, i);
+
+    if (reh && hdr->cap > INIT_CAP && mos_hm_size(hm) * 400 <= hdr->cap * load_factor)
+        rehash(p_hm, entry_size, key_size, key_off, load_factor);
     return 1;
 }
 
@@ -253,7 +263,7 @@ void *mos_hm_first_fn(const void *hm, size_t entry_size) {
         return NULL;
 
     Header *hdr = hm2hdr(hm);
-    if (hdr->size == 0)
+    if (mos_hm_size(hm) == 0)
         return NULL;
 
     for (size_t i = 0; i < hdr->cap; i++) {
@@ -268,7 +278,7 @@ void *mos_hm_next_fn(const void *hm, const void *curr, size_t entry_size) {
         return NULL;
 
     Header *hdr = hm2hdr(hm);
-    if (hdr->size == 0)
+    if (mos_hm_size(hm) == 0)
         return NULL;
 
     if (!curr)
@@ -285,23 +295,12 @@ void *mos_hm_next_fn(const void *hm, const void *curr, size_t entry_size) {
     return NULL;
 }
 
-static size_t bit_count(const uint8_t *bitmap, size_t size) {
-    size_t count = 0;
-    for (size_t i = 0; i < size; i++) {
-        uint8_t c = (bitmap[i] & 0x55) + ((bitmap[i] >> 1) & 0x55);
-        c = (c & 0x33) + ((c >> 2) & 0x33);
-        count += (c & 0x0F) + ((c >> 4) & 0x0F);
-    }
-    return count;
-}
-
 size_t mos_hm_size(const void *hm) {
     if (!hm)
         return 0;
+
     Header *hdr = hm2hdr(hm);
-    if (hdr->cap == 0)
-        return 0;
-    return hdr->size - bit_count(hdr->dead, (hdr->cap - 1) / 8 + 1);
+    return hdr->n_filled - hdr->n_dead;
 }
 
 void mos_hm_free(void *hm) {
@@ -309,7 +308,6 @@ void mos_hm_free(void *hm) {
         return;
 
     Header *hdr = hm2hdr(hm);
-    free(hdr->filled);
-    free(hdr->dead);
+    free(hdr->filled_dead_map);
     free(hdr);
 }

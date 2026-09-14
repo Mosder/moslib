@@ -1,5 +1,5 @@
 #define _GNU_SOURCE
-#define MOS_HM_LOAD_FACTOR 1
+#define MOS_HM_LOAD_FACTOR 100
 #include "hashmap_tests.h"
 #include "moslib/ds/hashmap.h"
 
@@ -78,6 +78,11 @@ TEST(deleting) {
     }
     test_assert(hm_get_e(hm, 1.0) == NULL, "expansion revived entry");
     test_assert(hm_size(hm) == 2 * INIT_CAP + 1, "hm_size after expansion is incorrect");
+
+    E *e = NULL;
+    while ((e = hm_next(hm, e)))
+        hm_del_norehash(hm, e->key);
+    test_assert(hm_size(hm) == 0, "hm_del_norehash in a loop didn't work properly");
 
     hm_free(hm);
 }
