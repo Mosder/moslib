@@ -150,19 +150,29 @@ static size_t probe(const void *hm, const void *key, size_t entry_size, size_t k
             tomb = i;
         i = (i + 1) % hdr->cap;
     }
+
+    // NOTE: unreachable - rehash always happens after 100% fill, even at 100% load factor
     return -1;
 }
 
 static void rehash(void *p_hm, size_t entry_size, size_t key_size, size_t key_off, uint8_t load_factor) {
     void *hm = *(void **)p_hm;
     Header *hdr = hm2hdr(hm);
-    size_t new_cap = (mos_hm_size(hm) * 400 >= hdr->cap * 3 * load_factor) ? 2 * hdr->cap : hdr->cap;
+    size_t size = mos_hm_size(hm);
+    size_t new_cap = hdr->cap;
+    if (size * 400 >= new_cap * 3 * load_factor) {
+        new_cap *= 2;
+    }
+    else {
+        while (new_cap > INIT_CAP && size * 400 <= new_cap * load_factor)
+            new_cap /= 2;
+    }
 
     Header *new_hdr = mos_safe_malloc(sizeof(Header) + (new_cap + 1) * entry_size);
     *new_hdr = (Header){
         .filled = mos_safe_calloc((new_cap - 1) / 8 + 1, 1),
         .dead = mos_safe_calloc((new_cap - 1) / 8 + 1, 1),
-        .size = mos_hm_size(hm),
+        .size = size,
         .cap = new_cap,
         .hash = hdr->hash,
         .eq = hdr->eq,
@@ -214,7 +224,7 @@ void mos_hm_put_fn(void *p_hm, void *key, size_t entry_size, size_t key_size, ui
 size_t mos_hm_get_fn(void *hm, void *key, size_t entry_size, size_t key_size) {
     size_t key_off = (char *)key - (char *)hm;
     size_t i = probe(hm, key, entry_size, key_size, key_off, 0);
-    if (i == (size_t)-1 || !filled(hm, i) || dead(hm, i)) {
+    if (!filled(hm, i) || dead(hm, i)) {
         memset(hm, 0, entry_size);
         return 0;
     }
@@ -224,7 +234,7 @@ size_t mos_hm_get_fn(void *hm, void *key, size_t entry_size, size_t key_size) {
 void *mos_hm_get_e_fn(const void *hm, const void *key, size_t entry_size, size_t key_size) {
     size_t key_off = (char *)key - (char *)hm;
     size_t i = probe(hm, key, entry_size, key_size, key_off, 0);
-    if (i == (size_t)-1 || !filled(hm, i) || dead(hm, i))
+    if (!filled(hm, i) || dead(hm, i))
         return NULL;
     return (char *)hm + (i + 1) * entry_size;
 }
@@ -232,7 +242,7 @@ void *mos_hm_get_e_fn(const void *hm, const void *key, size_t entry_size, size_t
 int mos_hm_del_fn(void *hm, void *key, size_t entry_size, size_t key_size) {
     size_t key_off = (char *)key - (char *)hm;
     size_t i = probe(hm, key, entry_size, key_size, key_off, 0);
-    if (i == (size_t)-1 || !filled(hm, i) || dead(hm, i))
+    if (!filled(hm, i) || dead(hm, i))
         return 0;
     kill(hm, i);
     return 1;
