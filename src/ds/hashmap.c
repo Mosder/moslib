@@ -231,7 +231,7 @@ size_t mos_hm_get_fn(void *hm, void *key, size_t entry_size, size_t key_size) {
     return i + 1;
 }
 
-void *mos_hm_get_e_fn(const void *hm, const void *key, size_t entry_size, size_t key_size) {
+void *mos_hm_get_e_fn(void *hm, void *key, size_t entry_size, size_t key_size) {
     size_t key_off = (char *)key - (char *)hm;
     size_t i = probe(hm, key, entry_size, key_size, key_off, 0);
     if (!filled(hm, i) || dead(hm, i))

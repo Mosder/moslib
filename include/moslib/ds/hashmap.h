@@ -193,7 +193,7 @@ typedef struct {
 //   ...
 //     value of the entry to put
 //     variadic to make things like (struct Val){1,1} work properly
-#define mos_hm_put(hm, k, ...) (mos_hm_ini(hm), (hm)->key = k, (hm)->val = __VA_ARGS__, mos_hm_put_fn(&(hm), mos_hm_fn_args(hm), MOS_HM_LOAD_FACTOR))
+#define mos_hm_put(hm, k, ...) (mos_hm_ini(hm), (hm)->val = __VA_ARGS__, (hm)->key = k, mos_hm_put_fn(&(hm), mos_hm_fn_args(hm), MOS_HM_LOAD_FACTOR))
 
 // Put a given entry in the hashmap
 // If entry of the same key exists - overwrites it
@@ -293,7 +293,7 @@ extern void mos_hm_init(void *p_hm, size_t entry_size);
 extern void *mos_hm_new_fn(MosHmInitArgs args);
 extern void mos_hm_put_fn(void *p_hm, void *key, size_t entry_size, size_t key_size, uint8_t load_factor);
 extern size_t mos_hm_get_fn(void *hm, void *key, size_t entry_size, size_t key_size);
-extern void *mos_hm_get_e_fn(const void *hm, const void *key, size_t entry_size, size_t key_size);
+extern void *mos_hm_get_e_fn(void *hm, void *key, size_t entry_size, size_t key_size);
 extern int mos_hm_del_fn(void *hm, void *key, size_t entry_size, size_t key_size);
 extern void *mos_hm_first_fn(const void *hm, size_t entry_size);
 extern void *mos_hm_next_fn(const void *hm, const void *curr, size_t entry_size);
