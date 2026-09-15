@@ -1,8 +1,8 @@
 // moslib/tester.h
 // Helper functions for writing and running tests
 
-// ======================================== QUICK USAGE GUIDE =========================================
-// ----------------------------------------------------------------------------------------------------
+// ======================================= QUICK USAGE GUIDE =======================================
+// -------------------------------------------------------------------------------------------------
 //
 // Define the tester:
 //
@@ -14,13 +14,13 @@
 //
 //      Tester *tester = new_tester();
 //
-// ----------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 //
 // Add test groups:
 //
 //      TestGroup *test_group = add_test_group(tester, group_name);
 //
-// ----------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 //
 // Create tests.
 // They should use test_assert functions to check correctness.
@@ -67,26 +67,26 @@
 //          test_assert(code == 0, "function didn't fail");
 //      }
 //
-// ----------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 //
 // Add tests to test group:
 //
 //      add_test(test_group, test_fn);
 //
-// ----------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 //
 // Run tests:
 //
 //      int all_passed = run_tests(tester);
 //
-// ----------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 //
 // Free tester:
 //
 //      free_tester(tester);
 //
-// ----------------------------------------------------------------------------------------------------
-// ===================================== END OF QUICK USAGE GUIDE =====================================
+// -------------------------------------------------------------------------------------------------
+// =================================== END OF QUICK USAGE GUIDE ====================================
 
 #include <stdio.h>
 
@@ -137,7 +137,8 @@ extern MosTester *mos_new_tester(void);
 //
 // Returns:
 //   pointer to the added group
-#define mos_add_test_group(tester, group_name) ((!(tester) ? (tester) = mos_new_tester() : 0), mos_add_test_group_fn(tester, group_name))
+#define mos_add_test_group(tester, group_name)                                                     \
+    ((!(tester) ? (tester) = mos_new_tester() : 0), mos_add_test_group_fn(tester, group_name))
 
 // Assert that an expression is true
 // Use in test functions to test correctness
@@ -159,7 +160,7 @@ extern void mos_test_assert(int expression, const char *fail_message);
 //
 //   code
 //     expected exit code
-#define mos_test_assert_exit(function, code) mos_test_assert_exit_fn(function, code, #function);
+#define mos_test_assert_exit(function, code) mos_test_assert_exit_fn(function, code, #function)
 
 // Assert that function writes correct output to specified stream
 //
@@ -172,7 +173,8 @@ extern void mos_test_assert(int expression, const char *fail_message);
 //
 //   output
 //     expected output of the function
-#define mos_test_assert_out(function, stream, output) mos_test_assert_out_fn(function, stream, output, #function, #stream);
+#define mos_test_assert_out(function, stream, output)                                              \
+    mos_test_assert_out_fn(function, stream, output, #function, #stream)
 
 // Suppress given output
 //
@@ -193,7 +195,7 @@ extern void mos_unsuppress_outputs(void);
 //
 //   test
 //     test to add to the group
-#define mos_add_test(group, test) mos_add_test_fn(group, test, #test);
+#define mos_add_test(group, test) mos_add_test_fn(group, test, #test)
 
 // Run defined tests
 //
@@ -215,7 +217,13 @@ extern void mos_free_tester(MosTester *tester);
 // Function prototypes for macros
 extern MosTestGroup *mos_add_test_group_fn(MosTester *tester, const char *group_name);
 extern void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name);
-extern void mos_test_assert_out_fn(MosTestFn function, FILE *stream, const char *output, const char *fn_name, const char *stream_name);
+extern void mos_test_assert_out_fn(
+    MosTestFn function,
+    FILE *stream,
+    const char *output,
+    const char *fn_name,
+    const char *stream_name
+);
 extern void mos_add_test_fn(MosTestGroup *group, MosTestFn test, const char *name);
 
 #endif // MOSLIB_TESTER_H

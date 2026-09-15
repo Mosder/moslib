@@ -45,13 +45,19 @@ TEST(put_e_get_e) {
     hm_put_e(hm, (E){0.0f, 69});
     hm_put_e(hm, (E){1.0f, 420});
     E e = {0.0f, 69};
-    test_assert(memcmp(&e, hm_get_e(hm, 0.0f), sizeof(E)) == 0, "hm_get_e got entry not from hm_put_e");
+    test_assert(
+        memcmp(&e, hm_get_e(hm, 0.0f), sizeof(E)) == 0, "hm_get_e got entry not from hm_put_e"
+    );
     e = (E){1.0f, 420};
-    test_assert(memcmp(&e, hm_get_e(hm, 1.0f), sizeof(E)) == 0, "hm_get_e got entry not from hm_put_e");
+    test_assert(
+        memcmp(&e, hm_get_e(hm, 1.0f), sizeof(E)) == 0, "hm_get_e got entry not from hm_put_e"
+    );
 
     e = (E){1.0f, 2137};
     hm_put_e(hm, e);
-    test_assert(memcmp(&e, hm_get_e(hm, 1.0f), sizeof(E)) == 0, "hm_put_e didn't update entry properly");
+    test_assert(
+        memcmp(&e, hm_get_e(hm, 1.0f), sizeof(E)) == 0, "hm_put_e didn't update entry properly"
+    );
 
     hm_free(hm);
 }
@@ -137,7 +143,9 @@ TEST(looping) {
     E items[] = {{1, 10}, {2, 20}, {3, 30}};
     arr_append_n(allowed, items, 3);
 
-    test_assert(memcmp(hm_first(hm), hm_next(hm, NULL), sizeof(E)) == 0, "hm_next(hm, NULL) != hm_first(hm)");
+    test_assert(
+        memcmp(hm_first(hm), hm_next(hm, NULL), sizeof(E)) == 0, "hm_next(hm, NULL) != hm_first(hm)"
+    );
     E *e = NULL;
     while ((e = hm_next(hm, e))) {
         int flag = 0;
@@ -150,7 +158,10 @@ TEST(looping) {
         }
         test_assert(flag, "hm_next produced an entry that wasn't put in the hashmap");
     }
-    test_assert(arr_len(allowed) == 0, "hm_next didn't produce every entry from hashmap when it looped over it");
+    test_assert(
+        arr_len(allowed) == 0,
+        "hm_next didn't produce every entry from hashmap when it looped over it"
+    );
 
     arr_free(allowed);
     hm_free(hm);

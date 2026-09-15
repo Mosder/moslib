@@ -139,7 +139,9 @@ void *mos_hm_new_fn(MosHmNewArgs args) {
     return hdr2hm(hdr);
 }
 
-static size_t probe(const void *hm, const void *key, size_t entry_size, size_t key_size, size_t key_off, int put) {
+static size_t probe(
+    const void *hm, const void *key, size_t entry_size, size_t key_size, size_t key_off, int put
+) {
     Header *hdr = hm2hdr(hm);
     uint32_t hash = hdr->hash ? hdr->hash(key) : default_hash(key, key_size);
     size_t i = hash % hdr->cap;
@@ -161,7 +163,8 @@ static size_t probe(const void *hm, const void *key, size_t entry_size, size_t k
     exit(EXIT_FAILURE);
 }
 
-static void rehash(void *p_hm, size_t entry_size, size_t key_size, size_t key_off, uint8_t load_factor) {
+static void
+rehash(void *p_hm, size_t entry_size, size_t key_size, size_t key_off, uint8_t load_factor) {
     void *hm = *(void **)p_hm;
     Header *hdr = hm2hdr(hm);
     size_t size = mos_hm_size(hm);
@@ -243,7 +246,9 @@ void *mos_hm_get_e_fn(void *hm, void *key, size_t entry_size, size_t key_size) {
     return (char *)hm + (i + 1) * entry_size;
 }
 
-int mos_hm_del_fn(void *p_hm, void *key, size_t entry_size, size_t key_size, uint8_t load_factor, int reh) {
+int mos_hm_del_fn(
+    void *p_hm, void *key, size_t entry_size, size_t key_size, uint8_t load_factor, int reh
+) {
     void *hm = *(void **)p_hm;
     Header *hdr = hm2hdr(hm);
     size_t key_off = (char *)key - (char *)hm;

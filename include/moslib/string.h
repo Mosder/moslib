@@ -1,8 +1,8 @@
 // moslib/string.h
 // Length aware string slices
 
-// ======================================== QUICK USAGE GUIDE =========================================
-// ----------------------------------------------------------------------------------------------------
+// ======================================= QUICK USAGE GUIDE =======================================
+// -------------------------------------------------------------------------------------------------
 //
 // StringSlice is defined as a struct which contains a pointer to the beginning of a string and its
 // length:
@@ -12,7 +12,7 @@
 //          size_t len;
 //      } StringSlice;
 //
-// ----------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 //
 // To get a string slice from a C string you can use:
 //
@@ -45,7 +45,7 @@
 //
 //      StringSlice ss = ss_from_vars("[in][out]", 4);
 //
-// ----------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 //
 // To print a slice you can either use:
 //
@@ -57,14 +57,14 @@
 //
 //      printf("Slice: " SS_FMT "\n", SS_ARGS(ss));
 //
-// ----------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 //
 // To check if two slices / slice and string are equal, use:
 //
 //      int are_eq = ss_eq(ss1, ss2);
 //      int are_eq = ss_eq_str(ss1, "string");
 //
-// ----------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 //
 // You can trim a slice from whitespace using:
 //
@@ -72,7 +72,7 @@
 //      StringSlice trimmed_l = ss_trim_left(ss);
 //      StringSlice trimmed_r = ss_trim_right(ss);
 //
-// ----------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 //
 // To check whether a slice starts or ends with a slice / string, you can use:
 //
@@ -81,7 +81,7 @@
 //      int flag = ss_starts_with_str(ss, str_prefix);
 //      int flag = ss_ends_with_str(ss, str_suffix);
 //
-// ----------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 //
 // To delete from the left or the right, use:
 //
@@ -100,7 +100,7 @@
 // It will return whether or not the slice started / ended with the prefix / suffix and delete it if
 // it did.
 //
-// ----------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 //
 // You can split a slice by a delimiter using ss_split functions:
 //
@@ -123,27 +123,27 @@
 //
 // It will return the "split" part and leave the remainder in the argument slice.
 //
-// ----------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 //
 // To find within a slice a part which begins with given target, use:
 //
 //      StringSlice target1 = ss_find(ss, ss_target);
 //      StringSlice target2 = ss_find_str(ss, str_target);
 //
-// The return value is a slice that begins at the beginning of the specified target and ends at the end
-// of the original slice.
+// The return value is a slice that begins at the beginning of the specified target and ends
+// at the end of the original slice.
 // If the target was an emptry slice / string - returns the entire slice.
 // If the target was not found - returns empty slice.
 //
-// ----------------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------------
 //
 // If you want to get length of a slice then you can simply use the len field of the struct.
 // However, if you want to know the length which respects utf-8 encoding, use:
 //
 //      size_t utf8_len = ss_utf8_len(ss);
 //
-// ----------------------------------------------------------------------------------------------------
-// ===================================== END OF QUICK USAGE GUIDE =====================================
+// -------------------------------------------------------------------------------------------------
+// =================================== END OF QUICK USAGE GUIDE ====================================
 
 #include <stddef.h>
 

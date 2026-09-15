@@ -130,7 +130,13 @@ void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name) {
     }
 }
 
-void mos_test_assert_out_fn(MosTestFn function, FILE *stream, const char *output, const char *fn_name, const char *stream_name) {
+void mos_test_assert_out_fn(
+    MosTestFn function,
+    FILE *stream,
+    const char *output,
+    const char *fn_name,
+    const char *stream_name
+) {
     size_t n = strlen(output);
     char *out = mos_safe_calloc(n + 2, 1);
 

@@ -7,7 +7,8 @@ RUN_TESTS=./run_tests
 ifneq ($(shell uname -s),Darwin)
 	CFLAGS+= -s
 else
-	RUN_TESTS=DYLD_FALLBACK_LIBRARY_PATH="/usr/local/lib:$DYLD_FALLBACK_LIBRARY_PATH" ./run_tests; rm -rf run_tests.dSYM/
+	RUN_TESTS=DYLD_FALLBACK_LIBRARY_PATH="/usr/local/lib:$DYLD_FALLBACK_LIBRARY_PATH"
+	RUN_TESTS+= ./run_tests; rm -rf run_tests.dSYM/
 endif
 
 both: shared static clean

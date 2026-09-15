@@ -16,10 +16,16 @@ TEST(cap_test) {
     test_assert(arr_cap(arr) == 2 * MOS_ARR_INIT_CAP, "capacity didn't increase 2 times");
 
     size_t new_cap = arr_set_cap(arr, 3 * MOS_ARR_INIT_CAP);
-    test_assert(new_cap == arr_cap(arr) && new_cap == 3 * MOS_ARR_INIT_CAP, "set cap didn't set correct capacity (cap >= len)");
+    test_assert(
+        new_cap == arr_cap(arr) && new_cap == 3 * MOS_ARR_INIT_CAP,
+        "set cap didn't set correct capacity (cap >= len)"
+    );
 
     new_cap = arr_set_cap(arr, 0);
-    test_assert(new_cap == arr_cap(arr) && new_cap == MOS_ARR_INIT_CAP + 1, "set cap didn't set correct capacity (cap < len)");
+    test_assert(
+        new_cap == arr_cap(arr) && new_cap == MOS_ARR_INIT_CAP + 1,
+        "set cap didn't set correct capacity (cap < len)"
+    );
 
     arr_free(arr);
 }
@@ -95,10 +101,14 @@ TEST(getting_items) {
     test_assert(arr_last(arr) == NULL, "last of empty array isn't null");
 
     arr_append(arr, (struct test){0});
-    test_assert(arr_first(arr) == arr_last(arr), "first and last are different for array of length 1");
+    test_assert(
+        arr_first(arr) == arr_last(arr), "first and last are different for array of length 1"
+    );
 
     arr_append(arr, (struct test){1, 1});
-    test_assert(arr_first(arr) != arr_last(arr), "first and last are the same for array of length >1");
+    test_assert(
+        arr_first(arr) != arr_last(arr), "first and last are the same for array of length >1"
+    );
 
     struct test *next_first = arr_next(arr, NULL);
     struct test *next_last = arr_next(arr, next_first);
@@ -108,15 +118,24 @@ TEST(getting_items) {
     struct test *prev_null = arr_prev(arr, prev_first);
     test_assert(next_first && next_last, "next gave NULL when it shouldn't have");
     test_assert(prev_first && prev_last, "prev gave NULL when it shouldn't have");
-    test_assert(next_first == prev_first && next_last == prev_last, "next and prev gave different values for the same element");
+    test_assert(
+        next_first == prev_first && next_last == prev_last,
+        "next and prev gave different values for the same element"
+    );
     test_assert(!next_null, "next didn't give NULL after running out of items");
     test_assert(!prev_null, "prev didn't give NULL after running out of items");
 
-    test_assert(arr_get(arr, -1) == NULL && arr_get(arr, 2) == NULL, "arr_get didn't give NULL when out of bounds");
+    test_assert(
+        arr_get(arr, -1) == NULL && arr_get(arr, 2) == NULL,
+        "arr_get didn't give NULL when out of bounds"
+    );
 
     struct test i0 = *arr_get(arr, 0);
     struct test i1 = *arr_get(arr, 1);
-    test_assert(!memcmp(&i0, &arr[0], sizeof(struct test)) && !memcmp(&i1, &arr[1], sizeof(struct test)), "arr_get(arr, i) gives different result than arr[i]");
+    test_assert(
+        !memcmp(&i0, &arr[0], sizeof(struct test)) && !memcmp(&i1, &arr[1], sizeof(struct test)),
+        "arr_get(arr, i) gives different result than arr[i]"
+    );
 
     arr_free(arr);
 }
@@ -176,7 +195,9 @@ TEST(arr_concat_test) {
     test_assert(index == 2, "arr_concat returned wrong index");
     unsigned long expected[] = {4, 5, 1, 2, 3, 4, 5};
     test_assert(arr_len(arr2) == 7, "arr_concat produced array of wrong length");
-    test_assert(!memcmp(arr2, expected, 7 * sizeof(unsigned long)), "arr_concat produced wrong array");
+    test_assert(
+        !memcmp(arr2, expected, 7 * sizeof(unsigned long)), "arr_concat produced wrong array"
+    );
 
     arr_free(arr1);
     arr_free(arr2);
