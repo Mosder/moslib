@@ -1,12 +1,10 @@
-CC=gcc
+CC=cc
 CFLAGS=-std=c99 -Wall -Wextra -Wpedantic -fPIC -I./include -O2
 CFLAGS_TEST=-std=c99 -Wall -Wextra -Wpedantic -Og -ggdb
 AR=ar rcs
 RUN_TESTS=./run_tests
 
-ifneq ($(shell uname -s),Darwin)
-	CFLAGS+= -s
-else
+ifeq ($(shell uname -s),Darwin)
 	RUN_TESTS=DYLD_FALLBACK_LIBRARY_PATH="/usr/local/lib:$DYLD_FALLBACK_LIBRARY_PATH"
 	RUN_TESTS+= ./run_tests; rm -rf run_tests.dSYM/
 endif
@@ -14,7 +12,7 @@ endif
 both: shared static clean
 
 shared: compile headers
-	$(CC) -shared *.o -o libmoslib.so
+	$(CC) -s -shared *.o -o libmoslib.so
 	sudo mv libmoslib.so /usr/local/lib
 
 static: compile headers
