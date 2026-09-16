@@ -12,11 +12,13 @@ endif
 both: shared static clean
 
 shared: compile headers
-	$(CC) -s -shared *.o -o libmoslib.so
+	$(CC) -shared *.o -o libmoslib.so
+	strip -x libmoslib.so
 	sudo mv libmoslib.so /usr/local/lib
 
 static: compile headers
 	$(AR) libmoslib.a *.o
+	strip -S libmoslib.a
 	sudo mv libmoslib.a /usr/local/lib
 
 headers:
