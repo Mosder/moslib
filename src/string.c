@@ -1,4 +1,5 @@
-#define _GNU_SOURCE
+#include "compat.h"
+
 #define MOS_FORCE_PREFIXES
 #include "moslib/string.h"
 

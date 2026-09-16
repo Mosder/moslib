@@ -1,6 +1,7 @@
-#define _XOPEN_SOURCE 600
-#include "string_tests.h"
+#include "compat.h"
+
 #include "moslib/string.h"
+#include "string_tests.h"
 
 #include <stdlib.h>
 #include <string.h>

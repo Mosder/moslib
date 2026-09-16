@@ -13,17 +13,30 @@ LIB_SUDO:=$(shell test -w $(LIB_DIR) || echo sudo)
 INC_DIR=$(TARGET_PREFIX)/include
 INC_SUDO:=$(shell test -w $(INC_DIR) || echo sudo)
 
-CFLAGS=-std=c99 -Wall -Wextra -Wpedantic -fPIC -I./include -O2 -c
-SRCS:=$(shell find src | grep "\.c$$")
-CLEANUP=$(MAKE) clean
+CFLAGS=-std=c99 -Wall -Wextra -Wpedantic -fPIC -I./include -I./compat -O2 -c
+SRCS:=$(shell find src compat | grep "\.c$$")
+CLEANUP=$(MAKE) clean --no-print-directory
 
-TESTS_CFLAGS=-std=c99 -Wall -Wextra -Wpedantic -I$(INC_DIR) -Og -ggdb -c
+TESTS_CFLAGS=-std=c99 -Wall -Wextra -Wpedantic -I$(INC_DIR) -I./compat -Og -ggdb -c
 TESTS_LDFLAGS=-L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR) -lmoslib
-TESTS_SRCS:=$(shell find tests | grep "\.c$$")
+TESTS_SRCS:=$(shell find tests compat | grep "\.c$$")
+
+define probe_fun
+	$(shell printf '#define $(1)\n#include <$(2)>\nint main(void){$(3);}' \
+		| $(CC) $(CFLAGS) -x c - -o /dev/null 2>/dev/null \
+		|| echo -DNO_$(shell echo $(3) | tr a-z A-Z))
+endef
+
+PROBED:= \
+	$(call probe_fun,_GNU_SOURCE,string.h,memmem) \
+	$(call probe_fun,_XOPEN_SOURCE 500,string.h,strdup)
+
+CFLAGS+=$(PROBED)
+TESTS_CFLAGS+=$(PROBED)
 
 both: CLEANUP=true
 both: clean shared static
-	@$(MAKE) clean
+	@$(MAKE) clean --no-print-directory
 
 shared: clean compile headers
 	$(LIB_SUDO) $(CC) -shared *.o -o $(LIB_DIR)/libmoslib.so
@@ -45,7 +58,7 @@ test: clean
 	$(CC) $(TESTS_CFLAGS) $(TESTS_SRCS)
 	$(CC) $(TESTS_LDFLAGS) *.o -o run_tests
 	./run_tests
-	@$(MAKE) clean
+	@$(CLEANUP)
 
 clean:
 	rm *.o run_tests 2>/dev/null || true

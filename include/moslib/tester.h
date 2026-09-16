@@ -174,14 +174,14 @@ extern void mos_test_assert(int expression, const char *fail_message);
 //   output
 //     expected output of the function
 #define mos_test_assert_out(function, stream, output)                                              \
-    mos_test_assert_out_fn(function, stream, output, #function, #stream)
+    mos_test_assert_out_fn(function, &(stream), output, #function, #stream)
 
 // Suppress given output
 //
 // Arguments:
 //   out
 //     outpout to suppress
-extern void mos_suppress_output(FILE *out);
+#define mos_suppress_output(out) mos_suppress_output_fn(&(out))
 
 // Unuppress previously suppressed outputs
 // Will unsupress all of the outputs that were suppressed
@@ -219,11 +219,12 @@ extern MosTestGroup *mos_add_test_group_fn(MosTester *tester, const char *group_
 extern void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name);
 extern void mos_test_assert_out_fn(
     MosTestFn function,
-    FILE *stream,
+    FILE **stream,
     const char *output,
     const char *fn_name,
     const char *stream_name
 );
+extern void mos_suppress_output_fn(FILE **out);
 extern void mos_add_test_fn(MosTestGroup *group, MosTestFn test, const char *name);
 
 #endif // MOSLIB_TESTER_H

@@ -1,4 +1,5 @@
-#define _GNU_SOURCE
+#include "compat.h"
+
 #define MOS_HM_LOAD_FACTOR 100
 #include "hashmap_tests.h"
 #include "moslib/ds/hashmap.h"
