@@ -1,0 +1,13 @@
+# Makefile config
+
+# Change which C compiler will be used
+#
+# default: CC=cc
+CC=
+
+# Change where the header and lib files will land
+# .h files will land in $(TARGET_PREFIX)/include
+# .so and/or .a file will land in $(TARGET_PREFIX)/lib
+#
+# default: TARGET_PREFIX=/usr/local
+TARGET_PREFIX=
