@@ -47,21 +47,21 @@
 //
 // You can also test if a function writes correct output.
 // You need to create a helper test and pass it into test_assert_out in main test.
-// Pass the helper test, output stream, and expected output to it.
+// Pass the helper test, output stream's fd, and expected output to it.
 // Example:
 //      TEST_HELPER(helper_test) {
 //          printf("output");
 //      }
 //      TEST(main_test) {
-//          test_assert_out(helper_test, stdout, "output");
+//          test_assert_out(helper_test, STDOUT_FILENO, "output");
 //      }
 //
 // If your functions have output and you want to suppress them for the sake of tests,
 // you can do so using suppress_output and unsupress_outputs.
 // Example:
 //      TEST(error_test) {
-//          suppress_output(stdout);
-//          suppress_output(stderr);
+//          suppress_output(STDOUT_FILENO);
+//          suppress_output(STDERR_FILENO);
 //          int code = fun_that_fails_with_output();
 //          unsuppress_outputs();
 //          test_assert(code == 0, "function didn't fail");
@@ -168,20 +168,20 @@ extern void mos_test_assert(int expression, const char *fail_message);
 //   function
 //     function that is supposed to write output
 //
-//   stream
-//     stream to write the output to
+//   fd
+//     file descriptor of stream to write the output to
 //
 //   output
 //     expected output of the function
-#define mos_test_assert_out(function, stream, output)                                              \
-    mos_test_assert_out_fn(function, &(stream), output, #function, #stream)
+#define mos_test_assert_out(function, fd, output)                                                  \
+    mos_test_assert_out_fn(function, fd, output, #function, #fd)
 
 // Suppress given output
 //
 // Arguments:
-//   out
-//     outpout to suppress
-#define mos_suppress_output(out) mos_suppress_output_fn(&(out))
+//   fd
+//     file descriptor of output to suppress
+#define mos_suppress_output(fd) mos_suppress_output_fn(fd)
 
 // Unuppress previously suppressed outputs
 // Will unsupress all of the outputs that were suppressed
@@ -218,13 +218,9 @@ extern void mos_free_tester(MosTester *tester);
 extern MosTestGroup *mos_add_test_group_fn(MosTester *tester, const char *group_name);
 extern void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name);
 extern void mos_test_assert_out_fn(
-    MosTestFn function,
-    FILE **stream,
-    const char *output,
-    const char *fn_name,
-    const char *stream_name
+    MosTestFn function, int fd, const char *output, const char *fn_name, const char *fd_name
 );
-extern void mos_suppress_output_fn(FILE **out);
+extern void mos_suppress_output_fn(int fd);
 extern void mos_add_test_fn(MosTestGroup *group, MosTestFn test, const char *name);
 
 #endif // MOSLIB_TESTER_H

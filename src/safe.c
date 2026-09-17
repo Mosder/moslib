@@ -88,3 +88,11 @@ int mos_safe_pipe_fn(int fd[2], MosSafeErrInfo info) {
     ERR_MESS("failed to pipe");
     exit(EXIT_FAILURE);
 }
+
+int mos_safe_mkstemp_fn(char *path, MosSafeErrInfo info) {
+    int fd = mkstemp(path);
+    if (fd != -1)
+        return fd;
+    ERR_MESS("failed to make temporary file");
+    exit(EXIT_FAILURE);
+}

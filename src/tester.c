@@ -19,11 +19,11 @@
 #define RENDER_WIDTH 80
 
 static int failed = 0;
-static FILE *dev_null = NULL;
+static int dev_null = -1;
 
 typedef struct {
-    FILE ***outs;
-    FILE **ogs;
+    int *outs;
+    int *ogs;
     size_t n_outs;
     size_t out_cap;
 } Outputs;
@@ -140,62 +140,67 @@ void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name) {
 }
 
 void mos_test_assert_out_fn(
-    MosTestFn function,
-    FILE **stream,
-    const char *output,
-    const char *fn_name,
-    const char *stream_name
+    MosTestFn function, int fd, const char *output, const char *fn_name, const char *fd_name
 ) {
     size_t n = strlen(output);
     char *out = mos_safe_calloc(n + 2, 1);
 
-    FILE *og = *stream;
-    fflush(*stream);
-    *stream = mos_safe_tmpfile();
+    int tmp = mos_safe_mkstemp(".tmp");
+    unlink(".tmp");
+
+    int og = mos_safe_dup(fd);
+    fflush(NULL);
+    mos_safe_dup2(tmp, fd);
 
     function();
-    fflush(*stream);
-    rewind(*stream);
-    fread(out, 1, n + 1, *stream);
-    fclose(*stream);
-    *stream = og;
+    fflush(NULL);
+    lseek(fd, 0, SEEK_SET);
+    read(fd, out, n + 1);
+    close(tmp);
+
+    mos_safe_dup2(og, fd);
+    close(og);
 
     if (strcmp(out, output)) {
         failed = 1;
         print_color(RED, "ASSERT FAILED: ");
-        printf("function %s outputed to %s:\n", fn_name, stream_name);
+        printf("function %s outputed to %s:\n", fn_name, fd_name);
         printf("               %s (capped at %zu chars)\n", out, n + 1);
         printf("               expected: %s\n", output);
     }
     free(out);
 }
 
-void mos_suppress_output_fn(FILE **out) {
+void mos_suppress_output_fn(int fd) {
     if (!suppressed.outs || suppressed.n_outs >= suppressed.out_cap) {
         while (suppressed.n_outs >= suppressed.out_cap)
             suppressed.out_cap *= 2;
-        suppressed.outs = mos_safe_realloc(suppressed.outs, suppressed.out_cap * sizeof(FILE **));
-        suppressed.ogs = mos_safe_realloc(suppressed.ogs, suppressed.out_cap * sizeof(FILE *));
+        suppressed.outs = mos_safe_realloc(suppressed.outs, suppressed.out_cap * sizeof(int));
+        suppressed.ogs = mos_safe_realloc(suppressed.ogs, suppressed.out_cap * sizeof(int));
     }
-    suppressed.outs[suppressed.n_outs] = out;
-    suppressed.ogs[suppressed.n_outs++] = *out;
+    suppressed.outs[suppressed.n_outs] = fd;
+    suppressed.ogs[suppressed.n_outs++] = mos_safe_dup(fd);
 
-    if (!dev_null)
-        dev_null = mos_safe_tmpfile();
+    if (dev_null == -1) {
+        dev_null = mos_safe_mkstemp(".dev_null");
+        unlink(".dev_null");
+    }
 
-    fflush(*out);
-    *out = dev_null;
+    fflush(NULL);
+    mos_safe_dup2(dev_null, fd);
 }
 
 void mos_unsuppress_outputs(void) {
     if (!suppressed.outs || !suppressed.ogs)
         return;
 
-    if (dev_null)
-        fflush(dev_null);
+    if (dev_null != -1)
+        fflush(NULL);
 
-    for (size_t i = suppressed.n_outs; i-- > 0;)
-        *suppressed.outs[i] = suppressed.ogs[i];
+    for (size_t i = suppressed.n_outs; i-- > 0;) {
+        mos_safe_dup2(suppressed.ogs[i], suppressed.outs[i]);
+        close(suppressed.ogs[i]);
+    }
 
     suppressed.n_outs = 0;
 }
@@ -275,9 +280,9 @@ void mos_free_tester(MosTester *tester) {
         free(tester);
     }
     mos_unsuppress_outputs();
-    if (dev_null) {
-        fclose(dev_null);
-        dev_null = NULL;
+    if (dev_null != -1) {
+        close(dev_null);
+        dev_null = -1;
     }
     if (suppressed.outs) {
         free(suppressed.outs);

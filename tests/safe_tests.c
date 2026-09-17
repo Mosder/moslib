@@ -13,7 +13,7 @@ TEST(test_safe_malloc) {
     void *p = safe_malloc(1024);
     test_assert(p != NULL, "Failed to malloc 1KiB");
 
-    suppress_output(stderr);
+    suppress_output(STDERR_FILENO);
     test_assert_exit(malloc_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -26,7 +26,7 @@ TEST(test_safe_calloc) {
     void *p = safe_calloc(16, 16);
     test_assert(p != NULL, "Failed to calloc 16 items of 16 bytes");
 
-    suppress_output(stderr);
+    suppress_output(STDERR_FILENO);
     test_assert_exit(calloc_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -44,7 +44,7 @@ TEST(test_safe_realloc) {
     p = safe_realloc(p, 4096);
     test_assert(p != NULL, "Failed to realloc 1KiB to 4KiB");
 
-    suppress_output(stderr);
+    suppress_output(STDERR_FILENO);
     test_assert_exit(realloc_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -57,7 +57,7 @@ TEST(test_safe_fopen) {
     FILE *fp = safe_fopen(__FILE__, "r");
     test_assert(fp != NULL, "Failed to fopen current file");
 
-    suppress_output(stderr);
+    suppress_output(STDERR_FILENO);
     test_assert_exit(fopen_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -76,7 +76,7 @@ TEST(test_safe_dup) {
     test_assert(fd != -1, "Failed to dup STDOUT_FILENO");
     close(fd);
 
-    suppress_output(stderr);
+    suppress_output(STDERR_FILENO);
     test_assert_exit(dup_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -96,7 +96,7 @@ TEST(test_safe_dup2) {
     test_assert(res != -1, "Failed to restore STDOUT_FILENO");
     close(fd);
 
-    suppress_output(stderr);
+    suppress_output(STDERR_FILENO);
     test_assert_exit(dup2_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
