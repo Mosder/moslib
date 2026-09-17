@@ -20,6 +20,7 @@
 #define safe_dup2 mos_safe_dup2
 #define safe_fork mos_safe_fork
 #define safe_pipe mos_safe_pipe
+#define safe_mkstemp mos_safe_mkstemp
 
 #endif // MOS_FORCE_PREFIXES
 

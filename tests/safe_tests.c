@@ -101,6 +101,32 @@ TEST(test_safe_dup2) {
     unsuppress_outputs();
 }
 
+TEST(test_safe_fork) {
+    pid_t pid = safe_fork();
+    test_assert(pid != -1, "Failed to create a child process");
+    if (pid == 0)
+        exit(EXIT_SUCCESS);
+}
+
+TEST(test_safe_pipe) {
+    int fd[2];
+    int res = safe_pipe(fd);
+    test_assert(res != -1, "Failed to create a pipe");
+    close(fd[0]);
+    close(fd[1]);
+}
+
+TEST(test_safe_mkstemp) {
+    int fd = safe_mkstemp(".tmp");
+    test_assert(fd != -1, "Failed to create a temporary file");
+    unlink(".tmp");
+    close(fd);
+}
+
+#define mos_safe_fork() mos_safe_fork_fn(mos_err_info)
+#define mos_safe_pipe(fd) mos_safe_pipe_fn(fd, mos_err_info)
+#define mos_safe_mkstemp(path) mos_safe_mkstemp_fn(path, mos_err_info)
+
 void safe_tests(Tester *tester) {
     TestGroup *group = add_test_group(tester, "moslib/safe.h");
     add_test(group, test_safe_malloc);
@@ -110,4 +136,7 @@ void safe_tests(Tester *tester) {
     add_test(group, test_safe_tmpfile);
     add_test(group, test_safe_dup);
     add_test(group, test_safe_dup2);
+    add_test(group, test_safe_fork);
+    add_test(group, test_safe_pipe);
+    add_test(group, test_safe_mkstemp);
 }
