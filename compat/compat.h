@@ -4,7 +4,6 @@
 #ifndef MOSLIB_COMPAT_H
 #define MOSLIB_COMPAT_H
 
-#define _XOPEN_SOURCE 500
 #define _GNU_SOURCE
 
 typedef void declaration;

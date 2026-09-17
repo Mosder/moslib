@@ -72,3 +72,19 @@ int mos_safe_dup2_fn(int fd, int fd2, MosSafeErrInfo info) {
     ERR_MESS("failed to dup %d 2 %d", fd, fd2);
     exit(EXIT_FAILURE);
 }
+
+pid_t mos_safe_fork_fn(MosSafeErrInfo info) {
+    pid_t pid = fork();
+    if (pid != -1)
+        return pid;
+    ERR_MESS("failed to fork");
+    exit(EXIT_FAILURE);
+}
+
+int mos_safe_pipe_fn(int fd[2], MosSafeErrInfo info) {
+    int res = pipe(fd);
+    if (res != -1)
+        return res;
+    ERR_MESS("failed to pipe");
+    exit(EXIT_FAILURE);
+}

@@ -117,15 +117,15 @@ void *mos_hm_new_fn(MosHmNewArgs args) {
     hdr->n_dead = 0;
 
     switch (args.key) {
-        case DEFAULT:
+        case MOS_HM_DEFAULT:
             hdr->hash = NULL;
             hdr->eq = NULL;
             break;
-        case STR:
+        case MOS_HM_STR:
             hdr->hash = string_hash;
             hdr->eq = string_eq;
             break;
-        case SS:
+        case MOS_HM_SS:
             hdr->hash = slice_hash;
             hdr->eq = slice_eq;
             break;

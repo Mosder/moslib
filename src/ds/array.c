@@ -158,7 +158,7 @@ size_t mos_arr_set_len_fn(void *p_arr, size_t len, size_t el_size, size_t init_c
 
     size_t del = hdr->len > len ? hdr->len - len : 0;
     if (len > hdr->len)
-        memset((char *)arr + hdr->len, 0, (len - hdr->len) * el_size);
+        memset((char *)arr + hdr->len * el_size, 0, (len - hdr->len) * el_size);
 
     hdr->len = len;
     return del;

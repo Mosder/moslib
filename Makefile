@@ -22,14 +22,14 @@ TESTS_LDFLAGS=-L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR) -lmoslib
 TESTS_SRCS:=$(shell find tests compat | grep "\.c$$")
 
 define probe_fun
-	$(shell printf '#define $(1)\n#include <$(2)>\nint main(void){$(3);}' \
+	$(shell printf '#include "compat.h"\n#include <$(1)>\nint main(void){$(2);return 0;}' \
 		| $(CC) $(CFLAGS) -x c - -o /dev/null 2>/dev/null \
-		|| echo -DNO_$(shell echo $(3) | tr a-z A-Z))
+		|| echo -DNO_$(shell echo $(2) | tr a-z A-Z))
 endef
 
 PROBED:= \
-	$(call probe_fun,_GNU_SOURCE,string.h,memmem) \
-	$(call probe_fun,_XOPEN_SOURCE 500,string.h,strdup)
+	$(call probe_fun,string.h,memmem) \
+	$(call probe_fun,string.h,strdup)
 
 CFLAGS+=$(PROBED)
 TESTS_CFLAGS+=$(PROBED)

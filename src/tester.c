@@ -1,7 +1,6 @@
 #define MOS_FORCE_PREFIXES
 #include "moslib/tester.h"
 
-#include <setjmp.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,7 +35,9 @@ static Outputs suppressed = {
     .out_cap = 4,
 };
 
-#define print_color(template, ...) printf("\033[%dm" template "\033[0m", __VA_ARGS__)
+#define print_color(color, ...)                                                                    \
+    (isatty(STDOUT_FILENO) ? (printf("\033[%dm", color), printf(__VA_ARGS__), printf("\033[0m"))   \
+                           : printf(__VA_ARGS__))
 #define nl printf("\n")
 
 static void print_center(const char *text, int color, char padding_char) {
@@ -46,7 +47,7 @@ static void print_center(const char *text, int color, char padding_char) {
     for (size_t i = 1; i < pre_char_count; i++)
         printf("%c", padding_char);
 
-    print_color(" %s ", color, text);
+    print_color(color, " %s ", text);
 
     for (size_t i = 1; i < post_char_count; i++)
         printf("%c", padding_char);
@@ -101,31 +102,40 @@ MosTestGroup *mos_add_test_group_fn(MosTester *tester, const char *group_name) {
 void mos_test_assert(int expression, const char *fail_message) {
     if (!expression) {
         failed = 1;
-        print_color("ASSERT FAILED: ", RED);
+        print_color(RED, "ASSERT FAILED: ");
         printf("%s\n", fail_message);
     }
 }
 
-static jmp_buf jump_env;
-static int expected_code;
-static const char *fn_name;
-void exit(int code) {
-    if (code != expected_code) {
-        failed = 1;
-        print_color("ASSERT FAILED: ", RED);
-        printf("exit code was %d, expected %d (in function %s)\n", code, expected_code, fn_name);
-    }
-    longjmp(jump_env, 1);
-}
-
 void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name) {
-    expected_code = code;
-    fn_name = name;
-    if (setjmp(jump_env) == 0) {
+    int fd[2];
+    mos_safe_pipe(fd);
+    pid_t pid = mos_safe_fork();
+    if (pid == 0) {
         function();
+        uint8_t exited = 0;
+        write(fd[1], &exited, sizeof(uint8_t));
+        exit(1);
+    }
+
+    int status;
+    waitpid(pid, &status, 0);
+    int exit_code = status >> 8;
+
+    uint8_t exited = 1;
+    close(fd[1]);
+    read(fd[0], &exited, sizeof(uint8_t));
+    close(fd[0]);
+
+    if (!exited) {
         failed = 1;
-        print_color("ASSERT FAILED: ", RED);
+        print_color(RED, "ASSERT FAILED: ");
         printf("exit was not called (in function %s)\n", name);
+    }
+    else if (exit_code != code) {
+        failed = 1;
+        print_color(RED, "ASSERT FAILED: ");
+        printf("exit code was %d, expected %d (in function %s)\n", exit_code, code, name);
     }
 }
 
@@ -152,7 +162,7 @@ void mos_test_assert_out_fn(
 
     if (strcmp(out, output)) {
         failed = 1;
-        print_color("ASSERT FAILED: ", RED);
+        print_color(RED, "ASSERT FAILED: ");
         printf("function %s outputed to %s:\n", fn_name, stream_name);
         printf("               %s (capped at %zu chars)\n", out, n + 1);
         printf("               expected: %s\n", output);
@@ -223,11 +233,11 @@ int mos_run_tests(MosTester *tester) {
             group->tests[j].test();
             if (failed) {
                 tests_failed += 1;
-                print_color("--- FAILED ---\n", RED);
+                print_color(RED, "--- FAILED ---\n");
             }
             else {
                 tests_passed += 1;
-                print_color("--- PASSED ---\n", GREEN);
+                print_color(GREEN, "--- PASSED ---\n");
             }
         }
 

@@ -27,7 +27,7 @@
 //
 // It accepts these optional arguments:
 //
-//      .key (enum {DEFAULT, STR, SS})                    - use predefined hash and equals functions
+//      .key (enum {HM_DEFAULT, HM_STR, HM_SS})           - use predefined hash and equals functions
 //                                                          for C strings or StringSlice
 //      .hash (uint32_t (*)(const void *key))             - user defined hash function
 //      .eq (int (*)(const void *key1, cosnt void *key2)) - user defined equals function
@@ -39,10 +39,10 @@
 // Examples:
 //
 //      HM_DEF(str_int, char *, int);
-//      str_int *hm1 = hm_new(.key = STR);
+//      str_int *hm1 = hm_new(.key = HM_STR);
 //
 //      HM_DEF(ss_float, StringSlice, float);
-//      ss_float *hm2 = hm_new(.key = SS);
+//      ss_float *hm2 = hm_new(.key = HM_SS);
 //
 //      uint32_t hash_int(const void *key) {
 //          return (uint32_t)(*(int *)key);
@@ -143,6 +143,9 @@
 
 #ifndef MOS_FORCE_PREFIXES
 
+#define HM_DEFAULT MOS_HM_DEFAULT
+#define HM_STR MOS_HM_STR
+#define HM_SS MOS_HM_SS
 #define HM_DEF MOS_HM_DEF
 #define hm_new mos_hm_new
 #define hm_put mos_hm_put
@@ -159,7 +162,7 @@
 #endif // MOS_FORCE_PREFIXES
 
 typedef struct {
-    enum { DEFAULT, STR, SS } key;
+    enum { MOS_HM_DEFAULT, MOS_HM_STR, MOS_HM_SS } key;
     uint32_t (*hash)(const void *key);
     int (*eq)(const void *key1, const void *key2);
 } MosHmNewArgs;
@@ -176,8 +179,8 @@ typedef struct {
 // Optional arguments:
 //   .key
 //     key specification enum
-//     STR - C string hash and equals functions
-//     SS  - StringSlice hash and equals functions
+//     HM_STR - C string hash and equals functions
+//     HM_SS  - StringSlice hash and equals functions
 //
 //   .hash
 //     user defined hash function

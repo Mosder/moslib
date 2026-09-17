@@ -45,7 +45,7 @@ MosStringSlice mos_ss_trim(MosStringSlice ss) {
 
 MosStringSlice mos_ss_trim_left(MosStringSlice ss) {
     size_t i = 0;
-    while (i < ss.len && isspace(ss.data[i])) {
+    while (i < ss.len && isspace((unsigned char)ss.data[i])) {
         i++;
     }
 
@@ -56,7 +56,7 @@ MosStringSlice mos_ss_trim_left(MosStringSlice ss) {
 
 MosStringSlice mos_ss_trim_right(MosStringSlice ss) {
     size_t i = ss.len;
-    while (i-- > 0 && isspace(ss.data[i]))
+    while (i-- > 0 && isspace((unsigned char)ss.data[i]))
         ;
 
     ss.len = i + 1;

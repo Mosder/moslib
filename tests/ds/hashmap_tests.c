@@ -96,7 +96,7 @@ TEST(deleting) {
 
 TEST(str_key) {
     HM_DEF(E, char *, int);
-    E *hm = hm_new(.key = STR);
+    E *hm = hm_new(.key = HM_STR);
 
     char *str = "key";
     char *str2 = strdup(str);
@@ -114,7 +114,7 @@ TEST(str_key) {
 
 TEST(ss_key) {
     HM_DEF(E, StringSlice, int);
-    E *hm = hm_new(.key = SS);
+    E *hm = hm_new(.key = HM_SS);
 
     char *str = "key";
     char *str2 = strdup(str);
