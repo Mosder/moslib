@@ -13,3 +13,4 @@ Defnitely not the best implementations ever made, but they're mine, so idc.
 
 ## Planned:
 - heap implementation
+- memory arena implementation
