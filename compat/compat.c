@@ -1,10 +1,12 @@
 #include "compat.h"
 
 #ifdef NO_STRDUP
-#include "moslib/safe.h"
+#include <stdlib.h>
 #include <string.h>
 char *strdup(const char *s) {
-    char *s2 = mos_safe_malloc(strlen(s) + 1);
+    char *s2 = malloc(strlen(s) + 1);
+    if (!s2)
+        return NULL;
     strcpy(s2, s);
     return s2;
 }
