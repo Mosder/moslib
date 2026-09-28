@@ -56,7 +56,7 @@ TEST(comparing) {
     test_assert(ss_eq(ss, ss), "slice is not equal to itself");
     test_assert(ss_eq_str(ss, ss.data), "slice is not equal to its C string");
 
-    char *hw = strdup("hello world");
+    char *hw = mos_strdup("hello world");
     StringSlice ss2 = ss_from_str(hw);
     test_assert(ss_eq(ss, ss2), "slice is not equal to an equal slice");
     test_assert(ss_eq_str(ss, hw), "slice is not equal to an equal string");

@@ -152,7 +152,7 @@ MosStringSlice mos_ss_split_ss(MosStringSlice *ss, MosStringSlice delim) {
     if (delim.len == 0)
         return MOS_SS_LIT("");
 
-    const char *found = memmem(ss->data, ss->len, delim.data, delim.len);
+    const char *found = mos_memmem(ss->data, ss->len, delim.data, delim.len);
     if (!found) {
         MosStringSlice res = mos_ss_copy(*ss);
         ss->len = 0;
@@ -189,7 +189,7 @@ MosStringSlice mos_ss_find(MosStringSlice ss, MosStringSlice target) {
     if (target.len == 0)
         return ss;
 
-    const char *found = memmem(ss.data, ss.len, target.data, target.len);
+    const char *found = mos_memmem(ss.data, ss.len, target.data, target.len);
     if (!found)
         return MOS_SS_LIT("");
 

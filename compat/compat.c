@@ -3,7 +3,7 @@
 #ifdef NO_STRDUP
 #include <stdlib.h>
 #include <string.h>
-char *strdup(const char *s) {
+char *mos_strdup(const char *s) {
     char *s2 = malloc(strlen(s) + 1);
     if (!s2)
         return NULL;
@@ -13,7 +13,7 @@ char *strdup(const char *s) {
 #endif // NO_STRDUP
 
 #ifdef NO_MEMMEM
-void *memmem(const void *h, size_t h_size, const void *n, size_t n_size) {
+void *mos_memmem(const void *h, size_t h_size, const void *n, size_t n_size) {
     if (n_size == 0)
         return (void *)h;
     if (n_size > h_size)

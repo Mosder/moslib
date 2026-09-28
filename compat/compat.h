@@ -6,15 +6,20 @@
 
 #define _GNU_SOURCE
 
-typedef void declaration;
+// In C99 TU needs a declaration (which won't be the case if all functions are available)
+typedef void mos_compat_decl;
 
-#ifdef NO_STRDUP
-extern char *strdup(const char *s);
+#ifndef NO_STRDUP
+#define mos_strdup strdup
+#else
+extern char *mos_strdup(const char *s);
 #endif // NO_STRDUP
 
-#ifdef NO_MEMMEM
+#ifndef NO_MEMMEM
+#define mos_memmem memmem
+#else
 #include <stddef.h>
-extern void *memmem(const void *h, size_t h_size, const void *n, size_t n_size);
+extern void *mos_memmem(const void *h, size_t h_size, const void *n, size_t n_size);
 #endif // NO_MEMMEM
 
 #endif // MOSLIB_COMPAT_H

@@ -99,7 +99,7 @@ TEST(str_key) {
     E *hm = hm_new(.key = HM_STR);
 
     char *str = "key";
-    char *str2 = strdup(str);
+    char *str2 = mos_strdup(str);
     hm_put(hm, str, 69);
     hm_put(hm, "hey", 420);
     test_assert(hm_get(hm, str2) == 69, "hm_get got value not from hm_put");
@@ -117,7 +117,7 @@ TEST(ss_key) {
     E *hm = hm_new(.key = HM_SS);
 
     char *str = "key";
-    char *str2 = strdup(str);
+    char *str2 = mos_strdup(str);
     StringSlice ss = ss_from_str(str);
     StringSlice ss2 = ss_from_str(str2);
     hm_put(hm, ss, 69);
