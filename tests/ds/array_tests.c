@@ -1,5 +1,5 @@
-#include "array_tests.h"
 #define MOS_ARR_INIT_CAP 8
+#include "array_tests.h"
 #include "moslib/ds/array.h"
 
 #include <string.h>

@@ -4,6 +4,7 @@
 #include "moslib/string.h"
 
 #include <ctype.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "moslib/ds/array.h"

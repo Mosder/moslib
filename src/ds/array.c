@@ -1,7 +1,6 @@
 #define MOS_FORCE_PREFIXES
 #include "moslib/ds/array.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 

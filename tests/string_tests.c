@@ -3,8 +3,10 @@
 #include "moslib/string.h"
 #include "string_tests.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "moslib/ds/array.h"
 
