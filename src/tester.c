@@ -122,12 +122,17 @@ void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name) {
 
     int status;
     waitpid(pid, &status, 0);
-    int exit_code = status >> 8;
 
     uint8_t exited = 1;
     close(fd[1]);
     read(fd[0], &exited, sizeof(uint8_t));
     close(fd[0]);
+
+    int exit_code = 0;
+    if (WIFEXITED(status))
+        exit_code = WEXITSTATUS(status);
+    else
+        exited = 0;
 
     if (!exited) {
         failed = 1;
