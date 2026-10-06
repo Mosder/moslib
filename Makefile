@@ -29,7 +29,8 @@ endef
 
 PROBED:= \
 	$(call probe_fun,string.h,memmem) \
-	$(call probe_fun,string.h,strdup)
+	$(call probe_fun,string.h,strdup) \
+	$(call probe_fun,stdlib.h,mkstemp)
 
 CFLAGS+=$(PROBED)
 TESTS_CFLAGS+=$(PROBED)

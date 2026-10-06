@@ -1,3 +1,5 @@
+#include "compat.h"
+
 #define MOS_FORCE_PREFIXES
 #include "moslib/safe.h"
 
@@ -90,7 +92,7 @@ int mos_safe_pipe_fn(int fd[2], MosSafeErrInfo info) {
 }
 
 int mos_safe_mkstemp_fn(char *path, MosSafeErrInfo info) {
-    int fd = mkstemp(path);
+    int fd = mos_mkstemp(path);
     if (fd != -1)
         return fd;
     ERR_MESS("failed to make temporary file");

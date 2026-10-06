@@ -3,6 +3,7 @@
 
 #include <limits.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 TEST_HELPER(malloc_exit) {
@@ -117,9 +118,11 @@ TEST(test_safe_pipe) {
 }
 
 TEST(test_safe_mkstemp) {
-    int fd = safe_mkstemp(".tmp");
+    char f[128];
+    strcpy(f, ".tmpXXXXXX");
+    int fd = safe_mkstemp(f);
     test_assert(fd != -1, "Failed to create a temporary file");
-    unlink(".tmp");
+    unlink(f);
     close(fd);
 }
 

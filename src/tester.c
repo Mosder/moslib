@@ -2,9 +2,11 @@
 #include "moslib/tester.h"
 
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #include "moslib/safe.h"
@@ -145,8 +147,10 @@ void mos_test_assert_out_fn(
     size_t n = strlen(output);
     char *out = mos_safe_calloc(n + 2, 1);
 
-    int tmp = mos_safe_mkstemp(".tmp");
-    unlink(".tmp");
+    char f[128];
+    strcpy(f, ".tmpXXXXXX");
+    int tmp = mos_safe_mkstemp(f);
+    unlink(f);
 
     int og = mos_safe_dup(fd);
     fflush(NULL);
@@ -182,8 +186,10 @@ void mos_suppress_output_fn(int fd) {
     suppressed.ogs[suppressed.n_outs++] = mos_safe_dup(fd);
 
     if (dev_null == -1) {
-        dev_null = mos_safe_mkstemp(".dev_null");
-        unlink(".dev_null");
+        char f[128];
+        strcpy(f, ".dev_nullXXXXXX");
+        dev_null = mos_safe_mkstemp(f);
+        unlink(f);
     }
 
     fflush(NULL);

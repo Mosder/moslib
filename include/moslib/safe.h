@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/types.h>
 
 #ifndef MOSLIB_SAFE_H
 #define MOSLIB_SAFE_H
