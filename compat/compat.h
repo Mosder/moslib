@@ -4,7 +4,12 @@
 #ifndef MOSLIB_COMPAT_H
 #define MOSLIB_COMPAT_H
 
-#define _GNU_SOURCE
+#define _GNU_SOURCE      1 // glibc, musl, Bionic, Cygwin
+#define _ALL_SOURCE      1 // AIX, z/OS, musl
+#define _DARWIN_C_SOURCE 1 // macOS
+#define _NETBSD_SOURCE   1 // NetBSD
+#define _OPENBSD_SOURCE  1 // OpenBSD
+#define __EXTENSIONS__   1 // Solaris
 
 // In C99 TU needs a declaration (which won't be the case if all functions are available)
 typedef void mos_compat_decl;
