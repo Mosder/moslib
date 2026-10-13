@@ -159,15 +159,15 @@ void mos_test_assert_out_fn(
 
     FILE *tmp = mos_safe_tmpfile();
 
-    int fd = fileno(stream);
+    int fd = mos_fileno(stream);
     int og = mos_safe_dup(fd);
     fflush(stream);
-    mos_safe_dup2(fileno(tmp), fd);
+    mos_safe_dup2(mos_fileno(tmp), fd);
 
     function();
     fflush(stream);
-    lseek(fd, 0, SEEK_SET);
-    read(fd, out, n + 1);
+    rewind(tmp);
+    fread(out, 1, n + 1, tmp);
     fclose(tmp);
 
     mos_safe_dup2(og, fd);
@@ -190,15 +190,15 @@ void mos_suppress_output_fn(FILE *stream) {
         suppressed.outs = mos_safe_realloc(suppressed.outs, suppressed.out_cap * sizeof(int));
         suppressed.ogs = mos_safe_realloc(suppressed.ogs, suppressed.out_cap * sizeof(int));
     }
-    int fd = fileno(stream);
+    int fd = mos_fileno(stream);
     suppressed.outs[suppressed.n_outs] = fd;
     suppressed.ogs[suppressed.n_outs++] = mos_safe_dup(fd);
 
     if (dev_null == NULL)
         dev_null = mos_safe_tmpfile();
 
-    fflush(NULL);
-    mos_safe_dup2(fileno(dev_null), fd);
+    fflush(stream);
+    mos_safe_dup2(mos_fileno(dev_null), fd);
 }
 
 void mos_unsuppress_outputs(void) {
@@ -206,7 +206,7 @@ void mos_unsuppress_outputs(void) {
         return;
 
     if (dev_null != NULL)
-        fflush(dev_null);
+        fflush(NULL);
 
     for (size_t i = suppressed.n_outs; i-- > 0;) {
         mos_safe_dup2(suppressed.ogs[i], suppressed.outs[i]);
