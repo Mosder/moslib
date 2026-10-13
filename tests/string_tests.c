@@ -43,7 +43,7 @@ TEST(ss_print_helper) {
 }
 
 TEST(printing) {
-    test_assert_out(ss_print_helper, STDOUT_FILENO, "test");
+    test_assert_out(ss_print_helper, stdout, "test");
 
     StringSlice ss = ss_from_str("slice");
     char buf[16];

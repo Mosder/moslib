@@ -5,7 +5,6 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
@@ -149,19 +148,24 @@ void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name) {
 }
 
 void mos_test_assert_out_fn(
-    MosTestFn function, int fd, const char *output, const char *fn_name, const char *fd_name
+    MosTestFn function,
+    FILE *stream,
+    const char *output,
+    const char *fn_name,
+    const char *stream_name
 ) {
     size_t n = strlen(output);
     char *out = mos_safe_calloc(n + 2, 1);
 
     FILE *tmp = mos_safe_tmpfile();
 
+    int fd = fileno(stream);
     int og = mos_safe_dup(fd);
-    fflush(NULL);
+    fflush(stream);
     mos_safe_dup2(fileno(tmp), fd);
 
     function();
-    fflush(NULL);
+    fflush(stream);
     lseek(fd, 0, SEEK_SET);
     read(fd, out, n + 1);
     fclose(tmp);
@@ -172,26 +176,26 @@ void mos_test_assert_out_fn(
     if (strcmp(out, output)) {
         failed = 1;
         print_color(RED, "ASSERT FAILED: ");
-        printf("function %s outputed to %s:\n", fn_name, fd_name);
+        printf("function %s outputed to %s:\n", fn_name, stream_name);
         printf("               %s (capped at %zu chars)\n", out, n + 1);
         printf("               expected: %s\n", output);
     }
     free(out);
 }
 
-void mos_suppress_output_fn(int fd) {
+void mos_suppress_output_fn(FILE *stream) {
     if (!suppressed.outs || suppressed.n_outs >= suppressed.out_cap) {
         while (suppressed.n_outs >= suppressed.out_cap)
             suppressed.out_cap *= 2;
         suppressed.outs = mos_safe_realloc(suppressed.outs, suppressed.out_cap * sizeof(int));
         suppressed.ogs = mos_safe_realloc(suppressed.ogs, suppressed.out_cap * sizeof(int));
     }
+    int fd = fileno(stream);
     suppressed.outs[suppressed.n_outs] = fd;
     suppressed.ogs[suppressed.n_outs++] = mos_safe_dup(fd);
 
-    if (dev_null == NULL) {
+    if (dev_null == NULL)
         dev_null = mos_safe_tmpfile();
-    }
 
     fflush(NULL);
     mos_safe_dup2(fileno(dev_null), fd);

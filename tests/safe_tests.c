@@ -14,7 +14,7 @@ TEST(test_safe_malloc) {
     void *p = safe_malloc(1024);
     test_assert(p != NULL, "Failed to malloc 1KiB");
 
-    suppress_output(STDERR_FILENO);
+    suppress_output(stderr);
     test_assert_exit(malloc_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -27,7 +27,7 @@ TEST(test_safe_calloc) {
     void *p = safe_calloc(16, 16);
     test_assert(p != NULL, "Failed to calloc 16 items of 16 bytes");
 
-    suppress_output(STDERR_FILENO);
+    suppress_output(stderr);
     test_assert_exit(calloc_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -45,7 +45,7 @@ TEST(test_safe_realloc) {
     p = safe_realloc(p, 4096);
     test_assert(p != NULL, "Failed to realloc 1KiB to 4KiB");
 
-    suppress_output(STDERR_FILENO);
+    suppress_output(stderr);
     test_assert_exit(realloc_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -58,7 +58,7 @@ TEST(test_safe_fopen) {
     FILE *fp = safe_fopen(__FILE__, "r");
     test_assert(fp != NULL, "Failed to fopen current file");
 
-    suppress_output(STDERR_FILENO);
+    suppress_output(stderr);
     test_assert_exit(fopen_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -74,10 +74,10 @@ TEST_HELPER(dup_exit) {
 
 TEST(test_safe_dup) {
     int fd = safe_dup(STDOUT_FILENO);
-    test_assert(fd != -1, "Failed to dup STDOUT_FILENO");
+    test_assert(fd != -1, "Failed to dup stdout");
     close(fd);
 
-    suppress_output(STDERR_FILENO);
+    suppress_output(stderr);
     test_assert_exit(dup_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -88,16 +88,16 @@ TEST_HELPER(dup2_exit) {
 
 TEST(test_safe_dup2) {
     int res = dup2(STDOUT_FILENO, STDOUT_FILENO);
-    test_assert(res != -1, "Failed to dup STDOUT_FILENO 2 itself");
+    test_assert(res != -1, "Failed to dup stdout 2 itself");
 
     int fd = dup(STDOUT_FILENO);
     res = dup2(STDERR_FILENO, STDOUT_FILENO);
-    test_assert(res != -1, "Failed to dup STDERR_FILENO 2 STDOUT_FILENO");
+    test_assert(res != -1, "Failed to dup stderr 2 stdout");
     res = dup2(fd, STDOUT_FILENO);
-    test_assert(res != -1, "Failed to restore STDOUT_FILENO");
+    test_assert(res != -1, "Failed to restore stdout");
     close(fd);
 
-    suppress_output(STDERR_FILENO);
+    suppress_output(stderr);
     test_assert_exit(dup2_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
