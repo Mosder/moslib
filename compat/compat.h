@@ -27,10 +27,10 @@ extern char *mos_strdup(const char *s);
 extern void *mos_memmem(const void *h, size_t h_size, const void *n, size_t n_size);
 #endif // NO_MEMMEM
 
-#ifndef NO_MKSTEMP
-#define mos_mkstemp mkstemp
+#ifndef NO_FILENO
+#define mos_fileno fileno
 #else
-#error mkstemp fallback not implemented
+#error fileno fallback not implemented
 #endif // NO_MEMMEM
 
 #endif // MOSLIB_COMPAT_H

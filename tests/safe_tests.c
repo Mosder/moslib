@@ -117,18 +117,8 @@ TEST(test_safe_pipe) {
     close(fd[1]);
 }
 
-TEST(test_safe_mkstemp) {
-    char f[128];
-    strcpy(f, ".tmpXXXXXX");
-    int fd = safe_mkstemp(f);
-    test_assert(fd != -1, "Failed to create a temporary file");
-    unlink(f);
-    close(fd);
-}
-
 #define mos_safe_fork() mos_safe_fork_fn(mos_err_info)
 #define mos_safe_pipe(fd) mos_safe_pipe_fn(fd, mos_err_info)
-#define mos_safe_mkstemp(path) mos_safe_mkstemp_fn(path, mos_err_info)
 
 void safe_tests(Tester *tester) {
     TestGroup *group = add_test_group(tester, "moslib/safe.h");
@@ -141,5 +131,4 @@ void safe_tests(Tester *tester) {
     add_test(group, test_safe_dup2);
     add_test(group, test_safe_fork);
     add_test(group, test_safe_pipe);
-    add_test(group, test_safe_mkstemp);
 }

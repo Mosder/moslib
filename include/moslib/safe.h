@@ -21,7 +21,6 @@
 #define safe_dup2 mos_safe_dup2
 #define safe_fork mos_safe_fork
 #define safe_pipe mos_safe_pipe
-#define safe_mkstemp mos_safe_mkstemp
 
 #endif // MOS_FORCE_PREFIXES
 
@@ -44,7 +43,6 @@ typedef struct {
 #define mos_safe_dup2(fd, fd2) mos_safe_dup2_fn(fd, fd2, mos_err_info)
 #define mos_safe_fork() mos_safe_fork_fn(mos_err_info)
 #define mos_safe_pipe(fd) mos_safe_pipe_fn(fd, mos_err_info)
-#define mos_safe_mkstemp(path) mos_safe_mkstemp_fn(path, mos_err_info)
 
 // Function prototypes for macros
 extern void *mos_safe_malloc_fn(size_t size, MosSafeErrInfo info);
@@ -56,6 +54,5 @@ extern int mos_safe_dup_fn(int fd, MosSafeErrInfo info);
 extern int mos_safe_dup2_fn(int fd, int fd2, MosSafeErrInfo info);
 extern pid_t mos_safe_fork_fn(MosSafeErrInfo info);
 extern int mos_safe_pipe_fn(int fd[2], MosSafeErrInfo info);
-extern int mos_safe_mkstemp_fn(char *path, MosSafeErrInfo info);
 
 #endif // MOSLIB_SAFE_H

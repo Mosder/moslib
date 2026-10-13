@@ -30,7 +30,7 @@ endef
 PROBED:= \
 	$(call probe_fun,string.h,memmem) \
 	$(call probe_fun,string.h,strdup) \
-	$(call probe_fun,stdlib.h,mkstemp)
+	$(call probe_fun,stdio.h,fileno)
 
 CFLAGS+=$(PROBED)
 TESTS_CFLAGS+=$(PROBED)

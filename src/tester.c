@@ -1,3 +1,5 @@
+#include "compat.h"
+
 #define MOS_FORCE_PREFIXES
 #include "moslib/tester.h"
 
@@ -21,7 +23,7 @@
 #define RENDER_WIDTH 80
 
 static int failed = 0;
-static int dev_null = -1;
+static FILE *dev_null = NULL;
 
 typedef struct {
     int *outs;
@@ -152,20 +154,17 @@ void mos_test_assert_out_fn(
     size_t n = strlen(output);
     char *out = mos_safe_calloc(n + 2, 1);
 
-    char f[128];
-    strcpy(f, ".tmpXXXXXX");
-    int tmp = mos_safe_mkstemp(f);
-    unlink(f);
+    FILE *tmp = mos_safe_tmpfile();
 
     int og = mos_safe_dup(fd);
     fflush(NULL);
-    mos_safe_dup2(tmp, fd);
+    mos_safe_dup2(fileno(tmp), fd);
 
     function();
     fflush(NULL);
     lseek(fd, 0, SEEK_SET);
     read(fd, out, n + 1);
-    close(tmp);
+    fclose(tmp);
 
     mos_safe_dup2(og, fd);
     close(og);
@@ -190,23 +189,20 @@ void mos_suppress_output_fn(int fd) {
     suppressed.outs[suppressed.n_outs] = fd;
     suppressed.ogs[suppressed.n_outs++] = mos_safe_dup(fd);
 
-    if (dev_null == -1) {
-        char f[128];
-        strcpy(f, ".dev_nullXXXXXX");
-        dev_null = mos_safe_mkstemp(f);
-        unlink(f);
+    if (dev_null == NULL) {
+        dev_null = mos_safe_tmpfile();
     }
 
     fflush(NULL);
-    mos_safe_dup2(dev_null, fd);
+    mos_safe_dup2(fileno(dev_null), fd);
 }
 
 void mos_unsuppress_outputs(void) {
     if (!suppressed.outs || !suppressed.ogs)
         return;
 
-    if (dev_null != -1)
-        fflush(NULL);
+    if (dev_null != NULL)
+        fflush(dev_null);
 
     for (size_t i = suppressed.n_outs; i-- > 0;) {
         mos_safe_dup2(suppressed.ogs[i], suppressed.outs[i]);
@@ -291,9 +287,9 @@ void mos_free_tester(MosTester *tester) {
         free(tester);
     }
     mos_unsuppress_outputs();
-    if (dev_null != -1) {
-        close(dev_null);
-        dev_null = -1;
+    if (dev_null != NULL) {
+        fclose(dev_null);
+        dev_null = NULL;
     }
     if (suppressed.outs) {
         free(suppressed.outs);
