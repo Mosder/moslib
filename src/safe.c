@@ -40,7 +40,7 @@ void *mos_safe_calloc_fn(size_t count, size_t size, MosSafeErrInfo info) {
 
 void *mos_safe_realloc_fn(void *ptr, size_t size, MosSafeErrInfo info) {
     void *p = realloc(ptr, size);
-    if (p)
+    if (p || (!p && size == 0))
         return p;
     ERR_MESS("failed to realloc %p to %zu bytes", ptr, size);
     exit(EXIT_FAILURE);

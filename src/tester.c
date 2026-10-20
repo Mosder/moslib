@@ -53,16 +53,19 @@ static Outputs suppressed = {
 #define nl printf("\n")
 
 static void print_center(const char *text, int color, char padding_char) {
-    size_t post_char_count = (RENDER_WIDTH - strlen(text)) / 2;
-    size_t pre_char_count = RENDER_WIDTH - post_char_count - strlen(text);
-
-    for (size_t i = 1; i < pre_char_count; i++)
-        printf("%c", padding_char);
-
-    print_color(color, " %s ", text);
-
-    for (size_t i = 1; i < post_char_count; i++)
-        printf("%c", padding_char);
+    size_t len = strlen(text);
+    if (len + 2 > RENDER_WIDTH) {
+        print_color(color, "%s", text);
+    }
+    else {
+        size_t post_char_count = (RENDER_WIDTH - len) / 2;
+        size_t pre_char_count = RENDER_WIDTH - post_char_count - len;
+        for (size_t i = 1; i < pre_char_count; i++)
+            printf("%c", padding_char);
+        print_color(color, " %s ", text);
+        for (size_t i = 1; i < post_char_count; i++)
+            printf("%c", padding_char);
+    }
 
     nl;
 }
