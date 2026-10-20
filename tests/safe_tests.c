@@ -86,7 +86,7 @@ TEST_HELPER(dup_exit) {
 }
 
 TEST(test_safe_dup) {
-    int fd = safe_dup(STDOUT_FILENO);
+    int fd = safe_dup(1);
     test_assert(fd != -1, "Failed to dup stdout");
     mos_close(fd);
 
@@ -98,17 +98,17 @@ TEST(test_safe_dup) {
 }
 
 TEST_HELPER(dup2_exit) {
-    safe_dup2(-1, STDOUT_FILENO);
+    safe_dup2(-1, 1);
 }
 
 TEST(test_safe_dup2) {
-    int res = safe_dup2(STDOUT_FILENO, STDOUT_FILENO);
+    int res = safe_dup2(1, 1);
     test_assert(res != -1, "Failed to dup stdout 2 itself");
 
-    int fd = safe_dup(STDOUT_FILENO);
-    res = safe_dup2(STDERR_FILENO, STDOUT_FILENO);
+    int fd = safe_dup(1);
+    res = safe_dup2(2, 1);
     test_assert(res != -1, "Failed to dup stderr 2 stdout");
-    res = safe_dup2(fd, STDOUT_FILENO);
+    res = safe_dup2(fd, 1);
     test_assert(res != -1, "Failed to restore stdout");
     mos_close(fd);
 

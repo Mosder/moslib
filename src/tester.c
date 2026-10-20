@@ -7,9 +7,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/wait.h>
 
 #ifndef _WIN32
+#include <sys/wait.h>
 #include <unistd.h>
 #define mos_close close
 #define mos_isatty isatty
@@ -48,9 +48,8 @@ static Outputs suppressed = {
 };
 
 #define print_color(color, ...)                                                                    \
-    (mos_isatty(STDOUT_FILENO)                                                                     \
-         ? (printf("\033[%dm", color), printf(__VA_ARGS__), printf("\033[0m"))                     \
-         : printf(__VA_ARGS__))
+    (mos_isatty(1) ? (printf("\033[%dm", color), printf(__VA_ARGS__), printf("\033[0m"))           \
+                   : printf(__VA_ARGS__))
 #define nl printf("\n")
 
 static void print_center(const char *text, int color, char padding_char) {

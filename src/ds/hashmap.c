@@ -27,29 +27,29 @@ static void *hdr2hm(Header *hdr) {
 }
 
 static int filled(const void *hm, size_t i) {
-    return hm2hdr(hm)->filled_dead_map[i / 8] & (1 << (i % 8 + 8));
+    return hm2hdr(hm)->filled_dead_map[i / 8] & (1u << (i % 8 + 8));
 }
 
 static void fill(void *hm, size_t i) {
     Header *hdr = hm2hdr(hm);
     hdr->n_filled++;
-    hdr->filled_dead_map[i / 8] |= (1 << (i % 8 + 8));
+    hdr->filled_dead_map[i / 8] |= (1u << (i % 8 + 8));
 }
 
 static int dead(const void *hm, size_t i) {
-    return hm2hdr(hm)->filled_dead_map[i / 8] & (1 << i % 8);
+    return hm2hdr(hm)->filled_dead_map[i / 8] & (1u << i % 8);
 }
 
 static void kill(void *hm, size_t i) {
     Header *hdr = hm2hdr(hm);
     hdr->n_dead++;
-    hdr->filled_dead_map[i / 8] |= (1 << i % 8);
+    hdr->filled_dead_map[i / 8] |= (1u << i % 8);
 }
 
 static void unkill(void *hm, size_t i) {
     Header *hdr = hm2hdr(hm);
     hdr->n_dead--;
-    hdr->filled_dead_map[i / 8] &= ~(1 << i % 8);
+    hdr->filled_dead_map[i / 8] &= ~(1u << i % 8);
 }
 
 // FNV-1a

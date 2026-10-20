@@ -13,6 +13,7 @@ char *mos_strdup(const char *s) {
 #endif // NO_STRDUP
 
 #ifdef NO_MEMMEM
+#include <string.h>
 void *mos_memmem(const void *h, size_t h_size, const void *n, size_t n_size) {
     if (n_size == 0)
         return (void *)h;

@@ -25,7 +25,7 @@
 //
 // It will share the same pointer as the original, so freeing the original will free this one too.
 //
-// If you want to use a string literal to create a slice at compile time, use:
+// You can also define it via the macro which extends to a compound literal:
 //
 //      StringSlice ss = SS_LIT("literal");
 //
@@ -213,7 +213,7 @@ extern MosStringSlice mos_ss_from_str(const char *str);
 //   a copy of a string slice
 extern MosStringSlice mos_ss_copy(MosStringSlice ss);
 
-// Create a string slice from a string literal at compile time
+// Create a string slice as a compound literal
 //
 // Arguments:
 //   lit
