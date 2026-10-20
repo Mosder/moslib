@@ -4,7 +4,12 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifndef _WIN32
 #include <unistd.h>
+#else
+#include <io.h>
+#endif
 
 #define ERR_MESS(...) err_mess(info, __VA_ARGS__)
 
@@ -58,7 +63,11 @@ FILE *mos_safe_tmpfile_fn(MosSafeErrInfo info) {
 }
 
 int mos_safe_dup_fn(int fd, MosSafeErrInfo info) {
+#ifndef _WIN32
     int res = dup(fd);
+#else
+    int res = _dup(fd);
+#endif
     if (res != -1)
         return res;
     ERR_MESS("failed to dup %d", fd);
@@ -66,13 +75,18 @@ int mos_safe_dup_fn(int fd, MosSafeErrInfo info) {
 }
 
 int mos_safe_dup2_fn(int fd, int fd2, MosSafeErrInfo info) {
+#ifndef _WIN32
     int res = dup2(fd, fd2);
+#else
+    int res = _dup2(fd, fd2);
+#endif
     if (res != -1)
         return res;
     ERR_MESS("failed to dup %d 2 %d", fd, fd2);
     exit(EXIT_FAILURE);
 }
 
+#ifndef _WIN32
 pid_t mos_safe_fork_fn(MosSafeErrInfo info) {
     pid_t pid = fork();
     if (pid != -1)
@@ -88,3 +102,4 @@ int mos_safe_pipe_fn(int fd[2], MosSafeErrInfo info) {
     ERR_MESS("failed to pipe");
     exit(EXIT_FAILURE);
 }
+#endif

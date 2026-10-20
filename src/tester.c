@@ -8,7 +8,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
+
+#ifndef _WIN32
 #include <unistd.h>
+#define mos_close close
+#define mos_isatty isatty
+#else
+#include <io.h>
+#define mos_close _close
+#define mos_isatty _isatty
+#endif
 
 #include "moslib/safe.h"
 
@@ -39,8 +48,9 @@ static Outputs suppressed = {
 };
 
 #define print_color(color, ...)                                                                    \
-    (isatty(STDOUT_FILENO) ? (printf("\033[%dm", color), printf(__VA_ARGS__), printf("\033[0m"))   \
-                           : printf(__VA_ARGS__))
+    (mos_isatty(STDOUT_FILENO)                                                                     \
+         ? (printf("\033[%dm", color), printf(__VA_ARGS__), printf("\033[0m"))                     \
+         : printf(__VA_ARGS__))
 #define nl printf("\n")
 
 static void print_center(const char *text, int color, char padding_char) {
@@ -111,6 +121,10 @@ void mos_test_assert(int expression, const char *fail_message) {
 }
 
 void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name) {
+#ifdef _WIN32
+    fprintf(stderr, "test_assert_exit is not supported on windows\n");
+    exit(1);
+#else
     int fd[2];
     mos_safe_pipe(fd);
     pid_t pid = mos_safe_fork();
@@ -145,6 +159,7 @@ void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name) {
         print_color(RED, "ASSERT FAILED: ");
         printf("exit code was %d, expected %d (in function %s)\n", exit_code, code, name);
     }
+#endif
 }
 
 void mos_test_assert_out_fn(
@@ -154,15 +169,19 @@ void mos_test_assert_out_fn(
     const char *fn_name,
     const char *stream_name
 ) {
+#ifdef NO_FS
+    fprintf(stderr, "FATAL: test_assert_out is not supported on your system\n");
+    exit(1);
+#else
     size_t n = strlen(output);
     char *out = mos_safe_calloc(n + 2, 1);
 
     FILE *tmp = mos_safe_tmpfile();
 
-    int fd = mos_fileno(stream);
+    int fd = fileno(stream);
     int og = mos_safe_dup(fd);
     fflush(stream);
-    mos_safe_dup2(mos_fileno(tmp), fd);
+    mos_safe_dup2(fileno(tmp), fd);
 
     function();
     fflush(stream);
@@ -171,7 +190,7 @@ void mos_test_assert_out_fn(
     fclose(tmp);
 
     mos_safe_dup2(og, fd);
-    close(og);
+    mos_close(og);
 
     if (strcmp(out, output)) {
         failed = 1;
@@ -181,16 +200,21 @@ void mos_test_assert_out_fn(
         printf("               expected: %s\n", output);
     }
     free(out);
+#endif
 }
 
 void mos_suppress_output_fn(FILE *stream) {
+#ifdef NO_FS
+    fprintf(stderr, "FATAL: suppress_output is not supported on your system\n");
+    exit(1);
+#else
     if (!suppressed.outs || suppressed.n_outs >= suppressed.out_cap) {
         while (suppressed.n_outs >= suppressed.out_cap)
             suppressed.out_cap *= 2;
         suppressed.outs = mos_safe_realloc(suppressed.outs, suppressed.out_cap * sizeof(int));
         suppressed.ogs = mos_safe_realloc(suppressed.ogs, suppressed.out_cap * sizeof(int));
     }
-    int fd = mos_fileno(stream);
+    int fd = fileno(stream);
     suppressed.outs[suppressed.n_outs] = fd;
     suppressed.ogs[suppressed.n_outs++] = mos_safe_dup(fd);
 
@@ -198,7 +222,8 @@ void mos_suppress_output_fn(FILE *stream) {
         dev_null = mos_safe_tmpfile();
 
     fflush(stream);
-    mos_safe_dup2(mos_fileno(dev_null), fd);
+    mos_safe_dup2(fileno(dev_null), fd);
+#endif
 }
 
 void mos_unsuppress_outputs(void) {
@@ -210,7 +235,7 @@ void mos_unsuppress_outputs(void) {
 
     for (size_t i = suppressed.n_outs; i-- > 0;) {
         mos_safe_dup2(suppressed.ogs[i], suppressed.outs[i]);
-        close(suppressed.ogs[i]);
+        mos_close(suppressed.ogs[i]);
     }
 
     suppressed.n_outs = 0;

@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "moslib/ds/array.h"
 
@@ -43,7 +42,9 @@ TEST(ss_print_helper) {
 }
 
 TEST(printing) {
+#ifndef NO_FS
     test_assert_out(ss_print_helper, stdout, "test");
+#endif
 
     StringSlice ss = ss_from_str("slice");
     char buf[16];

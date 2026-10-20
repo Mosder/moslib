@@ -4,7 +4,12 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+
+#ifndef _WIN32
+#define mos_close close
+#else
+#define mos_close _close
+#endif
 
 TEST_HELPER(malloc_exit) {
     safe_malloc(ULLONG_MAX);
@@ -14,7 +19,9 @@ TEST(test_safe_malloc) {
     void *p = safe_malloc(1024);
     test_assert(p != NULL, "Failed to malloc 1KiB");
 
+#ifndef NO_FS
     suppress_output(stderr);
+#endif
     test_assert_exit(malloc_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -27,7 +34,9 @@ TEST(test_safe_calloc) {
     void *p = safe_calloc(16, 16);
     test_assert(p != NULL, "Failed to calloc 16 items of 16 bytes");
 
+#ifndef NO_FS
     suppress_output(stderr);
+#endif
     test_assert_exit(calloc_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -45,7 +54,9 @@ TEST(test_safe_realloc) {
     p = safe_realloc(p, 4096);
     test_assert(p != NULL, "Failed to realloc 1KiB to 4KiB");
 
+#ifndef NO_FS
     suppress_output(stderr);
+#endif
     test_assert_exit(realloc_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -58,7 +69,9 @@ TEST(test_safe_fopen) {
     FILE *fp = safe_fopen(__FILE__, "r");
     test_assert(fp != NULL, "Failed to fopen current file");
 
+#ifndef NO_FS
     suppress_output(stderr);
+#endif
     test_assert_exit(fopen_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -75,9 +88,11 @@ TEST_HELPER(dup_exit) {
 TEST(test_safe_dup) {
     int fd = safe_dup(STDOUT_FILENO);
     test_assert(fd != -1, "Failed to dup stdout");
-    close(fd);
+    mos_close(fd);
 
+#ifndef NO_FS
     suppress_output(stderr);
+#endif
     test_assert_exit(dup_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -87,21 +102,24 @@ TEST_HELPER(dup2_exit) {
 }
 
 TEST(test_safe_dup2) {
-    int res = dup2(STDOUT_FILENO, STDOUT_FILENO);
+    int res = safe_dup2(STDOUT_FILENO, STDOUT_FILENO);
     test_assert(res != -1, "Failed to dup stdout 2 itself");
 
-    int fd = dup(STDOUT_FILENO);
-    res = dup2(STDERR_FILENO, STDOUT_FILENO);
+    int fd = safe_dup(STDOUT_FILENO);
+    res = safe_dup2(STDERR_FILENO, STDOUT_FILENO);
     test_assert(res != -1, "Failed to dup stderr 2 stdout");
-    res = dup2(fd, STDOUT_FILENO);
+    res = safe_dup2(fd, STDOUT_FILENO);
     test_assert(res != -1, "Failed to restore stdout");
-    close(fd);
+    mos_close(fd);
 
+#ifndef NO_FS
     suppress_output(stderr);
+#endif
     test_assert_exit(dup2_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
 
+#ifndef _WIN32
 TEST(test_safe_fork) {
     pid_t pid = safe_fork();
     test_assert(pid != -1, "Failed to create a child process");
@@ -113,12 +131,10 @@ TEST(test_safe_pipe) {
     int fd[2];
     int res = safe_pipe(fd);
     test_assert(res != -1, "Failed to create a pipe");
-    close(fd[0]);
-    close(fd[1]);
+    mos_close(fd[0]);
+    mos_close(fd[1]);
 }
-
-#define mos_safe_fork() mos_safe_fork_fn(mos_err_info)
-#define mos_safe_pipe(fd) mos_safe_pipe_fn(fd, mos_err_info)
+#endif
 
 void safe_tests(Tester *tester) {
     TestGroup *group = add_test_group(tester, "moslib/safe.h");
@@ -129,6 +145,9 @@ void safe_tests(Tester *tester) {
     add_test(group, test_safe_tmpfile);
     add_test(group, test_safe_dup);
     add_test(group, test_safe_dup2);
+
+#ifndef _WIN32
     add_test(group, test_safe_fork);
     add_test(group, test_safe_pipe);
+#endif
 }
