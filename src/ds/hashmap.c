@@ -89,7 +89,7 @@ void mos_hm_init(void *p_hm, size_t entry_size) {
     if (!*(void **)p_hm) {
         Header *hdr = mos_safe_malloc(sizeof(Header) + (INIT_CAP + 1) * entry_size);
         *hdr = (Header){
-            .filled_dead_map = mos_safe_calloc((INIT_CAP - 1) / 8 + 1, 2),
+            .filled_dead_map = mos_safe_calloc((INIT_CAP - 1) / 8 + 1, sizeof(uint16_t)),
             .n_filled = 0,
             .n_dead = 0,
             .cap = INIT_CAP,
@@ -103,7 +103,7 @@ void mos_hm_init(void *p_hm, size_t entry_size) {
     Header *hdr = hm2hdr(*(void **)p_hm);
     if (hdr->cap == 0) {
         hdr = mos_safe_realloc(hdr, sizeof(Header) + (INIT_CAP + 1) * entry_size);
-        hdr->filled_dead_map = mos_safe_calloc((INIT_CAP - 1) / 8 + 1, 2);
+        hdr->filled_dead_map = mos_safe_calloc((INIT_CAP - 1) / 8 + 1, sizeof(uint16_t));
         hdr->cap = INIT_CAP;
         *(void **)p_hm = hdr2hm(hdr);
     }
@@ -179,7 +179,7 @@ rehash(void *p_hm, size_t entry_size, size_t key_size, size_t key_off, uint8_t l
 
     Header *new_hdr = mos_safe_malloc(sizeof(Header) + (new_cap + 1) * entry_size);
     *new_hdr = (Header){
-        .filled_dead_map = mos_safe_calloc((new_cap - 1) / 8 + 1, 2),
+        .filled_dead_map = mos_safe_calloc((new_cap - 1) / 8 + 1, sizeof(uint16_t)),
         .n_filled = 0,
         .n_dead = 0,
         .cap = new_cap,
