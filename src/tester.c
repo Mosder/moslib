@@ -13,10 +13,12 @@
 #include <unistd.h>
 #define mos_close close
 #define mos_isatty isatty
+#define mos_fileno fileno
 #else
 #include <io.h>
 #define mos_close _close
 #define mos_isatty _isatty
+#define mos_fileno _fileno
 #endif // _WIN32
 
 #include "moslib/safe.h"
@@ -177,10 +179,10 @@ void mos_test_assert_out_fn(
 
     FILE *tmp = mos_safe_tmpfile();
 
-    int fd = fileno(stream);
+    int fd = mos_fileno(stream);
     int og = mos_safe_dup(fd);
     fflush(stream);
-    mos_safe_dup2(fileno(tmp), fd);
+    mos_safe_dup2(mos_fileno(tmp), fd);
 
     function();
     fflush(stream);
@@ -208,7 +210,7 @@ void mos_suppress_output_fn(FILE *stream) {
         suppressed.outs = mos_safe_realloc(suppressed.outs, suppressed.out_cap * sizeof(int));
         suppressed.ogs = mos_safe_realloc(suppressed.ogs, suppressed.out_cap * sizeof(int));
     }
-    int fd = fileno(stream);
+    int fd = mos_fileno(stream);
     suppressed.outs[suppressed.n_outs] = fd;
     suppressed.ogs[suppressed.n_outs++] = mos_safe_dup(fd);
 
@@ -216,7 +218,7 @@ void mos_suppress_output_fn(FILE *stream) {
         dev_null = mos_safe_tmpfile();
 
     fflush(stream);
-    mos_safe_dup2(fileno(dev_null), fd);
+    mos_safe_dup2(mos_fileno(dev_null), fd);
 }
 
 void mos_unsuppress_outputs(void) {
