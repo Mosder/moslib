@@ -34,13 +34,6 @@ PROBED:= \
 CFLAGS+=$(PROBED)
 TESTS_CFLAGS+=$(PROBED)
 
-FS_FLAG:=$(shell printf '#include "compat.h"\n#include <stdio.h>\nint main(void){\n#ifdef _WIN32\n_fileno;\n#else\nfileno;\n#endif\nreturn 0;}' \
-		| $(CC) $(CFLAGS) -x c - -o /dev/null 2>/dev/null \
-		|| echo -DNO_FS)
-
-CFLAGS+=$(FS_FLAG)
-TESTS_CFLAGS+=$(FS_FLAG)
-
 both: CLEANUP=true
 both: clean shared static
 	@$(MAKE) clean --no-print-directory

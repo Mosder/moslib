@@ -17,7 +17,7 @@
 #include <io.h>
 #define mos_close _close
 #define mos_isatty _isatty
-#endif
+#endif // _WIN32
 
 #include "moslib/safe.h"
 
@@ -161,7 +161,7 @@ void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name) {
         print_color(RED, "ASSERT FAILED: ");
         printf("exit code was %d, expected %d (in function %s)\n", exit_code, code, name);
     }
-#endif
+#endif // _WIN32
 }
 
 void mos_test_assert_out_fn(
@@ -171,10 +171,6 @@ void mos_test_assert_out_fn(
     const char *fn_name,
     const char *stream_name
 ) {
-#ifdef NO_FS
-    fprintf(stderr, "FATAL: test_assert_out is not supported on your system\n");
-    exit(1);
-#else
     size_t n = strlen(output);
     char *out = mos_safe_calloc(n + 2, 1);
 
@@ -202,14 +198,9 @@ void mos_test_assert_out_fn(
         printf("               expected: %s\n", output);
     }
     free(out);
-#endif
 }
 
 void mos_suppress_output_fn(FILE *stream) {
-#ifdef NO_FS
-    fprintf(stderr, "FATAL: suppress_output is not supported on your system\n");
-    exit(1);
-#else
     if (!suppressed.outs || suppressed.n_outs >= suppressed.out_cap) {
         while (suppressed.n_outs >= suppressed.out_cap)
             suppressed.out_cap *= 2;
@@ -225,7 +216,6 @@ void mos_suppress_output_fn(FILE *stream) {
 
     fflush(stream);
     mos_safe_dup2(fileno(dev_null), fd);
-#endif
 }
 
 void mos_unsuppress_outputs(void) {

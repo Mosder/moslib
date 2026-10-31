@@ -9,7 +9,7 @@
 #define mos_close close
 #else
 #define mos_close _close
-#endif
+#endif // _WIN32
 
 TEST_HELPER(malloc_exit) {
     safe_malloc(ULLONG_MAX);
@@ -19,9 +19,7 @@ TEST(test_safe_malloc) {
     void *p = safe_malloc(1024);
     test_assert(p != NULL, "Failed to malloc 1KiB");
 
-#ifndef NO_FS
     suppress_output(stderr);
-#endif
     test_assert_exit(malloc_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -34,9 +32,7 @@ TEST(test_safe_calloc) {
     void *p = safe_calloc(16, 16);
     test_assert(p != NULL, "Failed to calloc 16 items of 16 bytes");
 
-#ifndef NO_FS
     suppress_output(stderr);
-#endif
     test_assert_exit(calloc_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -54,9 +50,7 @@ TEST(test_safe_realloc) {
     p = safe_realloc(p, 4096);
     test_assert(p != NULL, "Failed to realloc 1KiB to 4KiB");
 
-#ifndef NO_FS
     suppress_output(stderr);
-#endif
     test_assert_exit(realloc_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -69,9 +63,7 @@ TEST(test_safe_fopen) {
     FILE *fp = safe_fopen(__FILE__, "r");
     test_assert(fp != NULL, "Failed to fopen current file");
 
-#ifndef NO_FS
     suppress_output(stderr);
-#endif
     test_assert_exit(fopen_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -90,9 +82,7 @@ TEST(test_safe_dup) {
     test_assert(fd != -1, "Failed to dup stdout");
     mos_close(fd);
 
-#ifndef NO_FS
     suppress_output(stderr);
-#endif
     test_assert_exit(dup_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -112,9 +102,7 @@ TEST(test_safe_dup2) {
     test_assert(res != -1, "Failed to restore stdout");
     mos_close(fd);
 
-#ifndef NO_FS
     suppress_output(stderr);
-#endif
     test_assert_exit(dup2_exit, EXIT_FAILURE);
     unsuppress_outputs();
 }
@@ -134,7 +122,7 @@ TEST(test_safe_pipe) {
     mos_close(fd[0]);
     mos_close(fd[1]);
 }
-#endif
+#endif // _WIN32
 
 void safe_tests(Tester *tester) {
     TestGroup *group = add_test_group(tester, "moslib/safe.h");
@@ -149,5 +137,5 @@ void safe_tests(Tester *tester) {
 #ifndef _WIN32
     add_test(group, test_safe_fork);
     add_test(group, test_safe_pipe);
-#endif
+#endif // _WIN32
 }

@@ -9,7 +9,7 @@
 #include <unistd.h>
 #else
 #include <io.h>
-#endif
+#endif // _WIN32
 
 #define ERR_MESS(...) err_mess(info, __VA_ARGS__)
 
@@ -67,7 +67,7 @@ int mos_safe_dup_fn(int fd, MosSafeErrInfo info) {
     int res = dup(fd);
 #else
     int res = _dup(fd);
-#endif
+#endif // _WIN32
     if (res != -1)
         return res;
     ERR_MESS("failed to dup %d", fd);
@@ -79,7 +79,7 @@ int mos_safe_dup2_fn(int fd, int fd2, MosSafeErrInfo info) {
     int res = dup2(fd, fd2);
 #else
     int res = _dup2(fd, fd2);
-#endif
+#endif // _WIN32
     if (res != -1)
         return res;
     ERR_MESS("failed to dup %d 2 %d", fd, fd2);
@@ -102,4 +102,4 @@ int mos_safe_pipe_fn(int fd[2], MosSafeErrInfo info) {
     ERR_MESS("failed to pipe");
     exit(EXIT_FAILURE);
 }
-#endif
+#endif // _WIN32

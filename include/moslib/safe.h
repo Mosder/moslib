@@ -10,7 +10,7 @@
 #include <unistd.h>
 #else
 #include <io.h>
-#endif
+#endif // _WIN32
 
 #ifndef MOSLIB_SAFE_H
 #define MOSLIB_SAFE_H
@@ -28,7 +28,7 @@
 #ifndef _WIN32
 #define safe_fork mos_safe_fork
 #define safe_pipe mos_safe_pipe
-#endif
+#endif // _WIN32
 
 #endif // MOS_FORCE_PREFIXES
 
@@ -53,7 +53,7 @@ typedef struct {
 #ifndef _WIN32
 #define mos_safe_fork() mos_safe_fork_fn(mos_err_info)
 #define mos_safe_pipe(fd) mos_safe_pipe_fn(fd, mos_err_info)
-#endif
+#endif // _WIN32
 
 // Function prototypes for macros
 extern void *mos_safe_malloc_fn(size_t size, MosSafeErrInfo info);
@@ -67,6 +67,6 @@ extern int mos_safe_dup2_fn(int fd, int fd2, MosSafeErrInfo info);
 #ifndef _WIN32
 extern pid_t mos_safe_fork_fn(MosSafeErrInfo info);
 extern int mos_safe_pipe_fn(int fd[2], MosSafeErrInfo info);
-#endif
+#endif // _WIN32
 
 #endif // MOSLIB_SAFE_H
