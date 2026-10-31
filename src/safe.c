@@ -55,9 +55,18 @@ FILE *mos_safe_fopen_fn(const char *path, const char *mode, MosSafeErrInfo info)
 }
 
 FILE *mos_safe_tmpfile_fn(MosSafeErrInfo info) {
+#ifndef _WIN32
     FILE *p = tmpfile();
     if (p)
         return p;
+#else
+    char *name = tmpnam(NULL);
+    if (name) {
+        FILE *p = fopen(name, "w+bD");
+        if (p)
+            return p;
+    }
+#endif // _WIN32
     ERR_MESS("failed to create a tmpfile");
     exit(EXIT_FAILURE);
 }
