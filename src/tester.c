@@ -127,6 +127,7 @@ void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name) {
     fprintf(stderr, "test_assert_exit is not supported on windows\n");
     exit(1);
 #else
+    fflush(NULL);
     int fd[2];
     mos_safe_pipe(fd);
     pid_t pid = mos_safe_fork();
@@ -134,7 +135,7 @@ void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name) {
         function();
         uint8_t exited = 0;
         write(fd[1], &exited, sizeof(uint8_t));
-        exit(1);
+        _exit(1);
     }
 
     int status;
