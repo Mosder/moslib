@@ -201,18 +201,8 @@ MosStringSlice mos_ss_find_str(MosStringSlice ss, const char *target) {
 }
 
 size_t mos_ss_utf8_len(MosStringSlice ss) {
-    size_t utf8_len = ss.len;
-    for (size_t i = 0; i < ss.len; i++) {
-        char c = ss.data[i];
-        if ((c & 0xC0) != 0xC0)
-            continue;
-
-        if ((c & 0xE0) == 0xC0)
-            utf8_len -= 1;
-        else if ((c & 0xF0) == 0xE0)
-            utf8_len -= 2;
-        else if ((c & 0xF8) == 0xF0)
-            utf8_len -= 3;
-    }
+    size_t utf8_len = 0;
+    for (size_t i = 0; i < ss.len; i++)
+        utf8_len += ((unsigned char)ss.data[i] & 0xC0) != 0x80;
     return utf8_len;
 }
