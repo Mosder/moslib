@@ -1,4 +1,4 @@
-#include "build_cfg.h"
+#include ".build.h"
 
 // TODO: LIB_SUDO, INC_SUDO, SRC_SRCS, TESTS_SRCS, probe_fun + probed
 
