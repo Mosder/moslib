@@ -9,6 +9,7 @@
 //
 // This way you can, for example, avoid collisions
 
+#include "moslib/build.h"
 #include "moslib/ds/array.h"
 #include "moslib/ds/hashmap.h"
 #include "moslib/safe.h"
