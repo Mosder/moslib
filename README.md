@@ -12,5 +12,6 @@ Defnitely not the best implementations ever made, but they're mine, so idc.
 - hashmap implementation
 
 ## Planned:
+- simple build system in C
 - heap implementation
 - memory arena implementation
