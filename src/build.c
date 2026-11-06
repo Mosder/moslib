@@ -1,6 +1,7 @@
 #define MOS_FORCE_PREFIXES
 #include "moslib/build.h"
 
+#include <ctype.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,6 +70,16 @@ char *mos_cmd_run_out_fn(const char *cmd_start, ...) {
     return out;
 }
 
+static int is_target(const char *target, const char *name, const char *next_coma) {
+    while (isspace((unsigned char)*name))
+        name++;
+    const char *end = next_coma ? next_coma : name + strlen(name);
+    size_t len = end - name;
+    while (isspace((unsigned char)*--end))
+        len--;
+    return strncmp(target, name, len) == 0;
+}
+
 void mos_build_target_fn(int argc, char *argv[], const char *names, ...) {
     va_list targets;
     va_start(targets, names);
@@ -81,23 +92,23 @@ void mos_build_target_fn(int argc, char *argv[], const char *names, ...) {
 
     do {
         const char *coma = strchr(names, ',');
-        size_t len = coma ? coma - names : strlen(names);
-        if (strncmp(argv[1], names, len) == 0) {
+        if (is_target(argv[1], names, coma)) {
             va_end(targets);
             target();
             return;
         }
-        names = coma + 2;
+        if (coma)
+            names = coma + 1;
     } while ((target = va_arg(targets, target_t)));
 
     va_end(targets);
-    fprintf(stderr, "target %s not found", argv[1]);
+    fprintf(stderr, "\nTarget %s not found\n", argv[1]);
 }
 
 static int rebuild_needed(const char *src, const char *bin) {
     mos_struct_stat s, b;
     if (mos_stat(src, &s) || mos_stat(bin, &b)) {
-        printf("Couldn't determine if rebuild is needed");
+        printf("Couldn't determine if rebuild is needed\n\n");
         return 0;
     }
     if (s.st_mtime > b.st_mtime)
@@ -124,7 +135,7 @@ void mos_build_rebuild_fn(int argc, char *argv[], const char *file, ...) {
     mos_arr_append_n(cmd, argv[0], strlen(argv[0]));
     system(cmd);
     mos_arr_free(cmd);
-    printf("Rebuilt.\n");
+    printf("Rebuilt.\n\n");
 
     char *new_build = NULL;
     for (int i = 0; i < argc; i++) {

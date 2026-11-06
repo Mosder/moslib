@@ -83,7 +83,7 @@
 //   ...
 //     strings representing the command to be run
 //     every argument is automatically space separated
-#define mos_cmd_run(...) mos_cmd_run_fn(__VA_ARGS__, NULL)
+#define mos_cmd_run(...) mos_cmd_run_fn(__VA_ARGS__, (char *)NULL)
 
 // Run a command and capture its output
 //
@@ -94,7 +94,7 @@
 //
 // Returns:
 //   output of the command
-#define mos_cmd_run_out(...) mos_cmd_run_out_fn(__VA_ARGS__, NULL)
+#define mos_cmd_run_out(...) mos_cmd_run_out_fn(__VA_ARGS__, (char *)NULL)
 
 // Target the given targets
 // When no argument is given - targets the first target
@@ -102,7 +102,8 @@
 // Arguments:
 //   ...
 //     targets which can be targetted
-#define mos_build_target(...) mos_build_target_fn(argc, argv, #__VA_ARGS__, __VA_ARGS__, NULL)
+#define mos_build_target(...)                                                                      \
+    mos_build_target_fn(argc, argv, #__VA_ARGS__, __VA_ARGS__, (char *)NULL)
 
 // Allow automatic recompiling of the build binary
 //
@@ -110,7 +111,7 @@
 //   ...
 //     command used for compilation of the build binary,
 //     with the exception of input file and output file
-#define mos_build_rebuild(...) mos_build_rebuild_fn(argc, argv, __FILE__, __VA_ARGS__, NULL)
+#define mos_build_rebuild(...) mos_build_rebuild_fn(argc, argv, __FILE__, __VA_ARGS__, (char *)NULL)
 
 // Function prototypes for macros
 extern void mos_cmd_run_fn(const char *cmd_start, ...);
