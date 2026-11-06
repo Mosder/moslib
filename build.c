@@ -33,34 +33,34 @@ static char *probed = NULL;
 
 static void probe_fun(char *header, char *fun) {
     char *p = cmd_run_out(
-        "printf '#include \"compat.h\"\n#include",
+        "printf '#include \"compat.h\"\\n#include",
         header,
-        "\nint main(void) {",
+        "\\nint main(void) {",
         fun,
         "; return 0; }' |",
         CC,
         CFLAGS,
         "-x c - -o /dev/null 2>/dev/null || echo -DNO_$(echo",
         fun,
-        "| tr a-z A-Z))"
+        "| tr a-z A-Z)"
     );
     arr_append_n(probed, p, strlen(p));
 }
 
 static void compile(void) {
-    cmd_run(CC, CFLAGS, SRC_CFLAGS, src_srcs);
+    cmd_run(CC, CFLAGS, SRC_CFLAGS, probed, src_srcs);
 }
 
 static void headers(void) {
     cmd_run(inc_sudo, "cp -r", "include/*", INC_DIR);
 }
 
-static void shared_(void) {
+static void sh(void) {
     cmd_run(lib_sudo, CC, "-shared *.o -o", LIB_DIR "/libmoslib.so");
     cmd_run(lib_sudo, "strip -x", LIB_DIR "/libmoslib.so");
 }
 
-static void stat_(void) {
+static void st(void) {
     cmd_run(lib_sudo, AR, LIB_DIR "/libmoslib.a", "*.o");
     cmd_run(lib_sudo, "strip -S", LIB_DIR "/libmoslib.a");
 }
@@ -74,30 +74,30 @@ TARGET(both) {
     clean();
     compile();
     headers();
-    shared_();
-    stat_();
+    sh();
+    st();
     clean();
 }
 
-TARGET(shared) {
+TARGET(so) {
     clean();
     compile();
     headers();
-    shared_();
+    sh();
     clean();
 }
 
-TARGET(stat) {
+TARGET(a) {
     clean();
     compile();
     headers();
-    stat_();
+    st();
     clean();
 }
 
 TARGET(test) {
     clean();
-    cmd_run(CC, CFLAGS, TESTS_CFLAGS, tests_srcs);
+    cmd_run(CC, CFLAGS, TESTS_CFLAGS, probed, tests_srcs);
     cmd_run(CC, TESTS_LDFLAGS, "*.o -o run_tests");
     cmd_run("./run_tests");
     clean();
@@ -106,13 +106,13 @@ TARGET(test) {
 int main(int argc, char *argv[]) {
     build_rebuild(CC);
 
-    src_srcs = cmd_run_out("find src compat | grep \\.c$");
-    tests_srcs = cmd_run_out("find src compat | grep \\.c$");
+    src_srcs = cmd_run_out("find src compat | grep \\\\.c$");
+    tests_srcs = cmd_run_out("find src compat | grep \\\\.c$");
     lib_sudo = cmd_run_out("test -w", LIB_DIR, "|| echo sudo");
     inc_sudo = cmd_run_out("test -w", INC_DIR, "|| echo sudo");
 
     probe_fun("<string.h>", "memmem");
     probe_fun("<string.h>", "strdup");
 
-    build_target(both, shared, stat, test, clean);
+    build_target(both, so, a, test, clean);
 }

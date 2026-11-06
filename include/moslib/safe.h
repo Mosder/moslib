@@ -24,6 +24,7 @@
 #define safe_tmpfile mos_safe_tmpfile
 #define safe_dup mos_safe_dup
 #define safe_dup2 mos_safe_dup2
+#define safe_popen mos_safe_popen
 
 #ifndef _WIN32
 #define safe_fork mos_safe_fork
@@ -49,6 +50,7 @@ typedef struct {
 #define mos_safe_tmpfile() mos_safe_tmpfile_fn(mos_err_info)
 #define mos_safe_dup(fd) mos_safe_dup_fn(fd, mos_err_info)
 #define mos_safe_dup2(fd, fd2) mos_safe_dup2_fn(fd, fd2, mos_err_info)
+#define mos_safe_popen(cmd, mode) mos_safe_popen_fn(cmd, mode, mos_err_info)
 
 #ifndef _WIN32
 #define mos_safe_fork() mos_safe_fork_fn(mos_err_info)
@@ -63,6 +65,7 @@ extern FILE *mos_safe_fopen_fn(const char *path, const char *mode, MosSafeErrInf
 extern FILE *mos_safe_tmpfile_fn(MosSafeErrInfo info);
 extern int mos_safe_dup_fn(int fd, MosSafeErrInfo info);
 extern int mos_safe_dup2_fn(int fd, int fd2, MosSafeErrInfo info);
+extern FILE *mos_safe_popen_fn(const char *cmd, const char *mode, MosSafeErrInfo info);
 
 #ifndef _WIN32
 extern pid_t mos_safe_fork_fn(MosSafeErrInfo info);

@@ -2,17 +2,35 @@
 #include "moslib/build.h"
 
 #include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "moslib/ds/array.h"
+#include "moslib/safe.h"
+
+#ifndef _WIN32
+#define mos_pclose pclose
+#define mos_struct_stat struct stat
+#define mos_stat stat
+#else
+#define mos_pclose _pclose
+#define mos_struct_stat struct _stat
+#define mos_stat _stat
+#endif // _WIN32
+
+typedef void (*target_t)(void);
 
 static char *build_cmd(const char *cmd_start, va_list cmd_rest) {
     char *cmd = NULL;
     const char *arg = cmd_start;
     do {
         mos_arr_append_n(cmd, arg, strlen(arg));
-    } while ((arg = (const char *)va_arg(cmd_rest, char *)));
+        mos_arr_append(cmd, ' ');
+    } while ((arg = va_arg(cmd_rest, char *)));
     mos_arr_append(cmd, '\0');
+    printf("%s\n", cmd);
     return cmd;
 }
 
@@ -22,7 +40,7 @@ void mos_cmd_run_fn(const char *cmd_start, ...) {
     char *cmd = build_cmd(cmd_start, args);
     va_end(args);
 
-    // run command
+    system(cmd);
 
     mos_arr_free(cmd);
 }
@@ -34,19 +52,85 @@ char *mos_cmd_run_out_fn(const char *cmd_start, ...) {
     va_end(args);
 
     char *out = NULL;
-    // run command and capture its output
+    FILE *stream = mos_safe_popen(cmd, "r");
+    char buf[512];
+    size_t bytes;
+    while ((bytes = fread(buf, sizeof(char), sizeof(buf), stream)))
+        mos_arr_append_n(out, buf, bytes);
 
+    for (size_t i = 0; i < mos_arr_len(out); i++) {
+        if (out[i] == '\n')
+            out[i] = ' ';
+    }
+    mos_arr_append(out, '\0');
+
+    mos_pclose(stream);
     mos_arr_free(cmd);
     return out;
 }
 
-void mos_build_target_fn(int argc, char *argv[], ...) {
-    (void)argc;
-    (void)argv;
+void mos_build_target_fn(int argc, char *argv[], const char *names, ...) {
+    va_list targets;
+    va_start(targets, names);
+    target_t target = va_arg(targets, target_t);
+    if (argc < 2) {
+        va_end(targets);
+        target();
+        return;
+    }
+
+    do {
+        const char *coma = strchr(names, ',');
+        size_t len = coma ? coma - names : strlen(names);
+        if (strncmp(argv[1], names, len) == 0) {
+            va_end(targets);
+            target();
+            return;
+        }
+        names = coma + 2;
+    } while ((target = va_arg(targets, target_t)));
+
+    va_end(targets);
+    fprintf(stderr, "target %s not found", argv[1]);
+}
+
+static int rebuild_needed(const char *src, const char *bin) {
+    mos_struct_stat s, b;
+    if (mos_stat(src, &s) || mos_stat(bin, &b)) {
+        printf("Couldn't determine if rebuild is needed");
+        return 0;
+    }
+    if (s.st_mtime > b.st_mtime)
+        return 1;
+    return 0;
 }
 
 void mos_build_rebuild_fn(int argc, char *argv[], const char *file, ...) {
-    (void)argc;
-    (void)argv;
-    (void)file;
+    if (!rebuild_needed(file, argv[0]))
+        return;
+
+    va_list args;
+    va_start(args, file);
+    char *cmd = NULL;
+    const char *arg = NULL;
+    while ((arg = va_arg(args, char *))) {
+        mos_arr_append_n(cmd, arg, strlen(arg));
+        mos_arr_append(cmd, ' ');
+    }
+    va_end(args);
+
+    mos_arr_append_n(cmd, file, strlen(file));
+    mos_arr_append_n(cmd, " -o ", 4);
+    mos_arr_append_n(cmd, argv[0], strlen(argv[0]));
+    system(cmd);
+    mos_arr_free(cmd);
+    printf("Rebuilt.\n");
+
+    char *new_build = NULL;
+    for (int i = 0; i < argc; i++) {
+        mos_arr_append_n(new_build, argv[i], strlen(argv[i]));
+        mos_arr_append(new_build, ' ');
+    }
+    system(new_build);
+    exit(0);
 }

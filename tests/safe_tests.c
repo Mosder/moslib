@@ -107,6 +107,11 @@ TEST(test_safe_dup2) {
     unsuppress_outputs();
 }
 
+TEST(test_safe_popen) {
+    FILE *stream = safe_popen("hostname", "r");
+    test_assert(stream != NULL, "Failed to popen hostname");
+}
+
 #ifndef _WIN32
 TEST(test_safe_fork) {
     pid_t pid = safe_fork();
@@ -133,6 +138,7 @@ void safe_tests(Tester *tester) {
     add_test(group, test_safe_tmpfile);
     add_test(group, test_safe_dup);
     add_test(group, test_safe_dup2);
+    add_test(group, test_safe_popen);
 
 #ifndef _WIN32
     add_test(group, test_safe_fork);

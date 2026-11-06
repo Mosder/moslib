@@ -102,7 +102,7 @@
 // Arguments:
 //   ...
 //     targets which can be targetted
-#define mos_build_target(...) mos_build_target_fn(argc, argv, __VA_ARGS__, NULL)
+#define mos_build_target(...) mos_build_target_fn(argc, argv, #__VA_ARGS__, __VA_ARGS__, NULL)
 
 // Allow automatic recompiling of the build binary
 //
@@ -115,7 +115,7 @@
 // Function prototypes for macros
 extern void mos_cmd_run_fn(const char *cmd_start, ...);
 extern char *mos_cmd_run_out_fn(const char *cmd_start, ...);
-extern void mos_build_target_fn(int argc, char *argv[], ...);
+extern void mos_build_target_fn(int argc, char *argv[], const char *names, ...);
 extern void mos_build_rebuild_fn(int argc, char *argv[], const char *file, ...);
 
 #endif // MOSLIB_BUILD_H

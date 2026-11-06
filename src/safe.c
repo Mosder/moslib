@@ -95,6 +95,18 @@ int mos_safe_dup2_fn(int fd, int fd2, MosSafeErrInfo info) {
     exit(EXIT_FAILURE);
 }
 
+FILE *mos_safe_popen_fn(const char *cmd, const char *mode, MosSafeErrInfo info) {
+#ifndef _WIN32
+    FILE *p = popen(cmd, mode);
+#else
+    FILE *p = _popen(cmd, mode);
+#endif // _WIN32
+    if (p)
+        return p;
+    ERR_MESS("failed to popen %s with %s mode", cmd, mode);
+    exit(EXIT_FAILURE);
+}
+
 #ifndef _WIN32
 pid_t mos_safe_fork_fn(MosSafeErrInfo info) {
     pid_t pid = fork();
