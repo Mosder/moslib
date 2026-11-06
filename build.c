@@ -20,12 +20,11 @@
 #define LIB_DIR TARGET_PREFIX "/lib"
 #define INC_DIR TARGET_PREFIX "/include"
 
-#define CFLAGS "-std=c99 -Wall -Wextra -Wpedantic -c -I./compat"
-#define SRC_CFLAGS "-fPIC -I./include -O2"
-#define TESTS_CFLAGS "-I" INC_DIR " -Og -ggdb"
-#define TESTS_LDFLAGS "-L" LIB_DIR " -Wl,-rpath," LIB_DIR " -lmoslib"
+#define CFLAGS "-std=c99 -Wall -Wextra -Wpedantic -c -I./compat -I./include"
+#define SRC_CFLAGS "-fPIC -O2"
+#define TESTS_CFLAGS "-Og -ggdb"
 
-static char *src_srcs = NULL;
+static char *srcs = NULL;
 static char *tests_srcs = NULL;
 static char *lib_sudo = NULL;
 static char *inc_sudo = NULL;
@@ -48,7 +47,7 @@ static void probe_fun(char *header, char *fun) {
 }
 
 static void compile(void) {
-    cmd_run(CC, CFLAGS, SRC_CFLAGS, probed, src_srcs);
+    cmd_run(CC, CFLAGS, SRC_CFLAGS, probed, srcs);
 }
 
 static void headers(void) {
@@ -97,8 +96,8 @@ TARGET(a) {
 
 TARGET(test) {
     clean();
-    cmd_run(CC, CFLAGS, TESTS_CFLAGS, probed, tests_srcs);
-    cmd_run(CC, TESTS_LDFLAGS, "*.o -o run_tests");
+    cmd_run(CC, CFLAGS, TESTS_CFLAGS, probed, srcs, tests_srcs);
+    cmd_run(CC, "*.o -o run_tests");
     cmd_run("./run_tests");
     clean();
 }
@@ -106,8 +105,8 @@ TARGET(test) {
 int main(int argc, char *argv[]) {
     build_rebuild(CC);
 
-    src_srcs = cmd_run_out("find src compat | grep \\\\.c$");
-    tests_srcs = cmd_run_out("find src compat | grep \\\\.c$");
+    srcs = cmd_run_out("find src compat | grep \\\\.c$");
+    tests_srcs = cmd_run_out("find tests | grep \\\\.c$");
     lib_sudo = cmd_run_out("test -w", LIB_DIR, "|| echo sudo");
     inc_sudo = cmd_run_out("test -w", INC_DIR, "|| echo sudo");
 

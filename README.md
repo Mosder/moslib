@@ -10,8 +10,8 @@ Defnitely not the best implementations ever made, but they're mine, so idc.
 - dynamic array implementation
 - length aware string slices
 - hashmap implementation
+- simple build system in C
 
 ## Planned:
-- simple build system in C
 - heap implementation
 - memory arena implementation
