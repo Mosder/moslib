@@ -126,8 +126,9 @@ void mos_test_assert(int expression, const char *fail_message) {
 
 void mos_test_assert_exit_fn(MosTestFn function, int code, const char *name) {
 #ifdef _WIN32
-    fprintf(stderr, "test_assert_exit is not supported on windows\n");
-    exit(1);
+    failed = 1;
+    print_color(RED, "ASSERT SKIPPED: ");
+    printf("test_assert_exit is not supported on windows\n");
 #else
     fflush(NULL);
     int fd[2];

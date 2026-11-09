@@ -117,7 +117,7 @@ TEST(test_safe_fork) {
     pid_t pid = safe_fork();
     test_assert(pid != -1, "Failed to create a child process");
     if (pid == 0)
-        exit(EXIT_SUCCESS);
+        _exit(EXIT_SUCCESS);
 }
 
 TEST(test_safe_pipe) {
