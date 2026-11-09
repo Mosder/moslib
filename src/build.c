@@ -25,22 +25,23 @@
 
 typedef void (*target_t)(void);
 
-static char *build_cmd(const char *cmd_start, va_list cmd_rest) {
+static char *build_cmd(int quiet, va_list parts) {
     char *cmd = NULL;
-    const char *arg = cmd_start;
-    do {
+    const char *arg = NULL;
+    while ((arg = va_arg(parts, char *))) {
         mos_arr_append_n(cmd, arg, strlen(arg));
         mos_arr_append(cmd, ' ');
-    } while ((arg = va_arg(cmd_rest, char *)));
-    mos_arr_append(cmd, '\0');
-    printf("%s\n", cmd);
+    }
+    cmd[mos_arr_len(cmd) - 1] = '\0';
+    if (!quiet)
+        printf("%s\n", cmd);
     return cmd;
 }
 
-void mos_cmd_run_fn(const char *cmd_start, ...) {
+void mos_cmd_run_fn(int quiet, ...) {
     va_list args;
-    va_start(args, cmd_start);
-    char *cmd = build_cmd(cmd_start, args);
+    va_start(args, quiet);
+    char *cmd = build_cmd(quiet, args);
     va_end(args);
 
     system(cmd);
@@ -48,10 +49,10 @@ void mos_cmd_run_fn(const char *cmd_start, ...) {
     mos_arr_free(cmd);
 }
 
-char *mos_cmd_run_out_fn(const char *cmd_start, ...) {
+char *mos_cmd_run_out_fn(int quiet, ...) {
     va_list args;
-    va_start(args, cmd_start);
-    char *cmd = build_cmd(cmd_start, args);
+    va_start(args, quiet);
+    char *cmd = build_cmd(quiet, args);
     va_end(args);
 
     char *out = NULL;
@@ -114,13 +115,9 @@ void mos_build_rebuild_fn(int argc, char *argv[], const char *file, ...) {
 
     va_list args;
     va_start(args, file);
-    char *cmd = NULL;
-    const char *arg = NULL;
-    while ((arg = va_arg(args, char *))) {
-        mos_arr_append_n(cmd, arg, strlen(arg));
-        mos_arr_append(cmd, ' ');
-    }
+    char *cmd = build_cmd(1, args);
     va_end(args);
+    cmd[mos_arr_len(cmd) - 1] = ' ';
 
     mos_arr_append_n(cmd, file, strlen(file));
     mos_arr_append_n(cmd, " -o ", 4);

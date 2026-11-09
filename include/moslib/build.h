@@ -7,12 +7,14 @@
 // Run commands using cmd_run:
 //
 //      cmd_run("rm *.o");
-//      cmd_run(CC, CFLAGS, SRCS, "-o main");
+//      cmd_run_q(CC, CFLAGS, SRCS, "-o main");
 //
 // You can run command and capture its output using cmd_run_out:
 //
-//      char *srcs = cmd_run_out("find src | grep \\.c$");
-//      char *sudo = cmd_run_out("test -w", TARGET_DIR, "|| echo sudo");
+//      char *srcs = cmd_run_out("find src | grep \\\\.c$");
+//      char *sudo = cmd_run_out_q("test -w", TARGET_DIR, "|| echo sudo");
+//
+// The versions suffixed with _q will not print the command during build time.
 //
 // -------------------------------------------------------------------------------------------------
 //
@@ -71,7 +73,9 @@
 
 #define TARGET MOS_TARGET
 #define cmd_run mos_cmd_run
+#define cmd_run_q mos_cmd_run_q
 #define cmd_run_out mos_cmd_run_out
+#define cmd_run_out_q mos_cmd_run_out_q
 #define build_target mos_build_target
 #define build_rebuild mos_build_rebuild
 
@@ -85,7 +89,15 @@
 //   ...
 //     strings representing the command to be run
 //     every argument is automatically space separated
-#define mos_cmd_run(...) mos_cmd_run_fn(__VA_ARGS__, (char *)NULL)
+#define mos_cmd_run(...) mos_cmd_run_fn(0, __VA_ARGS__, (char *)NULL)
+
+// Run a command without printing it during build
+//
+// Arguments:
+//   ...
+//     strings representing the command to be run
+//     every argument is automatically space separated
+#define mos_cmd_run_q(...) mos_cmd_run_fn(1, __VA_ARGS__, (char *)NULL)
 
 // Run a command and capture its output
 //
@@ -96,7 +108,18 @@
 //
 // Returns:
 //   output of the command
-#define mos_cmd_run_out(...) mos_cmd_run_out_fn(__VA_ARGS__, (char *)NULL)
+#define mos_cmd_run_out(...) mos_cmd_run_out_fn(0, __VA_ARGS__, (char *)NULL)
+
+// Run a command without printing it during build and capture its output
+//
+// Arguments:
+//   ...
+//     strings representing the command to be run
+//     every argument is automatically space separated
+//
+// Returns:
+//   output of the command
+#define mos_cmd_run_out_q(...) mos_cmd_run_out_fn(1, __VA_ARGS__, (char *)NULL)
 
 // Target the given targets
 // When no argument is given - targets the first target
@@ -116,8 +139,8 @@
 #define mos_build_rebuild(...) mos_build_rebuild_fn(argc, argv, __FILE__, __VA_ARGS__, (char *)NULL)
 
 // Function prototypes for macros
-extern void mos_cmd_run_fn(const char *cmd_start, ...);
-extern char *mos_cmd_run_out_fn(const char *cmd_start, ...);
+extern void mos_cmd_run_fn(int quiet, ...);
+extern char *mos_cmd_run_out_fn(int quiet, ...);
 extern void mos_build_target_fn(int argc, char *argv[], const char *names, ...);
 extern void mos_build_rebuild_fn(int argc, char *argv[], const char *file, ...);
 

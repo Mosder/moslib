@@ -43,7 +43,7 @@ static char *inc_sudo = NULL;
 static char *probed = NULL;
 
 static void probe_fun(char *header, char *fun) {
-    char *p = cmd_run_out(
+    char *p = cmd_run_out_q(
         "printf '#include \"compat.h\"\\n#include",
         header,
         "\\nint main(void) {",
@@ -77,8 +77,8 @@ static void st(void) {
 }
 
 TARGET(clean) {
-    cmd_run("rm *.o run_tests 2>/dev/null");
-    cmd_run("rm -rf *.dSYM 2>/dev/null");
+    cmd_run_q("rm *.o run_tests 2>/dev/null");
+    cmd_run_q("rm -rf *.dSYM 2>/dev/null");
 }
 
 TARGET(both) {
@@ -112,15 +112,28 @@ TARGET(test) {
     cmd_run(CC, "*.o -o run_tests");
     cmd_run("./run_tests");
     clean();
+
+    // Test that it works on Linux + glibc
+    cmd_run_q(
+        "docker run --rm -v .:/src:ro archlinux:base-devel sh -c \"",
+        "cp -r /src /moslib && cd /moslib",
+        "&& cc",
+        CFLAGS,
+        TESTS_CFLAGS,
+        srcs,
+        tests_srcs,
+        "&& cc *.o -o run_tests && ./run_tests > /dev/null",
+        "|| echo -e '\\n--- FAILED ON GLIBC LINUX ---'\""
+    );
 }
 
 int main(int argc, char *argv[]) {
     build_rebuild(CC, "-Icompat", "-Iinclude");
 
-    srcs = cmd_run_out("find src compat | grep \\\\.c$");
-    tests_srcs = cmd_run_out("find tests | grep \\\\.c$");
-    lib_sudo = cmd_run_out("test -w", LIB_DIR, "|| echo sudo");
-    inc_sudo = cmd_run_out("test -w", INC_DIR, "|| echo sudo");
+    srcs = cmd_run_out_q("find src compat | grep \\\\.c$");
+    tests_srcs = cmd_run_out_q("find tests | grep \\\\.c$");
+    lib_sudo = cmd_run_out_q("test -w", LIB_DIR, "|| echo sudo");
+    inc_sudo = cmd_run_out_q("test -w", INC_DIR, "|| echo sudo");
 
     probe_fun("<string.h>", "memmem");
     probe_fun("<string.h>", "strdup");

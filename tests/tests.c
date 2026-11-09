@@ -13,7 +13,5 @@ int main(void) {
     string_tests(tester);
     ds_hashmap_tests(tester);
 
-    run_tests(tester);
-    free_tester(tester);
-    return 0;
+    return !run_tests(tester);
 }
