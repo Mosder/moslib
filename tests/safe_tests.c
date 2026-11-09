@@ -108,7 +108,7 @@ TEST(test_safe_dup2) {
 }
 
 TEST(test_safe_popen) {
-    FILE *stream = safe_popen("hostname", "r");
+    FILE *stream = safe_popen("ls", "r");
     test_assert(stream != NULL, "Failed to popen hostname");
 }
 
