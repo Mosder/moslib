@@ -115,7 +115,7 @@ TARGET(test) {
 
     // Test that it works on Linux + glibc
     cmd_run_q(
-        "docker run --rm -v .:/src:ro archlinux:base-devel sh -c \"",
+        "docker run --rm -v .:/src:ro gcc:latest sh -c \"",
         "cp -r /src /moslib && cd /moslib",
         "&& cc",
         CFLAGS,
