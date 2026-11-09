@@ -1,3 +1,5 @@
+#include "compat.h"
+
 #define MOS_FORCE_PREFIXES
 #include "moslib/build.h"
 
@@ -10,6 +12,7 @@
 
 #include "moslib/ds/array.h"
 #include "moslib/safe.h"
+#include "moslib/string.h"
 
 #ifndef _WIN32
 #define mos_pclose pclose
@@ -70,16 +73,6 @@ char *mos_cmd_run_out_fn(const char *cmd_start, ...) {
     return out;
 }
 
-static int is_target(const char *target, const char *name, const char *next_coma) {
-    while (isspace((unsigned char)*name))
-        name++;
-    const char *end = next_coma ? next_coma : name + strlen(name);
-    size_t len = end - name;
-    while (isspace((unsigned char)*--end))
-        len--;
-    return strncmp(target, name, len) == 0;
-}
-
 void mos_build_target_fn(int argc, char *argv[], const char *names, ...) {
     va_list targets;
     va_start(targets, names);
@@ -90,15 +83,15 @@ void mos_build_target_fn(int argc, char *argv[], const char *names, ...) {
         return;
     }
 
+    MosStringSlice t = mos_ss_from_str(argv[1]);
+    MosStringSlice ns = mos_ss_from_str(names);
     do {
-        const char *coma = strchr(names, ',');
-        if (is_target(argv[1], names, coma)) {
+        MosStringSlice n = mos_ss_trim(mos_ss_split(&ns, ','));
+        if (mos_ss_eq(n, t)) {
             va_end(targets);
             target();
             return;
         }
-        if (coma)
-            names = coma + 1;
     } while ((target = va_arg(targets, target_t)));
 
     va_end(targets);
@@ -133,6 +126,7 @@ void mos_build_rebuild_fn(int argc, char *argv[], const char *file, ...) {
     mos_arr_append_n(cmd, file, strlen(file));
     mos_arr_append_n(cmd, " -o ", 4);
     mos_arr_append_n(cmd, argv[0], strlen(argv[0]));
+    mos_arr_append(cmd, '\0');
     system(cmd);
     mos_arr_free(cmd);
     printf("Rebuilt.\n\n");

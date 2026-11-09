@@ -1,3 +1,5 @@
+#include "compat.h"
+
 #define MOS_FORCE_PREFIXES
 #include "moslib/safe.h"
 

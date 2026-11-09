@@ -6,6 +6,7 @@
 #include "src/build.c"
 #include "src/ds/array.c"
 #include "src/safe.c"
+#include "src/string.c"
 
 #ifndef CC
 #define CC "cc"
@@ -103,7 +104,7 @@ TARGET(test) {
 }
 
 int main(int argc, char *argv[]) {
-    build_rebuild(CC);
+    build_rebuild(CC, "-Icompat", "-Iinclude");
 
     srcs = cmd_run_out("find src compat | grep \\\\.c$");
     tests_srcs = cmd_run_out("find tests | grep \\\\.c$");
