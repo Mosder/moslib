@@ -25,6 +25,17 @@
 #define SRC_CFLAGS "-fPIC -O2"
 #define TESTS_CFLAGS "-Og -ggdb"
 
+#if defined(__APPLE__)
+#define SHLIB_FILE LIB_DIR "/libmoslib.dylib"
+#define SHLIB_FLAGS "-dynamiclib"
+#elif defined(_WIN32)
+#define SHLIB_FILE TARGET_PREFIX "/bin/moslib.dll"
+#define SHLIB_FLAGS "-shared -Wl,--out-implib," LIB_DIR "/libmoslib.dll.a"
+#else
+#define SHLIB_FILE LIB_DIR "/libmoslib.so"
+#define SHLIB_FLAGS "-shared"
+#endif
+
 static char *srcs = NULL;
 static char *tests_srcs = NULL;
 static char *lib_sudo = NULL;
@@ -56,8 +67,8 @@ static void headers(void) {
 }
 
 static void sh(void) {
-    cmd_run(lib_sudo, CC, "-shared *.o -o", LIB_DIR "/libmoslib.so");
-    cmd_run(lib_sudo, "strip -x", LIB_DIR "/libmoslib.so");
+    cmd_run(lib_sudo, CC, SHLIB_FLAGS, "*.o -o", SHLIB_FILE);
+    cmd_run(lib_sudo, "strip -x", SHLIB_FILE);
 }
 
 static void st(void) {

@@ -3,7 +3,6 @@
 #define MOS_FORCE_PREFIXES
 #include "moslib/build.h"
 
-#include <ctype.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
