@@ -124,6 +124,7 @@ int main(int argc, char *argv[]) {
 
     probe_fun("<string.h>", "memmem");
     probe_fun("<string.h>", "strdup");
+    arr_append(probed, '\0');
 
     build_target(both, so, a, test, clean);
 }
