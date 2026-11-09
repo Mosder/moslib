@@ -123,7 +123,7 @@ TARGET(test) {
         srcs,
         tests_srcs,
         "&& cc *.o -o run_tests && ./run_tests > /dev/null",
-        "|| echo -e '\\n--- FAILED ON GLIBC LINUX ---'\""
+        "|| echo '\\n--- FAILED ON GLIBC LINUX ---'\""
     );
 }
 
