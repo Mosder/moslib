@@ -1,6 +1,6 @@
 #include ".build.h"
 
-#include "include/moslib.h"
+#include <moslib.h>
 
 // Include implementation files, so building this library doesn't depend on it being already built
 #include "src/build.c"
@@ -21,7 +21,7 @@
 #define LIB_DIR TARGET_PREFIX "/lib"
 #define INC_DIR TARGET_PREFIX "/include"
 
-#define CFLAGS "-std=c99 -Wall -Wextra -Wpedantic -c -I./compat -I./include"
+#define CFLAGS "-std=c99 -Wall -Wextra -Wpedantic -c -Icompat -Iinclude"
 #define SRC_CFLAGS "-fPIC -O2"
 #define TESTS_CFLAGS "-Og -ggdb"
 
