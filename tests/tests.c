@@ -2,6 +2,7 @@
 
 #include "ds/array_tests.h"
 #include "ds/hashmap_tests.h"
+#include "ds/heap_tests.h"
 #include "safe_tests.h"
 #include "string_tests.h"
 
@@ -12,6 +13,7 @@ int main(void) {
     ds_array_tests(tester);
     string_tests(tester);
     ds_hashmap_tests(tester);
+    ds_heap_tests(tester);
 
     return !run_tests(tester);
 }

@@ -116,7 +116,7 @@
 //
 // To get the count of entries in the hashmap, use:
 //
-//      hm_size(hm);
+//      size_t size = hm_size(hm);
 //
 // -------------------------------------------------------------------------------------------------
 //

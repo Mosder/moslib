@@ -11,9 +11,9 @@ Defnitely not the best implementations ever made, but they're mine, so idc.
 - length aware string slices
 - hashmap implementation
 - simple build system in C
+- heap implementation
 
 ### Planned:
-- heap implementation
 - memory arena implementation
 
 # Build
