@@ -40,13 +40,13 @@ static int dead(const void *hm, size_t i) {
     return hm2hdr(hm)->filled_dead_map[i / 8] & (1u << i % 8);
 }
 
-static void kill(void *hm, size_t i) {
+static void murder(void *hm, size_t i) {
     Header *hdr = hm2hdr(hm);
     hdr->n_dead++;
     hdr->filled_dead_map[i / 8] |= (1u << i % 8);
 }
 
-static void unkill(void *hm, size_t i) {
+static void revive(void *hm, size_t i) {
     Header *hdr = hm2hdr(hm);
     hdr->n_dead--;
     hdr->filled_dead_map[i / 8] &= ~(1u << i % 8);
@@ -222,7 +222,7 @@ void mos_hm_put_fn(void *p_hm, void *key, size_t entry_size, size_t key_size, ui
     if (!filled(hm, i))
         fill(hm, i);
     if (dead(hm, i))
-        unkill(hm, i);
+        revive(hm, i);
 
     if (hdr->n_filled * 100 >= hdr->cap * load_factor)
         rehash(p_hm, entry_size, key_size, key_off, load_factor);
@@ -256,7 +256,7 @@ int mos_hm_del_fn(
     size_t i = probe(hm, key, entry_size, key_size, key_off, 0);
     if (!filled(hm, i) || dead(hm, i))
         return 0;
-    kill(hm, i);
+    murder(hm, i);
 
     if (reh && hdr->cap > INIT_CAP && mos_hm_size(hm) * 400 <= hdr->cap * load_factor)
         rehash(p_hm, entry_size, key_size, key_off, load_factor);
